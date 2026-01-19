@@ -9,22 +9,22 @@
       content="Portfolio of Dav Stepanyan, game developer working on Idle Outpost, previously on Sandship, GGJ participant."
     />
     <style>
-      @import url("https://fonts.googleapis.com/css2?family=Bungee&family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap");
+      @import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Mono:wght@400;700&family=VT323&display=swap");
 
       :root {
-        --bg: #0b0f1a;
-        --bg-2: #0f1526;
-        --panel: #121a2b;
-        --panel-soft: #141f35;
-        --ink: #f4f6ff;
-        --muted: #a2acc5;
-        --accent: #ff7a18;
-        --accent-2: #24d1c7;
-        --accent-3: #ffd166;
-        --accent-4: #ff5f8a;
-        --ring: rgba(255, 255, 255, 0.12);
-        --shadow: 0 20px 50px rgba(3, 6, 15, 0.6);
-        --glow: 0 0 24px rgba(36, 209, 199, 0.25);
+        --bg: #08060f;
+        --bg-2: #0d0b18;
+        --panel: #101526;
+        --panel-soft: #151c33;
+        --ink: #f8f6ff;
+        --muted: #b2b6d3;
+        --accent: #00f5d4;
+        --accent-2: #ff4ecd;
+        --accent-3: #f9c74f;
+        --accent-4: #7bff6a;
+        --ring: rgba(255, 255, 255, 0.18);
+        --shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
+        --glow: 0 0 18px rgba(0, 245, 212, 0.45);
       }
 
       * {
@@ -33,24 +33,25 @@
 
       body {
         margin: 0;
-        font-family: "Chakra Petch", "Segoe UI", sans-serif;
+        font-family: "VT323", monospace;
+        font-size: 18px;
         color: var(--ink);
         background: radial-gradient(
-            1200px 600px at 10% 0%,
-            rgba(36, 209, 199, 0.2),
-            transparent 65%
-          ),
-          radial-gradient(
-            900px 600px at 90% 10%,
-            rgba(255, 122, 24, 0.22),
+            1000px 520px at 15% 0%,
+            rgba(255, 78, 205, 0.18),
             transparent 60%
           ),
           radial-gradient(
-            700px 500px at 40% 100%,
-            rgba(255, 209, 102, 0.18),
-            transparent 65%
+            900px 520px at 85% 10%,
+            rgba(0, 245, 212, 0.18),
+            transparent 55%
           ),
-          linear-gradient(180deg, #090d17 0%, #0b1020 55%, #080c16 100%);
+          radial-gradient(
+            800px 520px at 50% 95%,
+            rgba(249, 199, 79, 0.18),
+            transparent 60%
+          ),
+          linear-gradient(180deg, #05040c 0%, #090a18 60%, #070b14 100%);
         min-height: 100vh;
         position: relative;
       }
@@ -66,40 +67,34 @@
 
       body::before {
         background: repeating-linear-gradient(
-            0deg,
-            rgba(255, 255, 255, 0.05) 0,
-            rgba(255, 255, 255, 0.05) 1px,
-            transparent 1px,
-            transparent 48px
-          ),
-          repeating-linear-gradient(
-            90deg,
-            rgba(255, 255, 255, 0.04) 0,
-            rgba(255, 255, 255, 0.04) 1px,
-            transparent 1px,
-            transparent 48px
-          );
-        opacity: 0.18;
+          0deg,
+          rgba(255, 255, 255, 0.08) 0,
+          rgba(255, 255, 255, 0.08) 1px,
+          transparent 1px,
+          transparent 4px
+        );
+        opacity: 0.12;
         mix-blend-mode: screen;
       }
 
       body::after {
         background: radial-gradient(
-            circle at 15% 20%,
-            rgba(255, 255, 255, 0.06),
+            circle at 18% 22%,
+            rgba(255, 255, 255, 0.08),
             transparent 20%
           ),
           radial-gradient(
-            circle at 85% 32%,
-            rgba(255, 255, 255, 0.05),
-            transparent 22%
+            circle at 78% 28%,
+            rgba(255, 255, 255, 0.06),
+            transparent 18%
           ),
           radial-gradient(
-            circle at 40% 78%,
-            rgba(255, 255, 255, 0.05),
-            transparent 18%
+            circle at 45% 72%,
+            rgba(255, 255, 255, 0.06),
+            transparent 20%
           );
-        opacity: 0.4;
+        opacity: 0.35;
+        animation: flicker 6s infinite;
       }
 
       a {
@@ -121,13 +116,12 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 14px 22px;
+        padding: 16px 20px;
         margin-top: 18px;
-        border-radius: 999px;
-        background: rgba(11, 15, 26, 0.75);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: var(--shadow);
-        backdrop-filter: blur(10px);
+        border-radius: 8px;
+        background: rgba(7, 9, 20, 0.88);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.5) inset, var(--shadow);
         position: relative;
         overflow: hidden;
       }
@@ -138,11 +132,11 @@
         inset: 0;
         background: linear-gradient(
           90deg,
-          rgba(36, 209, 199, 0.15),
+          rgba(0, 245, 212, 0.1),
           transparent,
-          rgba(255, 122, 24, 0.12)
+          rgba(255, 78, 205, 0.12)
         );
-        opacity: 0.5;
+        opacity: 0.6;
         pointer-events: none;
       }
 
@@ -150,43 +144,39 @@
         display: flex;
         gap: 12px;
         align-items: center;
-        font-family: "Bungee", "Chakra Petch", sans-serif;
+        font-family: "Press Start 2P", sans-serif;
         letter-spacing: 1px;
         text-transform: uppercase;
+        font-size: 0.85rem;
+        text-shadow: 0 0 12px rgba(255, 78, 205, 0.35);
       }
 
       .brand-mark {
-        width: 42px;
-        height: 42px;
-        border-radius: 12px;
-        background: conic-gradient(
-          from 180deg,
-          var(--accent),
-          var(--accent-2),
-          var(--accent-3),
-          var(--accent)
-        );
-        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.14),
-          0 0 20px rgba(255, 122, 24, 0.35);
+        width: 40px;
+        height: 40px;
+        border-radius: 6px;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2),
+          0 0 14px rgba(0, 245, 212, 0.5);
         position: relative;
-        animation: float 6s ease-in-out infinite;
+        animation: float 5s ease-in-out infinite;
       }
 
       .brand-mark::after {
         content: "";
         position: absolute;
-        inset: 7px;
-        border-radius: 10px;
-        background: rgba(11, 15, 26, 0.8);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        inset: 6px;
+        border-radius: 4px;
+        background: rgba(7, 9, 20, 0.9);
+        border: 2px solid rgba(255, 255, 255, 0.25);
       }
 
       .nav-links {
         display: flex;
         gap: 12px;
-        font-size: 0.9rem;
+        font-size: 0.55rem;
         color: var(--muted);
-        font-family: "JetBrains Mono", monospace;
+        font-family: "Press Start 2P", sans-serif;
         text-transform: uppercase;
         letter-spacing: 0.5px;
         position: relative;
@@ -194,15 +184,15 @@
       }
 
       .nav-links a {
-        padding: 8px 12px;
-        border-radius: 999px;
-        border: 1px solid transparent;
+        padding: 10px 12px;
+        border-radius: 6px;
+        border: 2px solid transparent;
         background: rgba(255, 255, 255, 0.03);
         transition: border 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
       }
 
       .nav-links a:hover {
-        border-color: rgba(36, 209, 199, 0.6);
+        border-color: rgba(0, 245, 212, 0.7);
         color: var(--ink);
         box-shadow: var(--glow);
       }
@@ -222,33 +212,35 @@
 
       .kicker {
         text-transform: uppercase;
-        letter-spacing: 2px;
-        font-size: 0.8rem;
-        color: var(--accent-2);
-        font-family: "JetBrains Mono", monospace;
+        letter-spacing: 1px;
+        font-size: 0.6rem;
+        color: var(--accent-4);
+        font-family: "Press Start 2P", sans-serif;
         font-weight: 600;
       }
 
       h1 {
-        font-family: "Bungee", "Chakra Petch", sans-serif;
-        font-size: clamp(2.6rem, 4vw, 4.1rem);
-        line-height: 1.05;
-        margin: 12px 0 16px;
-        text-shadow: 0 0 26px rgba(36, 209, 199, 0.18);
+        font-family: "Press Start 2P", sans-serif;
+        font-size: clamp(2rem, 3vw, 3rem);
+        line-height: 1.3;
+        margin: 16px 0 18px;
+        text-shadow: 0 0 18px rgba(0, 245, 212, 0.3);
       }
 
       h2 {
-        font-family: "Bungee", "Chakra Petch", sans-serif;
-        font-size: clamp(1.8rem, 3vw, 2.4rem);
+        font-family: "Press Start 2P", sans-serif;
+        font-size: clamp(1.4rem, 2.6vw, 2rem);
+        line-height: 1.4;
       }
 
       h3 {
-        font-family: "Chakra Petch", sans-serif;
-        letter-spacing: 0.3px;
+        font-family: "Space Mono", monospace;
+        letter-spacing: 1px;
+        text-transform: uppercase;
       }
 
       .lead {
-        font-size: 1.05rem;
+        font-size: 1.1rem;
         color: var(--muted);
         max-width: 520px;
         line-height: 1.7;
@@ -262,31 +254,41 @@
       }
 
       .btn {
-        padding: 12px 22px;
-        border-radius: 14px;
+        padding: 12px 18px;
+        border-radius: 6px;
         font-weight: 600;
-        border: 1px solid transparent;
+        border: 2px solid transparent;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
         display: inline-flex;
         align-items: center;
         justify-content: center;
+        font-family: "Press Start 2P", sans-serif;
+        font-size: 0.6rem;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        box-shadow: 0 6px 0 rgba(0, 0, 0, 0.5);
       }
 
       .btn.primary {
-        background: linear-gradient(135deg, var(--accent), #ffb454);
-        color: #10131f;
-        box-shadow: 0 12px 26px rgba(255, 122, 24, 0.35),
-          0 0 20px rgba(255, 209, 102, 0.25);
+        background: linear-gradient(135deg, var(--accent-3), #f6a94d);
+        color: #0a0d16;
+        border-color: #f6c44d;
+        box-shadow: 0 6px 0 rgba(0, 0, 0, 0.45), 0 0 18px rgba(249, 199, 79, 0.3);
       }
 
       .btn.ghost {
-        border-color: var(--ring);
-        background: rgba(11, 15, 26, 0.6);
+        border-color: rgba(255, 255, 255, 0.25);
+        background: rgba(7, 9, 20, 0.6);
         color: var(--ink);
       }
 
       .btn:hover {
-        transform: translateY(-2px) scale(1.01);
+        transform: translateY(-2px);
+      }
+
+      .btn:active {
+        transform: translateY(2px);
+        box-shadow: 0 2px 0 rgba(0, 0, 0, 0.5);
       }
 
       .pill-group {
@@ -297,20 +299,20 @@
 
       .pill {
         background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.2);
         color: var(--muted);
         padding: 6px 12px;
-        border-radius: 999px;
+        border-radius: 6px;
         font-size: 0.8rem;
-        font-family: "JetBrains Mono", monospace;
+        font-family: "Space Mono", monospace;
       }
 
       .panel {
-        background: linear-gradient(160deg, rgba(20, 27, 45, 0.95), rgba(16, 22, 36, 0.95));
+        background: linear-gradient(160deg, rgba(21, 28, 51, 0.96), rgba(13, 18, 34, 0.96));
         padding: 26px;
-        border-radius: 22px;
+        border-radius: 10px;
         box-shadow: var(--shadow);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        border: 2px solid rgba(255, 255, 255, 0.16);
       }
 
       .status-card {
@@ -326,11 +328,11 @@
       }
 
       .status-title {
-        font-family: "JetBrains Mono", monospace;
+        font-family: "Press Start 2P", sans-serif;
         text-transform: uppercase;
-        letter-spacing: 2px;
-        font-size: 0.7rem;
-        color: var(--accent-2);
+        letter-spacing: 1px;
+        font-size: 0.55rem;
+        color: var(--accent-4);
       }
 
       .status-level {
@@ -339,15 +341,15 @@
       }
 
       .badge {
-        background: rgba(255, 122, 24, 0.2);
-        color: #ffd7b8;
-        padding: 6px 12px;
-        border-radius: 999px;
-        border: 1px solid rgba(255, 122, 24, 0.4);
-        font-size: 0.75rem;
-        font-family: "JetBrains Mono", monospace;
+        background: rgba(255, 78, 205, 0.2);
+        color: #ffd6f0;
+        padding: 6px 10px;
+        border-radius: 6px;
+        border: 2px solid rgba(255, 78, 205, 0.5);
+        font-size: 0.55rem;
+        font-family: "Press Start 2P", sans-serif;
         text-transform: uppercase;
-        letter-spacing: 0.8px;
+        letter-spacing: 0.6px;
         white-space: nowrap;
       }
 
@@ -359,16 +361,16 @@
       .xp-label {
         display: flex;
         justify-content: space-between;
-        font-family: "JetBrains Mono", monospace;
+        font-family: "Space Mono", monospace;
         font-size: 0.75rem;
         color: var(--muted);
       }
 
       .xp-bar {
-        height: 10px;
-        border-radius: 999px;
-        background: rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.12);
+        height: 12px;
+        border-radius: 6px;
+        background: rgba(7, 9, 20, 0.9);
+        border: 2px solid rgba(255, 255, 255, 0.2);
         overflow: hidden;
       }
 
@@ -376,9 +378,9 @@
         display: block;
         height: 100%;
         width: 0;
-        border-radius: 999px;
-        background: linear-gradient(90deg, var(--accent-2), var(--accent-3));
-        box-shadow: 0 0 16px rgba(36, 209, 199, 0.5);
+        border-radius: 4px;
+        background: linear-gradient(90deg, var(--accent-4), var(--accent-3));
+        box-shadow: 0 0 16px rgba(123, 255, 106, 0.4);
         animation: xp-fill 1.4s ease forwards;
       }
 
@@ -389,14 +391,14 @@
 
       .stat-card {
         background: rgba(255, 255, 255, 0.04);
-        border-radius: 16px;
+        border-radius: 8px;
         padding: 16px;
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        border: 2px solid rgba(255, 255, 255, 0.12);
       }
 
       .stat-card h3 {
         margin: 0 0 8px;
-        font-size: 1rem;
+        font-size: 0.95rem;
         color: var(--ink);
       }
 
@@ -418,11 +420,11 @@
       }
 
       .section-title span {
-        font-family: "JetBrains Mono", monospace;
-        font-size: 0.75rem;
-        color: var(--accent-3);
+        font-family: "Press Start 2P", sans-serif;
+        font-size: 0.55rem;
+        color: var(--accent-2);
         text-transform: uppercase;
-        letter-spacing: 1px;
+        letter-spacing: 0.8px;
       }
 
       .cards {
@@ -432,10 +434,10 @@
       }
 
       .card {
-        background: linear-gradient(165deg, rgba(20, 27, 45, 0.92), rgba(14, 20, 34, 0.95));
-        border-radius: 20px;
+        background: linear-gradient(165deg, rgba(21, 28, 51, 0.92), rgba(13, 18, 34, 0.95));
+        border-radius: 10px;
         padding: 22px;
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        border: 2px solid rgba(255, 255, 255, 0.12);
         box-shadow: 0 14px 34px rgba(6, 8, 18, 0.5);
         position: relative;
         overflow: hidden;
@@ -445,8 +447,8 @@
         content: "";
         position: absolute;
         inset: 0;
-        border-radius: 20px;
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        border: 1px dashed rgba(255, 255, 255, 0.14);
         opacity: 0.4;
         pointer-events: none;
       }
@@ -458,7 +460,7 @@
         right: -40px;
         width: 140px;
         height: 140px;
-        background: radial-gradient(circle, rgba(255, 95, 138, 0.2), transparent 70%);
+        background: radial-gradient(circle, rgba(255, 78, 205, 0.18), transparent 70%);
         border-radius: 50%;
       }
 
@@ -466,11 +468,11 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        font-size: 0.7rem;
-        font-family: "JetBrains Mono", monospace;
+        font-size: 0.6rem;
+        font-family: "Press Start 2P", sans-serif;
         text-transform: uppercase;
-        letter-spacing: 1px;
-        color: var(--accent-2);
+        letter-spacing: 0.5px;
+        color: var(--accent-4);
         margin-bottom: 12px;
       }
 
@@ -495,12 +497,13 @@
       }
 
       .tag {
-        background: rgba(255, 122, 24, 0.16);
-        color: #ffd7b8;
+        background: rgba(0, 245, 212, 0.15);
+        color: #c9fff5;
         padding: 4px 10px;
-        border-radius: 999px;
+        border-radius: 6px;
         font-size: 0.75rem;
-        border: 1px solid rgba(255, 122, 24, 0.4);
+        border: 1px solid rgba(0, 245, 212, 0.45);
+        font-family: "Space Mono", monospace;
       }
 
       .split {
@@ -519,39 +522,39 @@
       }
 
       .list li {
-        background: rgba(11, 15, 26, 0.7);
+        background: rgba(7, 9, 20, 0.7);
         padding: 10px 14px;
-        border-radius: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        border: 2px solid rgba(255, 255, 255, 0.12);
       }
 
       .highlight {
-        border-left: 4px solid var(--accent-2);
+        border: 2px solid rgba(0, 245, 212, 0.5);
         padding: 14px 16px;
         color: var(--muted);
         line-height: 1.7;
-        background: rgba(36, 209, 199, 0.08);
-        border-radius: 12px;
+        background: rgba(0, 245, 212, 0.08);
+        border-radius: 8px;
       }
 
       .cta-banner {
-        background: linear-gradient(120deg, rgba(20, 27, 45, 0.95), rgba(12, 16, 28, 0.98));
-        border-radius: 24px;
+        background: linear-gradient(120deg, rgba(19, 26, 47, 0.96), rgba(11, 15, 28, 0.98));
+        border-radius: 12px;
         padding: 28px;
         display: flex;
         flex-wrap: wrap;
         gap: 18px;
         align-items: center;
         justify-content: space-between;
-        border: 1px solid rgba(36, 209, 199, 0.2);
+        border: 2px solid rgba(255, 78, 205, 0.3);
         box-shadow: var(--shadow);
       }
 
       .cta-kicker {
-        font-family: "JetBrains Mono", monospace;
+        font-family: "Press Start 2P", sans-serif;
         text-transform: uppercase;
-        letter-spacing: 2px;
-        font-size: 0.75rem;
+        letter-spacing: 1px;
+        font-size: 0.55rem;
         color: var(--accent-2);
       }
 
@@ -569,6 +572,7 @@
         color: var(--muted);
         font-size: 0.95rem;
         text-align: center;
+        font-family: "Space Mono", monospace;
       }
 
       .reveal {
@@ -604,6 +608,22 @@
         }
       }
 
+      @keyframes flicker {
+        0%,
+        100% {
+          opacity: 0.28;
+        }
+        45% {
+          opacity: 0.4;
+        }
+        50% {
+          opacity: 0.18;
+        }
+        60% {
+          opacity: 0.36;
+        }
+      }
+
       @media (max-width: 720px) {
         .nav {
           flex-direction: column;
@@ -635,17 +655,17 @@
             <div>Dav Stepanyan</div>
           </div>
           <div class="nav-links">
-            <a href="#work">Quests</a>
+            <a href="#work">Arcade</a>
             <a href="#about">Perks</a>
-            <a href="#now">Log</a>
-            <a href="#contact">Party up</a>
+            <a href="#now">Now Playing</a>
+            <a href="#contact">Co-op</a>
           </div>
         </nav>
 
         <div class="hero-grid">
           <div class="hero-copy reveal" style="--d: 0.15s">
-            <div class="kicker">Player One: Dav Stepanyan</div>
-            <h1>Designing sticky loops and satisfying economies.</h1>
+            <div class="kicker">Insert Coin // Player One</div>
+            <h1>Designing crunchy loops and high-score economies.</h1>
             <p class="lead">
               I build systems where progression feels earned, choices feel
               crunchy, and the next upgrade is always one run away. Currently
@@ -653,8 +673,8 @@
               chasing the next bold prototype.
             </p>
             <div class="cta">
-              <a class="btn primary" href="#work">Enter quest log</a>
-              <a class="btn ghost" href="#now">Check current run</a>
+              <a class="btn primary" href="#work">Start game</a>
+              <a class="btn ghost" href="#now">Continue run</a>
             </div>
             <div class="pill-group">
               <span class="pill">Idle Outpost</span>
@@ -700,13 +720,13 @@
       <main class="container">
         <section id="work">
           <div class="section-title">
-            <span>Quest board</span>
+            <span>High score table</span>
             <h2>Projects and experiments</h2>
           </div>
           <div class="cards">
             <article class="card reveal" style="--d: 0.1s">
               <div class="card-top">
-                <div>Main quest</div>
+                <div>Story mode</div>
                 <div class="card-score">+3200 XP</div>
               </div>
               <h3>Idle Outpost</h3>
@@ -758,7 +778,7 @@
 
         <section id="about">
           <div class="section-title">
-            <span>Perk tree</span>
+            <span>Skill tree</span>
             <h2>How I work</h2>
           </div>
           <div class="split">
@@ -783,7 +803,7 @@
 
         <section id="now">
           <div class="section-title">
-            <span>Current log</span>
+            <span>Now playing</span>
             <h2>What I am into</h2>
           </div>
           <div class="split">
@@ -810,7 +830,7 @@
         <section id="contact">
           <div class="cta-banner reveal" style="--d: 0.1s">
             <div>
-              <div class="cta-kicker">Party up</div>
+              <div class="cta-kicker">Co-op invite</div>
               <h3>Open to co-op builds and bold problems</h3>
               <p>
                 If you are making something daring, I am up to chat about
@@ -822,9 +842,7 @@
         </section>
       </main>
 
-      <footer class="container footer">
-        Built with curiosity, shipped with care.
-      </footer>
+      <footer class="container footer">Insert coin to continue.</footer>
     </div>
   </body>
 </html>
