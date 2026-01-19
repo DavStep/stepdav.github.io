@@ -9,18 +9,22 @@
       content="Portfolio of Dav Stepanyan, game developer working on Idle Outpost, previously on Sandship, GGJ participant."
     />
     <style>
-      @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Spline+Sans+Mono:wght@400;600&display=swap");
+      @import url("https://fonts.googleapis.com/css2?family=Bungee&family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap");
 
       :root {
-        --paper: #f6f1e8;
-        --ink: #1b1b1f;
-        --muted: #5a5a62;
-        --accent: #f36b2c;
-        --accent-2: #1f9aa4;
-        --accent-3: #f2c94c;
-        --card: #fff8ef;
-        --ring: rgba(27, 27, 31, 0.15);
-        --shadow: 0 18px 50px rgba(21, 21, 24, 0.12);
+        --bg: #0b0f1a;
+        --bg-2: #0f1526;
+        --panel: #121a2b;
+        --panel-soft: #141f35;
+        --ink: #f4f6ff;
+        --muted: #a2acc5;
+        --accent: #ff7a18;
+        --accent-2: #24d1c7;
+        --accent-3: #ffd166;
+        --accent-4: #ff5f8a;
+        --ring: rgba(255, 255, 255, 0.12);
+        --shadow: 0 20px 50px rgba(3, 6, 15, 0.6);
+        --glow: 0 0 24px rgba(36, 209, 199, 0.25);
       }
 
       * {
@@ -29,11 +33,24 @@
 
       body {
         margin: 0;
-        font-family: "Space Grotesk", "Segoe UI", sans-serif;
+        font-family: "Chakra Petch", "Segoe UI", sans-serif;
         color: var(--ink);
-        background: radial-gradient(1200px 800px at 10% 10%, #fff8ef, transparent),
-          radial-gradient(900px 600px at 90% 20%, #e7f3f0, transparent),
-          linear-gradient(180deg, #f6f1e8 0%, #f2e8da 50%, #f6f1e8 100%);
+        background: radial-gradient(
+            1200px 600px at 10% 0%,
+            rgba(36, 209, 199, 0.2),
+            transparent 65%
+          ),
+          radial-gradient(
+            900px 600px at 90% 10%,
+            rgba(255, 122, 24, 0.22),
+            transparent 60%
+          ),
+          radial-gradient(
+            700px 500px at 40% 100%,
+            rgba(255, 209, 102, 0.18),
+            transparent 65%
+          ),
+          linear-gradient(180deg, #090d17 0%, #0b1020 55%, #080c16 100%);
         min-height: 100vh;
         position: relative;
       }
@@ -42,19 +59,47 @@
       body::after {
         content: "";
         position: fixed;
-        inset: -10vmax;
+        inset: 0;
         pointer-events: none;
         z-index: 0;
-        opacity: 0.2;
-        background: radial-gradient(circle at 20% 30%, #f36b2c 0, transparent 30%),
-          radial-gradient(circle at 80% 20%, #1f9aa4 0, transparent 28%),
-          radial-gradient(circle at 50% 80%, #f2c94c 0, transparent 32%);
-        filter: blur(40px);
+      }
+
+      body::before {
+        background: repeating-linear-gradient(
+            0deg,
+            rgba(255, 255, 255, 0.05) 0,
+            rgba(255, 255, 255, 0.05) 1px,
+            transparent 1px,
+            transparent 48px
+          ),
+          repeating-linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.04) 0,
+            rgba(255, 255, 255, 0.04) 1px,
+            transparent 1px,
+            transparent 48px
+          );
+        opacity: 0.18;
+        mix-blend-mode: screen;
       }
 
       body::after {
-        opacity: 0.12;
-        transform: rotate(8deg);
+        background: radial-gradient(
+            circle at 15% 20%,
+            rgba(255, 255, 255, 0.06),
+            transparent 20%
+          ),
+          radial-gradient(
+            circle at 85% 32%,
+            rgba(255, 255, 255, 0.05),
+            transparent 22%
+          ),
+          radial-gradient(
+            circle at 40% 78%,
+            rgba(255, 255, 255, 0.05),
+            transparent 18%
+          );
+        opacity: 0.4;
       }
 
       a {
@@ -76,47 +121,96 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 26px 0 18px;
+        padding: 14px 22px;
+        margin-top: 18px;
+        border-radius: 999px;
+        background: rgba(11, 15, 26, 0.75);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(10px);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .nav::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          90deg,
+          rgba(36, 209, 199, 0.15),
+          transparent,
+          rgba(255, 122, 24, 0.12)
+        );
+        opacity: 0.5;
+        pointer-events: none;
       }
 
       .brand {
         display: flex;
         gap: 12px;
         align-items: center;
-        font-weight: 700;
-        letter-spacing: 0.3px;
+        font-family: "Bungee", "Chakra Petch", sans-serif;
+        letter-spacing: 1px;
+        text-transform: uppercase;
       }
 
       .brand-mark {
-        width: 40px;
-        height: 40px;
+        width: 42px;
+        height: 42px;
         border-radius: 12px;
-        background: linear-gradient(145deg, var(--accent), var(--accent-2));
-        box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.4);
+        background: conic-gradient(
+          from 180deg,
+          var(--accent),
+          var(--accent-2),
+          var(--accent-3),
+          var(--accent)
+        );
+        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.14),
+          0 0 20px rgba(255, 122, 24, 0.35);
+        position: relative;
+        animation: float 6s ease-in-out infinite;
+      }
+
+      .brand-mark::after {
+        content: "";
+        position: absolute;
+        inset: 7px;
+        border-radius: 10px;
+        background: rgba(11, 15, 26, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.2);
       }
 
       .nav-links {
         display: flex;
-        gap: 18px;
-        font-size: 0.95rem;
+        gap: 12px;
+        font-size: 0.9rem;
         color: var(--muted);
+        font-family: "JetBrains Mono", monospace;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        position: relative;
+        z-index: 1;
       }
 
       .nav-links a {
-        padding: 6px 10px;
+        padding: 8px 12px;
         border-radius: 999px;
-        transition: background 0.2s ease, color 0.2s ease;
+        border: 1px solid transparent;
+        background: rgba(255, 255, 255, 0.03);
+        transition: border 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
       }
 
       .nav-links a:hover {
-        background: rgba(31, 154, 164, 0.12);
+        border-color: rgba(36, 209, 199, 0.6);
         color: var(--ink);
+        box-shadow: var(--glow);
       }
 
       .hero {
         display: grid;
         gap: 32px;
-        padding: 40px 0 70px;
+        padding: 40px 0 80px;
       }
 
       .hero-grid {
@@ -129,19 +223,32 @@
       .kicker {
         text-transform: uppercase;
         letter-spacing: 2px;
-        font-size: 0.75rem;
+        font-size: 0.8rem;
         color: var(--accent-2);
+        font-family: "JetBrains Mono", monospace;
         font-weight: 600;
       }
 
       h1 {
-        font-size: clamp(2.8rem, 4vw, 4.2rem);
-        line-height: 1;
-        margin: 10px 0 14px;
+        font-family: "Bungee", "Chakra Petch", sans-serif;
+        font-size: clamp(2.6rem, 4vw, 4.1rem);
+        line-height: 1.05;
+        margin: 12px 0 16px;
+        text-shadow: 0 0 26px rgba(36, 209, 199, 0.18);
+      }
+
+      h2 {
+        font-family: "Bungee", "Chakra Petch", sans-serif;
+        font-size: clamp(1.8rem, 3vw, 2.4rem);
+      }
+
+      h3 {
+        font-family: "Chakra Petch", sans-serif;
+        letter-spacing: 0.3px;
       }
 
       .lead {
-        font-size: 1.1rem;
+        font-size: 1.05rem;
         color: var(--muted);
         max-width: 520px;
         line-height: 1.7;
@@ -150,31 +257,36 @@
       .cta {
         display: flex;
         gap: 14px;
-        margin: 28px 0 22px;
+        margin: 26px 0 22px;
         flex-wrap: wrap;
       }
 
       .btn {
-        padding: 12px 20px;
-        border-radius: 999px;
+        padding: 12px 22px;
+        border-radius: 14px;
         font-weight: 600;
         border: 1px solid transparent;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
       }
 
       .btn.primary {
-        background: var(--accent);
-        color: #fff;
-        box-shadow: 0 12px 24px rgba(243, 107, 44, 0.25);
+        background: linear-gradient(135deg, var(--accent), #ffb454);
+        color: #10131f;
+        box-shadow: 0 12px 26px rgba(255, 122, 24, 0.35),
+          0 0 20px rgba(255, 209, 102, 0.25);
       }
 
       .btn.ghost {
         border-color: var(--ring);
-        background: #fff;
+        background: rgba(11, 15, 26, 0.6);
+        color: var(--ink);
       }
 
       .btn:hover {
-        transform: translateY(-2px);
+        transform: translateY(-2px) scale(1.01);
       }
 
       .pill-group {
@@ -184,37 +296,108 @@
       }
 
       .pill {
-        background: #fff;
-        border: 1px solid var(--ring);
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.12);
         color: var(--muted);
         padding: 6px 12px;
         border-radius: 999px;
-        font-size: 0.85rem;
+        font-size: 0.8rem;
+        font-family: "JetBrains Mono", monospace;
       }
 
       .panel {
-        background: var(--card);
+        background: linear-gradient(160deg, rgba(20, 27, 45, 0.95), rgba(16, 22, 36, 0.95));
         padding: 26px;
-        border-radius: 20px;
+        border-radius: 22px;
         box-shadow: var(--shadow);
-        border: 1px solid rgba(255, 255, 255, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.08);
       }
 
-      .stat-grid {
+      .status-card {
         display: grid;
         gap: 18px;
       }
 
+      .status-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .status-title {
+        font-family: "JetBrains Mono", monospace;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-size: 0.7rem;
+        color: var(--accent-2);
+      }
+
+      .status-level {
+        font-size: 1.1rem;
+        font-weight: 600;
+      }
+
+      .badge {
+        background: rgba(255, 122, 24, 0.2);
+        color: #ffd7b8;
+        padding: 6px 12px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 122, 24, 0.4);
+        font-size: 0.75rem;
+        font-family: "JetBrains Mono", monospace;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        white-space: nowrap;
+      }
+
+      .xp {
+        display: grid;
+        gap: 8px;
+      }
+
+      .xp-label {
+        display: flex;
+        justify-content: space-between;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.75rem;
+        color: var(--muted);
+      }
+
+      .xp-bar {
+        height: 10px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        overflow: hidden;
+      }
+
+      .xp-bar span {
+        display: block;
+        height: 100%;
+        width: 0;
+        border-radius: 999px;
+        background: linear-gradient(90deg, var(--accent-2), var(--accent-3));
+        box-shadow: 0 0 16px rgba(36, 209, 199, 0.5);
+        animation: xp-fill 1.4s ease forwards;
+      }
+
+      .stat-grid {
+        display: grid;
+        gap: 14px;
+      }
+
       .stat-card {
-        background: #fff;
+        background: rgba(255, 255, 255, 0.04);
         border-radius: 16px;
         padding: 16px;
-        border: 1px solid var(--ring);
+        border: 1px solid rgba(255, 255, 255, 0.08);
       }
 
       .stat-card h3 {
         margin: 0 0 8px;
         font-size: 1rem;
+        color: var(--ink);
       }
 
       .stat-card p {
@@ -231,14 +414,13 @@
         display: flex;
         align-items: center;
         gap: 12px;
-        font-size: 1.5rem;
         margin-bottom: 18px;
       }
 
       .section-title span {
-        font-family: "Spline Sans Mono", "SFMono-Regular", monospace;
-        font-size: 0.8rem;
-        color: var(--accent);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.75rem;
+        color: var(--accent-3);
         text-transform: uppercase;
         letter-spacing: 1px;
       }
@@ -250,23 +432,50 @@
       }
 
       .card {
-        background: #fff;
+        background: linear-gradient(165deg, rgba(20, 27, 45, 0.92), rgba(14, 20, 34, 0.95));
         border-radius: 20px;
         padding: 22px;
-        border: 1px solid var(--ring);
-        box-shadow: 0 10px 24px rgba(21, 21, 24, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 14px 34px rgba(6, 8, 18, 0.5);
         position: relative;
         overflow: hidden;
+      }
+
+      .card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        opacity: 0.4;
+        pointer-events: none;
       }
 
       .card::after {
         content: "";
         position: absolute;
-        inset: auto -40% -40% auto;
-        width: 180px;
-        height: 180px;
-        background: radial-gradient(circle, rgba(31, 154, 164, 0.2), transparent 70%);
+        top: -40px;
+        right: -40px;
+        width: 140px;
+        height: 140px;
+        background: radial-gradient(circle, rgba(255, 95, 138, 0.2), transparent 70%);
         border-radius: 50%;
+      }
+
+      .card-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.7rem;
+        font-family: "JetBrains Mono", monospace;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--accent-2);
+        margin-bottom: 12px;
+      }
+
+      .card-score {
+        color: var(--accent-3);
       }
 
       .card h3 {
@@ -286,11 +495,12 @@
       }
 
       .tag {
-        background: rgba(243, 107, 44, 0.12);
-        color: #9a3d18;
+        background: rgba(255, 122, 24, 0.16);
+        color: #ffd7b8;
         padding: 4px 10px;
         border-radius: 999px;
         font-size: 0.75rem;
+        border: 1px solid rgba(255, 122, 24, 0.4);
       }
 
       .split {
@@ -309,21 +519,23 @@
       }
 
       .list li {
-        background: #fff;
+        background: rgba(11, 15, 26, 0.7);
         padding: 10px 14px;
         border-radius: 12px;
-        border: 1px solid var(--ring);
+        border: 1px solid rgba(255, 255, 255, 0.1);
       }
 
       .highlight {
         border-left: 4px solid var(--accent-2);
-        padding-left: 16px;
+        padding: 14px 16px;
         color: var(--muted);
         line-height: 1.7;
+        background: rgba(36, 209, 199, 0.08);
+        border-radius: 12px;
       }
 
       .cta-banner {
-        background: linear-gradient(120deg, #fff3e7, #e2f6f3);
+        background: linear-gradient(120deg, rgba(20, 27, 45, 0.95), rgba(12, 16, 28, 0.98));
         border-radius: 24px;
         padding: 28px;
         display: flex;
@@ -331,11 +543,20 @@
         gap: 18px;
         align-items: center;
         justify-content: space-between;
-        border: 1px solid rgba(31, 154, 164, 0.2);
+        border: 1px solid rgba(36, 209, 199, 0.2);
+        box-shadow: var(--shadow);
+      }
+
+      .cta-kicker {
+        font-family: "JetBrains Mono", monospace;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-size: 0.75rem;
+        color: var(--accent-2);
       }
 
       .cta-banner h3 {
-        margin: 0 0 8px;
+        margin: 8px 0 8px;
       }
 
       .cta-banner p {
@@ -359,11 +580,27 @@
       @keyframes reveal {
         from {
           opacity: 0;
-          transform: translateY(16px);
+          transform: translateY(18px) scale(0.98);
         }
         to {
           opacity: 1;
-          transform: translateY(0);
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-6px);
+        }
+      }
+
+      @keyframes xp-fill {
+        to {
+          width: var(--xp);
         }
       }
 
@@ -379,7 +616,12 @@
         }
 
         .hero {
-          padding-top: 20px;
+          padding-top: 24px;
+        }
+
+        .status-header {
+          flex-direction: column;
+          align-items: flex-start;
         }
       }
     </style>
@@ -393,26 +635,26 @@
             <div>Dav Stepanyan</div>
           </div>
           <div class="nav-links">
-            <a href="#work">Work</a>
-            <a href="#about">About</a>
-            <a href="#now">Now</a>
-            <a href="#contact">Contact</a>
+            <a href="#work">Quests</a>
+            <a href="#about">Perks</a>
+            <a href="#now">Log</a>
+            <a href="#contact">Party up</a>
           </div>
         </nav>
 
         <div class="hero-grid">
           <div class="hero-copy reveal" style="--d: 0.15s">
-            <div class="kicker">Game developer</div>
-            <h1>Building cozy grinds and big stakes systems.</h1>
+            <div class="kicker">Player One: Dav Stepanyan</div>
+            <h1>Designing sticky loops and satisfying economies.</h1>
             <p class="lead">
-              I make games with satisfying loops, clean UX, and the kind of
-              progression that keeps players saying "one more run." Currently
+              I build systems where progression feels earned, choices feel
+              crunchy, and the next upgrade is always one run away. Currently
               crafting Idle Outpost, previously shipped Sandship, and always
-              chasing the next great prototype.
+              chasing the next bold prototype.
             </p>
             <div class="cta">
-              <a class="btn primary" href="#work">See my work</a>
-              <a class="btn ghost" href="#now">What I am into</a>
+              <a class="btn primary" href="#work">Enter quest log</a>
+              <a class="btn ghost" href="#now">Check current run</a>
             </div>
             <div class="pill-group">
               <span class="pill">Idle Outpost</span>
@@ -420,19 +662,35 @@
               <span class="pill">GGJ participant</span>
             </div>
           </div>
-          <div class="panel reveal" style="--d: 0.25s">
+          <div class="panel status-card reveal" style="--d: 0.25s">
+            <div class="status-header">
+              <div>
+                <div class="status-title">Player card</div>
+                <div class="status-level">Level 12 systems designer</div>
+              </div>
+              <div class="badge">Rank: Builder</div>
+            </div>
+            <div class="xp">
+              <div class="xp-label">
+                <span>XP</span>
+                <span>68%</span>
+              </div>
+              <div class="xp-bar" style="--xp: 68%">
+                <span></span>
+              </div>
+            </div>
             <div class="stat-grid">
               <div class="stat-card">
-                <h3>Current focus</h3>
+                <h3>Main quest</h3>
                 <p>Idle Outpost, progression systems and player economy.</p>
               </div>
               <div class="stat-card">
-                <h3>Past work</h3>
+                <h3>Completed runs</h3>
                 <p>Sandship, crafting loops and feature polish.</p>
               </div>
               <div class="stat-card">
-                <h3>Play taste</h3>
-                <p>Arc Raiders, The Finals, Minecraft, Elden Ring.</p>
+                <h3>Loadout</h3>
+                <p>Systems design, UX clarity, rapid prototyping.</p>
               </div>
             </div>
           </div>
@@ -442,11 +700,15 @@
       <main class="container">
         <section id="work">
           <div class="section-title">
-            <span>Selected</span>
+            <span>Quest board</span>
             <h2>Projects and experiments</h2>
           </div>
           <div class="cards">
             <article class="card reveal" style="--d: 0.1s">
+              <div class="card-top">
+                <div>Main quest</div>
+                <div class="card-score">+3200 XP</div>
+              </div>
               <h3>Idle Outpost</h3>
               <p>
                 A long-form idle experience with city scale growth, layered
@@ -460,6 +722,10 @@
               </div>
             </article>
             <article class="card reveal" style="--d: 0.2s">
+              <div class="card-top">
+                <div>Legacy run</div>
+                <div class="card-score">+2100 XP</div>
+              </div>
               <h3>Sandship</h3>
               <p>
                 Shipped features and polish on a deep crafting automation game.
@@ -472,6 +738,10 @@
               </div>
             </article>
             <article class="card reveal" style="--d: 0.3s">
+              <div class="card-top">
+                <div>Speed run</div>
+                <div class="card-score">+900 XP</div>
+              </div>
               <h3>Global Game Jams</h3>
               <p>
                 Fast prototypes, weird ideas, and tight teams. I love turning a
@@ -488,16 +758,16 @@
 
         <section id="about">
           <div class="section-title">
-            <span>About</span>
+            <span>Perk tree</span>
             <h2>How I work</h2>
           </div>
           <div class="split">
             <div class="panel reveal" style="--d: 0.1s">
               <h3>Systems first, then flavor</h3>
               <p class="highlight">
-                I like games where the loop is instantly readable, but the
-                mastery takes time. I aim for clean interaction, clear goals,
-                and the joy of optimization.
+                I like games where the loop is instantly readable, but mastery
+                takes time. I aim for clean interaction, clear goals, and the
+                joy of optimization.
               </p>
             </div>
             <div class="panel reveal" style="--d: 0.2s">
@@ -513,7 +783,7 @@
 
         <section id="now">
           <div class="section-title">
-            <span>Now</span>
+            <span>Current log</span>
             <h2>What I am into</h2>
           </div>
           <div class="split">
@@ -540,13 +810,14 @@
         <section id="contact">
           <div class="cta-banner reveal" style="--d: 0.1s">
             <div>
-              <h3>Open to collabs and cool problems</h3>
+              <div class="cta-kicker">Party up</div>
+              <h3>Open to co-op builds and bold problems</h3>
               <p>
-                If you are making something bold, I am always up to chat about
+                If you are making something daring, I am up to chat about
                 systems design, progression, or a fast prototype.
               </p>
             </div>
-            <a class="btn primary" href="mailto:your@email.com">Say hello</a>
+            <a class="btn primary" href="mailto:your@email.com">Start a quest</a>
           </div>
         </section>
       </main>
