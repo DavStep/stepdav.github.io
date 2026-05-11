@@ -310,6 +310,132 @@
 
       .rain-canvas { position: absolute; inset: 0; z-index: 8; pointer-events: none; }
 
+      /* SHEEP */
+      .sheep { position: absolute; width: 14px; height: 10px; bottom: 4px; }
+      .sheep svg { width: 100%; height: 100%; display: block; }
+      .sheep { animation: walk-bob 0.5s steps(2) infinite; }
+
+      /* DOGS */
+      .dog { position: absolute; width: 12px; height: 8px; bottom: 4px; }
+      .dog svg { width: 100%; height: 100%; display: block; overflow: visible; }
+      .dog { animation: dog-bob 0.25s steps(2) infinite; }
+      @keyframes dog-bob {
+        0%,100% { translate: 0 0; }
+        50%     { translate: 0 -1px; }
+      }
+
+      /* BANDIT (red-shirted attacker) */
+      .person.bandit svg { /* uses standard person frame */ }
+
+      /* CLERIC (robed healer) */
+      .person.cleric { /* uses standard person frame */ }
+
+      /* GRAVE */
+      .grave { position: absolute; width: 10px; height: 14px; bottom: 50px; }
+      .grave svg { width: 100%; height: 100%; display: block; }
+
+      /* CROPS */
+      .crops-layer { position: absolute; inset: 0; z-index: 5; pointer-events: none; }
+      .crop {
+        position: absolute;
+        width: 8px; height: 12px;
+        bottom: 50px;
+        transform: scale(var(--g, 0));
+        transform-origin: bottom center;
+        transition: transform 1.5s cubic-bezier(.34, 1.2, .64, 1);
+      }
+      .crop svg { width: 100%; height: 100%; display: block; }
+
+      /* COIN SPARKLE */
+      .coin {
+        position: absolute;
+        width: 5px; height: 5px;
+        background: #f0d060;
+        border-radius: 50%;
+        box-shadow: 0 0 4px rgba(240, 208, 96, 0.7);
+        animation: coin-rise 1.4s ease-out forwards;
+        z-index: 7;
+        pointer-events: none;
+      }
+      @keyframes coin-rise {
+        0%   { transform: translate(0, 0) scale(1); opacity: 1; }
+        100% { transform: translate(var(--vx, 0px), -28px) scale(0.4); opacity: 0; }
+      }
+
+      /* MAGE SPARKLE */
+      .sparkle {
+        position: absolute;
+        width: 3px; height: 3px;
+        background: #fff8d0;
+        box-shadow: 0 0 4px #c0a0ff, 0 0 2px #ffffff;
+        animation: sparkle 1s ease-out forwards;
+        z-index: 7;
+        pointer-events: none;
+      }
+      @keyframes sparkle {
+        0%   { transform: translate(0, 0) scale(0); opacity: 0; }
+        25%  { transform: translate(var(--vx, 0), var(--vy, -8px)) scale(1.2); opacity: 1; }
+        100% { transform: translate(var(--vx, 0), var(--vy, -8px)) scale(0); opacity: 0; }
+      }
+
+      /* CHIMNEY / CAMPFIRE SMOKE */
+      .smoke {
+        position: absolute;
+        width: 6px; height: 6px;
+        background: rgba(210, 205, 195, 0.55);
+        border-radius: 50%;
+        animation: smoke-rise 4.5s ease-out forwards;
+        z-index: 3;
+        pointer-events: none;
+      }
+      @keyframes smoke-rise {
+        0%   { transform: translate(0, 0) scale(0.3); opacity: 0; }
+        15%  { opacity: 0.55; }
+        100% { transform: translate(var(--vx, 6px), -52px) scale(1.6); opacity: 0; }
+      }
+
+      /* RAINBOW */
+      .rainbow {
+        position: absolute;
+        inset: 0;
+        z-index: 3;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 3s ease;
+      }
+      .world.has-rainbow .rainbow { opacity: 0.7; }
+      .rainbow svg { width: 100%; height: 100%; display: block; }
+
+      /* LIT WINDOWS at night */
+      .house .hs-windows-lit { opacity: 0; transition: opacity 4s ease; }
+      .world[data-time="night"] .house[data-kind="house"] .hs-windows-lit,
+      .world[data-time="dusk"]  .house[data-kind="house"] .hs-windows-lit,
+      .world[data-time="dawn"]  .house[data-kind="house"] .hs-windows-lit { opacity: 1; }
+      .world[data-time="night"] .house[data-kind="tower"] .hs-windows-lit,
+      .world[data-time="dusk"]  .house[data-kind="tower"] .hs-windows-lit { opacity: 1; }
+
+      /* SIGNPOST LABEL */
+      .sign-label {
+        position: absolute;
+        bottom: 86px;
+        transform: translateX(-50%);
+        font-family: "VT323", monospace;
+        font-size: 0.75rem;
+        color: var(--ink);
+        background: rgba(20, 14, 8, 0.85);
+        border: 1px solid var(--frame-light);
+        padding: 1px 5px;
+        white-space: nowrap;
+        text-shadow: 1px 1px 0 #000;
+        z-index: 6;
+        animation: label-pop 0.4s ease-out;
+      }
+      @keyframes label-pop {
+        0%   { transform: translateX(-50%) scale(0); opacity: 0; }
+        80%  { transform: translateX(-50%) scale(1.1); opacity: 1; }
+        100% { transform: translateX(-50%) scale(1); opacity: 1; }
+      }
+
       .lightning {
         position: absolute; inset: 0; z-index: 9;
         background: rgba(220, 230, 255, 0); pointer-events: none;
@@ -560,9 +686,20 @@
       </div>
       <div class="grass"></div>
       <div class="trees-layer"></div>
+      <div class="crops-layer"></div>
       <div class="people-layer"></div>
       <canvas class="rain-canvas"></canvas>
       <div class="lightning"></div>
+      <div class="rainbow">
+        <svg viewBox="0 0 1200 400" preserveAspectRatio="xMidYMin meet" xmlns="http://www.w3.org/2000/svg">
+          <path d="M 100 380 A 500 380 0 0 1 1100 380" stroke="#e04030" stroke-width="6" fill="none" opacity="0.65"/>
+          <path d="M 106 380 A 494 374 0 0 1 1094 380" stroke="#f08830" stroke-width="6" fill="none" opacity="0.65"/>
+          <path d="M 112 380 A 488 368 0 0 1 1088 380" stroke="#f0d040" stroke-width="6" fill="none" opacity="0.65"/>
+          <path d="M 118 380 A 482 362 0 0 1 1082 380" stroke="#60c050" stroke-width="6" fill="none" opacity="0.65"/>
+          <path d="M 124 380 A 476 356 0 0 1 1076 380" stroke="#4080d0" stroke-width="6" fill="none" opacity="0.65"/>
+          <path d="M 130 380 A 470 350 0 0 1 1070 380" stroke="#8040b0" stroke-width="6" fill="none" opacity="0.65"/>
+        </svg>
+      </div>
     </div>
 
     <div class="hud">
@@ -649,6 +786,16 @@
             <div class="tags">
               <span class="tag legendary">tool</span>
               <span class="tag epic">pixel art</span>
+              <span class="tag uncommon">web</span>
+            </div>
+          </a>
+          <a class="card" href="https://davstep.github.io/idle-whitch-craft/" target="_blank" rel="noopener">
+            <div class="card-head"><span>solo quest</span><span class="reward">+1800 G</span></div>
+            <h3>Idle Witch Craft</h3>
+            <p>Idle alchemy sim. Grow herbs, brew potions, hire managers, roll gacha, send adventurers on expeditions — all systems hot-editable in an in-game engine tab.</p>
+            <div class="tags">
+              <span class="tag legendary">idle</span>
+              <span class="tag epic">systems</span>
               <span class="tag uncommon">web</span>
             </div>
           </a>
@@ -869,6 +1016,12 @@
           if ((w === "rain" || w === "storm") && !(old === "rain" || old === "storm")) {
             fleeFromWeather();
           }
+          // Rainbow when transitioning from wet to dry
+          if ((old === "rain" || old === "storm") && (w === "clear" || w === "cloudy")) {
+            world.classList.add("has-rainbow");
+            logEvent("A rainbow arcs across the sky.", "good");
+            setTimeout(() => world.classList.remove("has-rainbow"), 22000);
+          }
         }
         function cycleWeather() {
           const next = weatherStates[Math.floor(Math.random() * weatherStates.length)];
@@ -1038,6 +1191,505 @@
           setTimeout(() => p.remove(), 1000);
         }
 
+        function spawnCoin(x, y) {
+          const c = document.createElement("div");
+          c.className = "coin";
+          c.style.left = x + "px";
+          c.style.bottom = y + "px";
+          c.style.setProperty("--vx", ((Math.random() - 0.5) * 12) + "px");
+          peopleLayer.appendChild(c);
+          setTimeout(() => c.remove(), 1500);
+        }
+
+        function spawnSparkle(x, y, color = "#c0a0ff") {
+          const s = document.createElement("div");
+          s.className = "sparkle";
+          s.style.left = x + "px";
+          s.style.bottom = y + "px";
+          s.style.boxShadow = "0 0 4px " + color + ", 0 0 2px #ffffff";
+          s.style.setProperty("--vx", ((Math.random() - 0.5) * 24) + "px");
+          s.style.setProperty("--vy", -(6 + Math.random() * 14) + "px");
+          peopleLayer.appendChild(s);
+          setTimeout(() => s.remove(), 1100);
+        }
+
+        function spawnSmoke(x, y) {
+          const s = document.createElement("div");
+          s.className = "smoke";
+          s.style.left = x + "px";
+          s.style.bottom = y + "px";
+          s.style.setProperty("--vx", ((Math.random() - 0.5) * 14) + "px");
+          // Insert into dragons-layer so it sits behind cards but above clouds
+          dragonsLayer.appendChild(s);
+          setTimeout(() => s.remove(), 4600);
+        }
+
+        /* ============= ANIMALS ============= */
+        function sheepSVG() {
+          return `<svg viewBox="0 0 14 10" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="2" width="10" height="6" fill="#f0ecdc"/>
+            <rect x="2" y="2" width="10" height="1" fill="#ffffff"/>
+            <rect x="2" y="8" width="10" height="1" fill="#c8c4b4"/>
+            <rect x="0" y="4" width="2" height="2" fill="#3a2a1a"/>
+            <rect x="3" y="8" width="2" height="2" fill="#1a1208"/>
+            <rect x="9" y="8" width="2" height="2" fill="#1a1208"/>
+            <rect x="1" y="3" width="1" height="1" fill="#000"/>
+          </svg>`;
+        }
+        function dogSVG() {
+          return `<svg viewBox="0 0 12 8" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="3" width="8" height="3" fill="#8a5828"/>
+            <rect x="2" y="3" width="8" height="1" fill="#a87838"/>
+            <rect x="0" y="4" width="2" height="2" fill="#1a1208"/>
+            <rect x="9" y="2" width="3" height="3" fill="#8a5828"/>
+            <rect x="11" y="3" width="1" height="1" fill="#000"/>
+            <rect x="3" y="6" width="1" height="2" fill="#3a2410"/>
+            <rect x="8" y="6" width="1" height="2" fill="#3a2410"/>
+            <rect x="9" y="0" width="1" height="2" fill="#5a3818"/>
+          </svg>`;
+        }
+
+        function spawnSheep() {
+          if (document.hidden || reduced) return;
+          const s = document.createElement("div");
+          s.className = "sheep";
+          s.innerHTML = sheepSVG();
+          const dir = Math.random() > 0.5 ? "left" : "right";
+          if (dir === "left") s.style.transform = "scaleX(-1)";
+          const startX = dir === "left" ? W() + 20 : -20;
+          const endX = dir === "left" ? -20 : W() + 20;
+          s.style.left = startX + "px";
+          s.style.bottom = (3 + Math.random() * 10) + "px";
+          peopleLayer.appendChild(s);
+          const dur = 60 + Math.random() * 40; // slow grazing
+          requestAnimationFrame(() => {
+            s.style.transition = `left ${dur}s linear`;
+            s.style.left = endX + "px";
+          });
+          setTimeout(() => s.remove(), dur * 1000 + 500);
+          if (Math.random() < 0.4) logEvent("A sheep grazes the meadow.");
+        }
+
+        function spawnDog(buddyX, buddyDir) {
+          if (document.hidden || reduced) return;
+          const d = document.createElement("div");
+          d.className = "dog";
+          d.innerHTML = dogSVG();
+          const dir = buddyDir || (Math.random() > 0.5 ? "left" : "right");
+          if (dir === "left") d.style.transform = "scaleX(-1)";
+          const startOffset = buddyX != null ? (dir === "left" ? 24 : -24) : 0;
+          const startX = (dir === "left" ? W() + 20 : -20) + (buddyX != null ? 0 : 0);
+          const endX = dir === "left" ? -20 : W() + 20;
+          d.style.left = (buddyX != null ? buddyX + startOffset : startX) + "px";
+          d.style.bottom = (2 + Math.random() * 6) + "px";
+          peopleLayer.appendChild(d);
+          const dur = buddyX != null ? (32 + Math.random() * 18) : (24 + Math.random() * 14);
+          requestAnimationFrame(() => {
+            d.style.transition = `left ${dur}s linear`;
+            d.style.left = endX + "px";
+          });
+          setTimeout(() => d.remove(), dur * 1000 + 500);
+          if (!buddyX && Math.random() < 0.5) logEvent("A scrappy dog trots through.");
+        }
+
+        /* ============= CROPS ============= */
+        const crops = [];
+        const cropsLayer = world.querySelector(".crops-layer");
+        const CROP_SPACING = 14;
+
+        function cropSVG(stage) {
+          // stage 0: seedling, 1: sprout, 2: stalks, 3: wheat-head
+          if (stage === 0) return `<svg viewBox="0 0 8 12"><rect x="3" y="9" width="2" height="3" fill="#3a5a28"/></svg>`;
+          if (stage === 1) return `<svg viewBox="0 0 8 12"><rect x="3" y="5" width="2" height="7" fill="#3a5a28"/><rect x="1" y="5" width="2" height="2" fill="#5a8a36"/><rect x="5" y="5" width="2" height="2" fill="#5a8a36"/></svg>`;
+          if (stage === 2) return `<svg viewBox="0 0 8 12"><rect x="3" y="2" width="2" height="10" fill="#7a8a36"/><rect x="1" y="3" width="2" height="3" fill="#9aaa46"/><rect x="5" y="3" width="2" height="3" fill="#9aaa46"/></svg>`;
+          return `<svg viewBox="0 0 8 12">
+            <rect x="3" y="3" width="2" height="9" fill="#a89838"/>
+            <rect x="2" y="0" width="4" height="4" fill="#e8c860"/>
+            <rect x="2" y="0" width="4" height="1" fill="#f8e090"/>
+            <rect x="1" y="2" width="1" height="1" fill="#a89838"/>
+            <rect x="6" y="2" width="1" height="1" fill="#a89838"/>
+          </svg>`;
+        }
+
+        function plantCropPatch() {
+          if (document.hidden || reduced) return;
+          // Plant a 3-wide patch
+          const baseX = 60 + Math.random() * (W() - 200);
+          // Skip if too close to existing crop patch
+          if (crops.some((c) => Math.abs(c.x - baseX) < 80)) return;
+          logEvent("A farmer tills a patch of soil.");
+          for (let i = 0; i < 4; i++) {
+            const x = baseX + i * CROP_SPACING + (Math.random() - 0.5) * 2;
+            const el = document.createElement("div");
+            el.className = "crop";
+            el.style.left = x + "px";
+            el.innerHTML = cropSVG(0);
+            el.style.setProperty("--g", "0.5");
+            cropsLayer.appendChild(el);
+            const rec = { el, x, stage: 0, baseX };
+            crops.push(rec);
+            // Grow stages
+            let s = 0;
+            const grow = () => {
+              if (!el.isConnected) return;
+              s++;
+              rec.stage = s;
+              el.innerHTML = cropSVG(s);
+              el.style.setProperty("--g", s >= 3 ? "1.1" : "0.8");
+              if (s < 3) setTimeout(grow, 9000 + Math.random() * 5000);
+              else if (i === 0) {
+                logEvent("Wheat ripens golden in the field.", "good");
+                // Schedule harvest after some delay
+                setTimeout(() => harvestCrops(baseX), 12000 + Math.random() * 10000);
+              }
+            };
+            setTimeout(grow, 1500 + i * 800);
+          }
+        }
+
+        function harvestCrops(baseX) {
+          if (document.hidden || reduced) return;
+          const patch = crops.filter((c) => c.baseX === baseX && c.stage >= 3);
+          if (patch.length === 0) return;
+          logEvent("A farmer comes to harvest the crop!", "good");
+          // Spawn a peasant to harvest
+          const fromLeft = baseX > W() / 2;
+          const startX = fromLeft ? -20 : W() + 20;
+          const stopX = baseX + 10;
+          const farmer = makePerson("", fromLeft ? "right" : "left", { bottom: 38 });
+          farmer.style.left = startX + "px";
+          const walkDist = Math.abs(stopX - startX);
+          const walkTime = walkDist / 50;
+          requestAnimationFrame(() => {
+            farmer.style.transition = `left ${walkTime}s linear`;
+            farmer.style.left = stopX + "px";
+          });
+          setTimeout(() => {
+            // Harvest each crop, with sparkle
+            patch.forEach((c, idx) => {
+              setTimeout(() => {
+                spawnParticle(c.x, 52, "dust");
+                c.el.remove();
+                const i = crops.indexOf(c);
+                if (i >= 0) crops.splice(i, 1);
+              }, idx * 400);
+            });
+            setTimeout(() => {
+              const exitX = fromLeft ? W() + 20 : -20;
+              const exitDur = Math.abs(exitX - stopX) / 50;
+              farmer.style.transition = `left ${exitDur}s linear`;
+              farmer.style.left = exitX + "px";
+              setTimeout(() => farmer.remove(), exitDur * 1000 + 500);
+            }, patch.length * 400 + 200);
+          }, walkTime * 1000 + 100);
+        }
+
+        /* ============= CHIMNEY SMOKE for completed houses & campfires ============= */
+        function chimneySmokeLoop() {
+          if (document.hidden) { setTimeout(chimneySmokeLoop, 1500); return; }
+          houses.forEach((rec) => {
+            if (!rec.el.isConnected) return;
+            if (rec.kind === "house" && rec.stage >= 2) {
+              const cx = rec.x + 32; // chimney roughly at right of house roof
+              spawnSmoke(cx, 90);
+            } else if (rec.kind === "campfire" && rec.stage >= 2) {
+              spawnSmoke(rec.x + 15, 64);
+            } else if (rec.kind === "tower" && rec.stage >= 2 && Math.random() < 0.3) {
+              spawnSmoke(rec.x + 16, 110);
+            }
+          });
+          setTimeout(chimneySmokeLoop, 1200 + Math.random() * 1500);
+        }
+        if (!reduced) setTimeout(chimneySmokeLoop, 8000);
+
+        /* ============= MAGE SPELL ============= */
+        function castMageSpell(magePerson) {
+          if (!magePerson.isConnected) return;
+          // Pause mage, emit sparkles
+          const curX = parseFloat(getComputedStyle(magePerson).left);
+          magePerson.style.transition = "none";
+          magePerson.style.left = curX + "px";
+          logEvent("A mage pauses to practice the arcane arts.");
+          let bursts = 0;
+          const sparkleTimer = setInterval(() => {
+            for (let i = 0; i < 4; i++) {
+              const sparkleX = curX + 4 + (Math.random() - 0.5) * 18;
+              const sparkleY = parseFloat(magePerson.style.bottom || 0) + 14 + Math.random() * 10;
+              spawnSparkle(sparkleX, sparkleY);
+            }
+            bursts++;
+            if (bursts >= 6) {
+              clearInterval(sparkleTimer);
+              // Resume walking
+              const dir = magePerson.dataset.dir;
+              const exitX = dir === "left" ? -20 : (W() + 20);
+              const exitDur = Math.abs(exitX - curX) / 14; // back to walking speed
+              magePerson.style.transition = `left ${exitDur}s linear`;
+              magePerson.style.left = exitX + "px";
+            }
+          }, 350);
+        }
+
+        /* ============= TAVERN VISIT ============= */
+        function maybeVisitTavern(person) {
+          if (!person.isConnected) return;
+          // Find a built house within 80px of person
+          const px = parseFloat(getComputedStyle(person).left);
+          const target = houses.find((h) => h.stage >= 2 && h.kind === "house" && Math.abs(h.x - px) < 80);
+          if (!target) return;
+          // Pause and fade into door
+          person.style.transition = "left 1.5s linear, opacity 1.5s ease-in";
+          person.style.left = (target.x + 18) + "px"; // walk to door
+          setTimeout(() => {
+            person.style.opacity = "0";
+            logEvent("A traveler steps into the tavern.");
+          }, 1400);
+          setTimeout(() => {
+            // After a wait, emerge
+            person.style.transition = "opacity 1.5s ease-out";
+            person.style.opacity = "1";
+            logEvent("A traveler emerges, refreshed.");
+            setTimeout(() => {
+              // Continue walking
+              const dir = person.dataset.dir;
+              const exitX = dir === "left" ? -20 : (W() + 20);
+              const dist = Math.abs(exitX - (target.x + 18));
+              const dur = dist / 14;
+              person.style.transition = `left ${dur}s linear, opacity 1.5s ease-out`;
+              person.style.left = exitX + "px";
+            }, 1600);
+          }, 5000 + Math.random() * 3000);
+        }
+
+        /* ============= WELL WATERING ============= */
+        function maybeWaterAtWell(person) {
+          if (!person.isConnected) return;
+          const px = parseFloat(getComputedStyle(person).left);
+          const target = houses.find((h) => h.kind === "well" && Math.abs(h.x - px) < 60);
+          if (!target) return;
+          person.style.transition = "left 1.2s linear";
+          person.style.left = (target.x + 12) + "px";
+          setTimeout(() => {
+            logEvent("A villager draws water from the well.");
+            // Splash sparkles
+            for (let i = 0; i < 6; i++) {
+              setTimeout(() => spawnSparkle(target.x + 13, 76, "#80c0e0"), i * 200);
+            }
+            setTimeout(() => {
+              const dir = person.dataset.dir;
+              const exitX = dir === "left" ? -20 : (W() + 20);
+              const dist = Math.abs(exitX - (target.x + 12));
+              const dur = dist / 14;
+              person.style.transition = `left ${dur}s linear`;
+              person.style.left = exitX + "px";
+            }, 2200);
+          }, 1300);
+        }
+
+        /* ============= BANDIT AMBUSH ============= */
+        function banditSVG() {
+          return `<svg viewBox="0 0 12 22" xmlns="http://www.w3.org/2000/svg">
+            <rect x="4" y="2" width="4" height="4" fill="#a87858"/>
+            <rect x="4" y="1" width="4" height="2" fill="#3a1f15"/>
+            <rect x="3" y="1" width="1" height="3" fill="#3a1f15"/>
+            <rect x="8" y="1" width="1" height="3" fill="#3a1f15"/>
+            <rect x="4" y="3" width="4" height="1" fill="#2a1208"/>
+            <rect x="3" y="7" width="6" height="5" fill="#5a1818"/>
+            <rect x="3" y="7" width="6" height="1" fill="#7a2828"/>
+            <rect x="2" y="8" width="1" height="4" fill="#5a1818"/>
+            <rect x="9" y="8" width="1" height="4" fill="#5a1818"/>
+            <rect x="3" y="12" width="6" height="1" fill="#2a1208"/>
+            <rect x="3" y="13" width="2" height="8" fill="#2a1208"/>
+            <rect x="7" y="13" width="2" height="8" fill="#2a1208"/>
+            <g class="p-tool">
+              <rect x="9" y="6" width="1" height="5" fill="#c0c4cc"/>
+              <rect x="8" y="11" width="3" height="1" fill="#6a4828"/>
+            </g>
+          </svg>`;
+        }
+
+        function spawnBandit() {
+          if (document.hidden || reduced) return;
+          // Find a current peaceful person to ambush
+          const victims = Array.from(peopleLayer.querySelectorAll(".person")).filter((p) =>
+            !p.classList.contains("warrior") && !p.classList.contains("lumberjack") &&
+            !p.classList.contains("builder") && !p.classList.contains("fighting") &&
+            !p.classList.contains("bandit") && !p.classList.contains("cleric")
+          );
+          if (victims.length === 0) return;
+          const victim = victims[Math.floor(Math.random() * victims.length)];
+          const vx = parseFloat(getComputedStyle(victim).left);
+          // Pause victim
+          victim.style.transition = "none";
+          victim.style.left = vx + "px";
+          // Spawn bandit on opposite side
+          const dir = vx > W() / 2 ? "left" : "right";
+          const startX = dir === "left" ? W() + 20 : -20;
+          const bandit = document.createElement("div");
+          bandit.className = "person bandit";
+          bandit.dataset.dir = dir;
+          bandit.dataset.type = "bandit";
+          bandit.innerHTML = banditSVG();
+          if (dir === "left") bandit.style.transform = "scaleX(-1)";
+          bandit.style.left = startX + "px";
+          bandit.style.bottom = (parseFloat(victim.style.bottom) || 8) + "px";
+          peopleLayer.appendChild(bandit);
+          const stopX = vx + (dir === "left" ? 16 : -16);
+          const walkDist = Math.abs(stopX - startX);
+          const walkTime = walkDist / 80; // fast approach
+          logEvent("A bandit lunges from the shadows!", "bad");
+          requestAnimationFrame(() => {
+            bandit.style.transition = `left ${walkTime}s linear`;
+            bandit.style.left = stopX + "px";
+          });
+          setTimeout(() => {
+            bandit.classList.add("fighting");
+            victim.classList.add("fighting");
+            setTimeout(() => {
+              // Chance of rescue by a warrior already on screen
+              const warriors = Array.from(peopleLayer.querySelectorAll(".person.warrior")).filter(
+                (w) => !w.classList.contains("fighting")
+              );
+              if (warriors.length > 0 && Math.random() < 0.4) {
+                logEvent("A warrior rushes to the rescue!", "good");
+                bandit.classList.add("defeated");
+                victim.classList.remove("fighting");
+                setTimeout(() => bandit.remove(), 1000);
+                // Resume victim
+                const dirV = victim.dataset.dir;
+                const exitV = dirV === "left" ? -20 : (W() + 20);
+                const distV = Math.abs(exitV - vx);
+                victim.style.transition = `left ${distV / 14}s linear`;
+                victim.style.left = exitV + "px";
+              } else {
+                // Bandit wins, steals from victim
+                logEvent("The bandit steals from the traveler and flees!", "bad");
+                for (let i = 0; i < 5; i++) {
+                  setTimeout(() => spawnCoin(vx + (Math.random() - 0.5) * 10, 16), i * 120);
+                }
+                victim.classList.add("defeated");
+                setTimeout(() => victim.remove(), 1000);
+                bandit.classList.remove("fighting");
+                // Bandit flees fast
+                const exitX = dir === "left" ? W() + 20 : -20;
+                bandit.style.transition = `left 5s linear`;
+                bandit.style.left = exitX + "px";
+                setTimeout(() => bandit.remove(), 5500);
+              }
+            }, 3000);
+          }, walkTime * 1000 + 100);
+        }
+
+        /* ============= CLERIC + GRAVE ============= */
+        function clericSVG() {
+          return `<svg viewBox="0 0 12 22" xmlns="http://www.w3.org/2000/svg">
+            <rect x="4" y="2" width="4" height="4" fill="#d4a888"/>
+            <rect x="4" y="5" width="1" height="1" fill="#1a0a0a"/>
+            <rect x="7" y="5" width="1" height="1" fill="#1a0a0a"/>
+            <!-- hood -->
+            <rect x="3" y="0" width="6" height="3" fill="#e8e4d8"/>
+            <rect x="3" y="0" width="6" height="1" fill="#fff8ec"/>
+            <!-- robe -->
+            <rect x="2" y="7" width="8" height="14" fill="#e8e4d8"/>
+            <rect x="2" y="7" width="8" height="1" fill="#fff8ec"/>
+            <rect x="5" y="14" width="2" height="2" fill="#d4a017"/>
+            <rect x="6" y="13" width="0.5" height="4" fill="#d4a017"/>
+            <rect x="4.5" y="14" width="3" height="0.5" fill="#d4a017"/>
+            <!-- arms -->
+            <rect x="1" y="8" width="1" height="6" fill="#e8e4d8"/>
+            <rect x="10" y="8" width="1" height="6" fill="#e8e4d8"/>
+          </svg>`;
+        }
+        function graveSVG() {
+          return `<svg viewBox="0 0 10 14" xmlns="http://www.w3.org/2000/svg">
+            <rect x="0" y="12" width="10" height="2" fill="#3a2a1a"/>
+            <rect x="2" y="4" width="6" height="9" fill="#7a7068"/>
+            <rect x="2" y="4" width="6" height="1" fill="#9a9088"/>
+            <rect x="3" y="0" width="4" height="5" fill="#7a7068"/>
+            <rect x="3" y="0" width="4" height="1" fill="#9a9088"/>
+            <rect x="4" y="2" width="2" height="3" fill="#3a2a1a"/>
+            <rect x="3.5" y="3" width="3" height="1" fill="#3a2a1a"/>
+          </svg>`;
+        }
+
+        function spawnCleric(graveX) {
+          if (reduced) return;
+          const fromLeft = graveX > W() / 2;
+          const startX = fromLeft ? -20 : W() + 20;
+          const stopX = graveX + (fromLeft ? -10 : 12);
+          const cleric = document.createElement("div");
+          cleric.className = "person cleric";
+          cleric.dataset.dir = fromLeft ? "right" : "left";
+          cleric.dataset.type = "cleric";
+          cleric.innerHTML = clericSVG();
+          if (!fromLeft) cleric.style.transform = "scaleX(-1)";
+          cleric.style.left = startX + "px";
+          cleric.style.bottom = "8px";
+          peopleLayer.appendChild(cleric);
+          const dist = Math.abs(stopX - startX);
+          const walkTime = dist / 40;
+          logEvent("A cleric arrives to tend the fallen.");
+          requestAnimationFrame(() => {
+            cleric.style.transition = `left ${walkTime}s linear`;
+            cleric.style.left = stopX + "px";
+          });
+          setTimeout(() => {
+            // Place grave
+            const grave = document.createElement("div");
+            grave.className = "grave";
+            grave.innerHTML = graveSVG();
+            grave.style.left = graveX + "px";
+            grave.style.zIndex = "6";
+            treesLayer.appendChild(grave);
+            for (let i = 0; i < 4; i++) {
+              setTimeout(() => spawnSparkle(graveX + 5, 60, "#fff8e0"), i * 300);
+            }
+            logEvent("A grave is consecrated. The realm mourns.", "bad");
+            setTimeout(() => { if (grave.isConnected) grave.remove(); }, 60000);
+            // Cleric walks away
+            const exitX = fromLeft ? W() + 20 : -20;
+            const exitDur = Math.abs(exitX - stopX) / 40;
+            cleric.style.transition = `left ${exitDur}s linear`;
+            cleric.style.left = exitX + "px";
+            setTimeout(() => cleric.remove(), exitDur * 1000 + 500);
+          }, walkTime * 1000 + 1500);
+        }
+
+        /* ============= CARAVAN TRADE pause ============= */
+        function caravanTrade(horse, cart, atX) {
+          // Pause horse and cart at current position
+          const hx = parseFloat(getComputedStyle(horse).left);
+          const cx = parseFloat(getComputedStyle(cart).left);
+          horse.style.transition = "none";
+          horse.style.left = hx + "px";
+          cart.style.transition = "none";
+          cart.style.left = cx + "px";
+          // Spawn farmer next to the cart
+          const farmer = makePerson("", "right", { bottom: 6 });
+          const fx = cx - 14;
+          farmer.style.left = fx + "px";
+          logEvent("A farmer pauses by the caravan to barter.");
+          for (let i = 0; i < 5; i++) {
+            setTimeout(() => spawnCoin(cx + 4, 16), i * 280);
+          }
+          setTimeout(() => {
+            // Resume caravan
+            const dir = horse.style.transform === "scaleX(-1)" ? "left" : "right";
+            const endX = dir === "left" ? -30 : W() + 30;
+            const remainingDist = Math.abs(endX - hx);
+            const speed = 14;
+            horse.style.transition = `left ${remainingDist / speed}s linear`;
+            horse.style.left = endX + "px";
+            cart.style.transition = `left ${Math.abs(endX - cx) / speed}s linear`;
+            cart.style.left = endX + "px";
+            // Farmer leaves
+            farmer.style.transition = "left 12s linear";
+            farmer.style.left = "-20px";
+            setTimeout(() => farmer.remove(), 12500);
+            logEvent("The caravan rolls on its way.");
+          }, 4000);
+        }
+
         /* ============= PEOPLE ============= */
         const personTypes = ["", "warrior", "mage"];
         const personLogs = {
@@ -1192,6 +1844,26 @@
           if (!opts.silent && Math.random() < 0.3) {
             const ops = personLogs[type];
             logEvent(ops[Math.floor(Math.random() * ops.length)]);
+          }
+
+          // Mid-walk side interactions for peasants (not warriors/mages/special roles)
+          if (type === "" && !opts.silent) {
+            // Tavern visit ~12%
+            if (Math.random() < 0.12) {
+              setTimeout(() => maybeVisitTavern(p), (dur * 0.3 + Math.random() * dur * 0.3) * 1000);
+            }
+            // Well watering ~14%
+            if (Math.random() < 0.14) {
+              setTimeout(() => maybeWaterAtWell(p), (dur * 0.3 + Math.random() * dur * 0.3) * 1000);
+            }
+            // Sometimes a dog runs with them ~8%
+            if (Math.random() < 0.08) {
+              setTimeout(() => spawnDog(startX, dir), 200);
+            }
+          }
+          // Mage casts a spell ~25% of the time
+          if (type === "mage" && !opts.silent && Math.random() < 0.25) {
+            setTimeout(() => castMageSpell(p), (dur * 0.3 + Math.random() * dur * 0.3) * 1000);
           }
           return p;
         }
@@ -1348,6 +2020,15 @@
             });
           }
           logEvent("A trade caravan rolls through. Guards keep watch.");
+
+          // ~70% chance: pause mid-journey for a farmer to trade
+          if (Math.random() < 0.7) {
+            const tradeAt = dur * (0.3 + Math.random() * 0.3) * 1000;
+            setTimeout(() => {
+              if (!hp.isConnected) return;
+              caravanTrade(hp, cart, 0);
+            }, tradeAt);
+          }
         }
 
         /* ============= ROYAL ARMY ============= */
@@ -1477,9 +2158,12 @@
               const aWins = Math.random() > 0.5;
               const loser = aWins ? b : a;
               const winner = aWins ? a : b;
+              const loserX = parseFloat(getComputedStyle(loser).left);
               loser.classList.add("defeated");
               logEvent(aWins ? "The traveler from the east is bested." : "The traveler from the west flees the field.", "bad");
               setTimeout(() => loser.remove(), 1000);
+              // Send a cleric to consecrate after a delay
+              setTimeout(() => spawnCleric(loserX), 6000 + Math.random() * 4000);
 
               // Winner continues
               winner.classList.remove("fighting");
@@ -1604,6 +2288,12 @@
                 <rect x="25" y="17" width="1" height="2" fill="#f0d890"/>
                 <rect x="27" y="17" width="1" height="2" fill="#f0d890"/>
               </g>
+              <g class="hs-windows-lit">
+                <rect x="8" y="16" width="4" height="4" fill="#d4a017"/>
+                <rect x="24" y="16" width="4" height="4" fill="#d4a017"/>
+                <rect x="8" y="16" width="4" height="1" fill="#ffe080"/>
+                <rect x="24" y="16" width="4" height="1" fill="#ffe080"/>
+              </g>
               <g class="hs-roof" opacity="0">
                 <polygon points="0,12 18,2 36,12" fill="#8a3a25"/>
                 <polygon points="2,11 18,4 34,11" fill="#a8442a"/>
@@ -1624,6 +2314,11 @@
                 <rect x="21" y="26" width="2" height="6" fill="#1a1208"/>
                 <rect x="15" y="38" width="2" height="8" fill="#1a1208"/>
                 <rect x="14" y="48" width="4" height="10" fill="#3a2410"/>
+              </g>
+              <g class="hs-windows-lit">
+                <rect x="9" y="26" width="2" height="6" fill="#d4a017"/>
+                <rect x="21" y="26" width="2" height="6" fill="#d4a017"/>
+                <rect x="15" y="38" width="2" height="8" fill="#d4a017"/>
               </g>
               <g class="hs-roof" opacity="0">
                 <rect x="4" y="14" width="24" height="4" fill="#80786a"/>
@@ -1765,6 +2460,17 @@
               logEvent(log.done, "good");
               lj.classList.remove("working");
               clearInterval(dustTimer);
+              // Signpost gets a destination label
+              if (kind === "signpost") {
+                const labels = ["Tavern →", "Mill →", "Old Mines →", "King's Road", "Market →", "Bridge →", "Forge →", "Sanctum →"];
+                const txt = labels[Math.floor(Math.random() * labels.length)];
+                const lbl = document.createElement("div");
+                lbl.className = "sign-label";
+                lbl.textContent = txt;
+                lbl.style.left = (targetX + 9) + "px";
+                treesLayer.appendChild(lbl);
+                logEvent(`"${txt}" reads the new sign.`);
+              }
               const exitX = fromLeft ? W() + 20 : -20;
               const exitDur = Math.abs(exitX - stopX) / 50;
               lj.style.transition = `left ${exitDur}s linear`;
@@ -2099,6 +2805,11 @@
           setTimeout(() => loop(spawnLoneBuilder, 60000, 130000), 35000);
           setTimeout(() => loop(attackRandomHouse, 50000, 110000), 60000);
           setTimeout(() => loop(randomCloud, 9000, 18000), 1000);
+          // New loops
+          setTimeout(() => loop(spawnSheep, 35000, 75000), 14000);
+          setTimeout(() => loop(spawnDog, 60000, 120000), 22000);
+          setTimeout(() => loop(spawnBandit, 70000, 150000), 50000);
+          setTimeout(() => loop(plantCropPatch, 50000, 100000), 25000);
         }
       })();
     </script>
