@@ -422,6 +422,19 @@
       .grave { position: absolute; width: 10px; height: 14px; bottom: 50px; }
       .grave svg { width: 100%; height: 100%; display: block; }
 
+      /* TENT (adventurer camp) */
+      .tent {
+        position: absolute;
+        width: 22px; height: 20px;
+        bottom: 50px;
+        z-index: 5;
+        transform-origin: bottom center;
+        transform: scale(var(--g, 0));
+        transition: transform 1.5s cubic-bezier(.34, 1.2, .64, 1), opacity 1.5s ease;
+      }
+      .tent svg { width: 100%; height: 100%; display: block; overflow: visible; }
+      .tent.collapsing { opacity: 0; transform: scale(var(--g, 1)) scaleY(0.1); }
+
       /* CROPS */
       .crops-layer { position: absolute; inset: 0; z-index: 5; pointer-events: none; }
       .crop {
@@ -1130,6 +1143,10 @@
             if (labelPhase === "night") {
               world.classList.remove("has-rainbow");
               world.classList.remove("has-halo");
+            }
+            // Adventurer camps strike at dawn
+            if (labelPhase === "dawn") {
+              activeCamps.slice().forEach((c) => c.endCamp());
             }
             // only log natural transitions (not manual overrides)
             if (!manualOverride) logEvent(phaseLog[labelPhase], "time");
@@ -2458,8 +2475,37 @@
         }
 
         /* ============= ADVENTURER CAMP ============= */
+        function tentSVG() {
+          // Pick a random tent canvas color
+          const palette = pick([
+            { dark: "#7a3030", light: "#a84040", trim: "#3a1010" },
+            { dark: "#3a5a48", light: "#5a8060", trim: "#1a2a18" },
+            { dark: "#5a4030", light: "#7a5840", trim: "#2a1a0a" },
+            { dark: "#3a3858", light: "#5a5878", trim: "#1a182a" },
+          ]);
+          return `<svg viewBox="0 0 22 20" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+            <polygon points="2,20 20,20 11,4" fill="${palette.dark}"/>
+            <polygon points="4,20 18,20 11,6" fill="${palette.light}"/>
+            <polygon points="9,20 13,20 11,12" fill="${palette.trim}"/>
+            <rect x="10" y="20" width="2" height="0.5" fill="${palette.trim}"/>
+            <!-- tent pole tip -->
+            <rect x="10.5" y="1" width="1" height="4" fill="#5a3818"/>
+            <!-- flag/pennant -->
+            <rect x="11" y="1" width="4" height="2" fill="#d4a017"/>
+            <rect x="11" y="1" width="4" height="0.5" fill="#f0c440"/>
+            <!-- guy ropes (hint) -->
+            <rect x="0" y="18" width="2" height="0.5" fill="#3a2410"/>
+            <rect x="20" y="18" width="2" height="0.5" fill="#3a2410"/>
+          </svg>`;
+        }
+
+        const activeCamps = [];
+
         function spawnAdventurerCamp() {
           if (document.hidden || reduced) return;
+          // Camps only happen at dusk or night
+          const phase = world.dataset.time || "day";
+          if (phase !== "dusk" && phase !== "night") return;
           const x = findOpenSpot();
           if (x == null) return;
 
@@ -2493,7 +2539,7 @@
             });
           });
 
-          // After arrival, light a campfire & rest
+          // After arrival, light a campfire, raise tents, wait the night
           setTimeout(() => {
             const camp = document.createElement("div");
             camp.className = "house";
@@ -2504,55 +2550,98 @@
             treesLayer.appendChild(camp);
             const rec = { el: camp, x, kind: "campfire", stage: 2 };
             houses.push(rec);
-            logEvent("The party kindles a campfire and rests.", "good");
+            logEvent("The party kindles a campfire and unpacks for the night.", "good");
 
-            // Stay 30-55s
-            const stayDur = 30000 + Math.random() * 25000;
+            // Raise 2-3 tents around the fire
+            const tentCount = 2 + Math.floor(Math.random() * 2);
+            const tents = [];
+            const tentOffsets = [];
+            for (let i = 0; i < tentCount; i++) {
+              const side = i % 2 === 0 ? -1 : 1;
+              const offset = side * (26 + Math.floor(i / 2) * 22);
+              tentOffsets.push(offset);
+            }
+            tentOffsets.forEach((offset, i) => {
+              setTimeout(() => {
+                const t = document.createElement("div");
+                t.className = "tent";
+                t.style.left = (x + offset - 11) + "px";
+                t.style.setProperty("--g", "0");
+                t.innerHTML = tentSVG();
+                treesLayer.appendChild(t);
+                tents.push(t);
+                requestAnimationFrame(() => t.style.setProperty("--g", "1"));
+                if (i === 0) logEvent("Tents are pitched around the fire.");
+              }, 1200 + i * 900);
+            });
 
-            // Occasional log entries during the rest
+            // Restful chatter while waiting the night
             const restLogs = [
               "The warriors swap battle tales by the fire.",
-              "The mage practices a small enchantment.",
-              "Someone shares rations from a pack.",
-              "A hush falls over the camp.",
+              "The mage practices a small enchantment, sparks dancing.",
+              "Someone passes around rations.",
+              "A hush settles over the camp.",
               "The party laughs at an old joke.",
+              "A snore drifts from one of the tents.",
+              "Stars wheel slowly overhead.",
             ];
             const chatTimer = setInterval(() => {
               if (Math.random() < 0.6) logEvent(restLogs[Math.floor(Math.random() * restLogs.length)]);
-            }, 7000 + Math.random() * 4000);
+            }, 9000 + Math.random() * 6000);
 
-            setTimeout(() => {
+            // Register so endCamp can be called at dawn
+            const campRec = { x, dir, partyMembers, camp, rec, tents, chatTimer, finished: false };
+            activeCamps.push(campRec);
+            campRec.endCamp = () => {
+              if (campRec.finished) return;
+              campRec.finished = true;
               clearInterval(chatTimer);
-              logEvent("The adventurers pack up and journey onward.", "good");
-              // Exit in same or opposite direction
-              const exitDir = Math.random() > 0.4 ? dir : (dir === "right" ? "left" : "right");
-              const exitX = exitDir === "right" ? (W() + 30) : -30;
-              partyMembers.forEach((p, i) => {
-                const memberX = parseFloat(getComputedStyle(p.el).left);
-                const dist = Math.abs(exitX - memberX);
-                const exitTime = dist / 45;
-                if (exitDir !== dir) {
-                  // Flip facing
-                  p.el.style.transform = p.el.style.transform.indexOf("scaleX(-1)") >= 0 ? "" : "scaleX(-1)";
-                  p.el.dataset.dir = exitDir === "right" ? "right" : "left";
-                }
-                p.el.style.transition = `left ${exitTime}s linear`;
-                p.el.style.left = (exitX + (exitDir === "right" ? i * 18 : -i * 18)) + "px";
-                setTimeout(() => p.el.remove(), exitTime * 1000 + 500);
-              });
-              // Campfire smolders for a while, then dies
-              setTimeout(() => {
-                if (!camp.isConnected) return;
-                logEvent("The abandoned campfire dies down to ashes.");
-                camp.style.transition = "opacity 5s ease";
-                camp.style.opacity = "0";
+              const idx = activeCamps.indexOf(campRec);
+              if (idx >= 0) activeCamps.splice(idx, 1);
+
+              logEvent("Dawn breaks. The adventurers strike camp.", "good");
+              // Tear down tents one by one
+              tents.forEach((t, i) => {
                 setTimeout(() => {
-                  camp.remove();
-                  const i = houses.indexOf(rec);
-                  if (i >= 0) houses.splice(i, 1);
-                }, 5200);
-              }, 60000 + Math.random() * 40000);
-            }, stayDur);
+                  t.classList.add("collapsing");
+                  setTimeout(() => t.remove(), 1700);
+                }, i * 400);
+              });
+
+              setTimeout(() => {
+                logEvent("The party packs up and journeys onward.", "good");
+                const exitDir = Math.random() > 0.4 ? dir : (dir === "right" ? "left" : "right");
+                const exitX = exitDir === "right" ? (W() + 30) : -30;
+                partyMembers.forEach((p, i) => {
+                  const memberX = parseFloat(getComputedStyle(p.el).left);
+                  const dist = Math.abs(exitX - memberX);
+                  const exitTime = dist / 45;
+                  if (exitDir !== dir) {
+                    p.el.style.transform = p.el.style.transform.indexOf("scaleX(-1)") >= 0 ? "" : "scaleX(-1)";
+                    p.el.dataset.dir = exitDir === "right" ? "right" : "left";
+                  }
+                  p.el.style.transition = `left ${exitTime}s linear`;
+                  p.el.style.left = (exitX + (exitDir === "right" ? i * 18 : -i * 18)) + "px";
+                  setTimeout(() => p.el.remove(), exitTime * 1000 + 500);
+                });
+
+                // Campfire dies once the party is gone
+                setTimeout(() => {
+                  if (!camp.isConnected) return;
+                  logEvent("The campfire dies down to ashes.");
+                  camp.style.transition = "opacity 5s ease";
+                  camp.style.opacity = "0";
+                  setTimeout(() => {
+                    camp.remove();
+                    const hi = houses.indexOf(rec);
+                    if (hi >= 0) houses.splice(hi, 1);
+                  }, 5200);
+                }, 12000);
+              }, tents.length * 400 + 800);
+            };
+
+            // Fallback: if dawn never comes (e.g., extremely long manual freeze), end after 5 min
+            setTimeout(() => campRec.endCamp(), 300000);
           }, walkTime * 1000 + 100);
         }
 
@@ -4013,7 +4102,7 @@
           }
           setTimeout(cloudLoop, 1000);
           // New loops
-          setTimeout(() => loop(spawnSheep, 35000, 75000), 14000);
+          // Sheep no longer spawn alone — only with the shepherd
           setTimeout(() => loop(spawnDog, 60000, 120000), 22000);
           setTimeout(() => loop(spawnBandit, 70000, 150000), 50000);
           setTimeout(() => loop(plantCropPatch, 50000, 100000), 25000);
