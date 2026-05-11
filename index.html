@@ -207,6 +207,32 @@
       .house[data-kind="signpost"] { width: 18px; height: 30px; bottom: 50px; }
       .house[data-kind="campfire"] { width: 30px; height: 22px; bottom: 50px; }
       .house[data-kind="castle"]   { width: 96px; height: 72px; }
+      .house[data-kind="wizardtower"] { width: 36px; height: 110px; }
+      .world[data-time="night"] .house[data-kind="wizardtower"] .hs-windows-lit { opacity: 1; }
+      .world[data-time="dusk"]  .house[data-kind="wizardtower"] .hs-windows-lit { opacity: 1; }
+      .world[data-time="dawn"]  .house[data-kind="wizardtower"] .hs-windows-lit { opacity: 1; }
+
+      /* SPELL BOLT (wizard projectile) */
+      .spell-bolt {
+        position: absolute;
+        width: 10px; height: 10px;
+        background: radial-gradient(circle, #fff8d0 0%, #c080e0 40%, #6a3a8a 70%, transparent 100%);
+        border-radius: 50%;
+        box-shadow: 0 0 12px #a060c0, 0 0 4px #fff8d0;
+        z-index: 7;
+        pointer-events: none;
+      }
+      .spell-bolt::after {
+        content: ""; position: absolute;
+        inset: -2px;
+        border-radius: 50%;
+        animation: bolt-pulse 0.15s steps(2) infinite;
+        box-shadow: 0 0 6px #c080e0;
+      }
+      @keyframes bolt-pulse {
+        0%, 100% { transform: scale(1); opacity: 0.6; }
+        50%      { transform: scale(1.3); opacity: 0.9; }
+      }
       .world[data-time="night"] .house[data-kind="castle"] .hs-windows-lit { opacity: 1; }
       .world[data-time="dusk"]  .house[data-kind="castle"] .hs-windows-lit { opacity: 1; }
       .house svg { width: 100%; height: 100%; display: block; overflow: visible; }
@@ -1084,6 +1110,60 @@
         resize();
         addEventListener("resize", resize);
 
+        /* ============= WORLD RESIZE / RESPONSIVE ============= */
+        let lastViewportW = innerWidth;
+        let resizeTimer = null;
+        function repositionWorld() {
+          const newW = innerWidth;
+          if (lastViewportW === 0) lastViewportW = newW;
+          const ratio = newW / lastViewportW;
+          lastViewportW = newW;
+          if (ratio === 1 || isNaN(ratio) || !isFinite(ratio)) return;
+
+          // Stationary entities — keep proportional X
+          trees.forEach((t) => {
+            t.x = t.x * ratio;
+            t.el.style.left = t.x + "px";
+          });
+          houses.forEach((h) => {
+            h.x = h.x * ratio;
+            h.el.style.left = h.x + "px";
+          });
+          crops.forEach((c) => {
+            c.x = c.x * ratio;
+            c.baseX = c.baseX * ratio;
+            c.el.style.left = c.x + "px";
+          });
+          document.querySelectorAll(".grave, .sign-label").forEach((g) => {
+            const oldLeft = parseFloat(g.style.left) || 0;
+            g.style.left = (oldLeft * ratio) + "px";
+          });
+
+          // Re-target in-flight movers to the new viewport edge so they don't overshoot
+          document.querySelectorAll(".person, .horseman, .cloud, .dragon, .sheep, .dog, .cart, .house, .tree").forEach((el) => {
+            // For entities currently mid-transition with a left value, just stop them at current spot — they'll naturally despawn.
+            // Cleaner: redirect their target to the closer viewport edge.
+            if (el.classList.contains("house") || el.classList.contains("tree")) return; // already handled
+            const cs = getComputedStyle(el);
+            const curLeft = parseFloat(cs.left);
+            if (isNaN(curLeft)) return;
+            const transDur = parseFloat(cs.transitionDuration) || 0;
+            if (transDur > 0) {
+              // Pick the closer edge as new target
+              const targetX = curLeft < newW / 2 ? -50 : (newW + 50);
+              const dist = Math.abs(targetX - curLeft);
+              const newDur = Math.min(transDur, dist / 40);
+              el.style.transition = `left ${newDur}s linear`;
+              el.style.left = targetX + "px";
+            }
+          });
+        }
+        addEventListener("resize", () => {
+          // Debounce — wait until resize settles
+          clearTimeout(resizeTimer);
+          resizeTimer = setTimeout(repositionWorld, 180);
+        });
+
         const drops = [];
         let wind = 0, windTarget = 0, gustTimer = 0;
         let intensity = 0, intensityTarget = 0;
@@ -1838,6 +1918,157 @@
           }, walkTime * 1000 + 200);
         }
 
+        /* ============= WIZARD TOWER ============= */
+        function spawnWizardTower() {
+          if (document.hidden || reduced) return;
+          const x = findOpenSpot();
+          if (x == null) return;
+          logEvent("A wizard appears, seeking a place of power...", "weather");
+
+          const fromLeft = x > W() / 2;
+          const dir = fromLeft ? "right" : "left";
+          const startX = fromLeft ? -20 : (W() + 20);
+          const stopX = x + (fromLeft ? 4 : 14);
+          const wiz = makePerson("mage", dir, { bottom: 40, extra: "wizard-builder" });
+          wiz.style.left = startX + "px";
+
+          const walkTime = Math.abs(stopX - startX) / 40;
+          requestAnimationFrame(() => {
+            wiz.style.transition = `left ${walkTime}s linear`;
+            wiz.style.left = stopX + "px";
+          });
+
+          setTimeout(() => {
+            // Sparkle burst around tower position
+            for (let i = 0; i < 26; i++) {
+              setTimeout(() => {
+                spawnSparkle(x + 18 + (Math.random() - 0.5) * 36, 60 + Math.random() * 80, "#a060c0");
+              }, i * 70);
+            }
+            logEvent("The wizard chants a tower-summoning rite!", "good");
+
+            // Create tower
+            const h = document.createElement("div");
+            h.className = "house";
+            h.dataset.kind = "wizardtower";
+            h.innerHTML = structureSVG("wizardtower");
+            h.style.left = x + "px";
+            treesLayer.appendChild(h);
+            const rec = { el: h, x, kind: "wizardtower", stage: 0 };
+            houses.push(rec);
+
+            // Stage 1: walls shimmer in
+            setTimeout(() => {
+              if (!h.isConnected) return;
+              rec.stage = 1;
+              h.querySelectorAll(".hs-walls").forEach((el) => el.setAttribute("opacity", 1));
+              logEvent("The tower's walls shimmer into being.");
+            }, 2500);
+
+            // Stage 2: crown + roof
+            setTimeout(() => {
+              if (!h.isConnected) return;
+              rec.stage = 2;
+              h.querySelectorAll(".hs-walls").forEach((el) => el.setAttribute("opacity", 1));
+              h.querySelectorAll(".hs-roof").forEach((el) => el.setAttribute("opacity", 1));
+              logEvent("A wizard's tower pierces the sky!", "good");
+
+              // Wizard ascends into the tower
+              setTimeout(() => {
+                wiz.style.transition = "left 1s linear, opacity 1s ease-out";
+                wiz.style.left = (x + 16) + "px";
+                wiz.style.opacity = "0";
+                logEvent("The wizard ascends into the tower.");
+              }, 1500);
+
+              setTimeout(() => {
+                wiz.remove();
+                startWizardOffensive(rec);
+              }, 3000);
+            }, 5500);
+          }, walkTime * 1000 + 100);
+        }
+
+        function startWizardOffensive(towerRec) {
+          let shots = 0;
+          const maxShots = 8 + Math.floor(Math.random() * 4);
+          logEvent("Eerie purple light shines from the tower's pinnacle!", "bad");
+
+          function shoot() {
+            if (!towerRec.el.isConnected) return;
+            // Pick a target — anyone walking who's not the wizard or a cleric
+            const targets = Array.from(peopleLayer.querySelectorAll(".person")).filter((p) =>
+              !p.classList.contains("defeated") &&
+              !p.classList.contains("wizard-builder") &&
+              !p.classList.contains("cleric") &&
+              p.dataset.type !== "mage"
+            );
+            if (targets.length > 0) {
+              const target = targets[Math.floor(Math.random() * targets.length)];
+              const towerX = towerRec.x + 18;
+              const towerY = H() - parseFloat(getComputedStyle(towerRec.el).bottom || "48") - 95;
+              // Convert to bottom-anchored coords for the shootBolt function
+              const towerBottom = 48 + 95; // tower bottom + window-y
+              shootBolt(towerX, towerBottom, target);
+            }
+            shots++;
+            if (shots < maxShots) {
+              setTimeout(shoot, 3500 + Math.random() * 2500);
+            } else {
+              setTimeout(() => {
+                logEvent("The wizard's tower falls dim and silent.");
+                // Wizard teleports away with sparkles
+                for (let i = 0; i < 14; i++) {
+                  setTimeout(() => spawnSparkle(towerRec.x + 18, 145, "#c080e0"), i * 90);
+                }
+              }, 2000);
+            }
+          }
+          setTimeout(shoot, 2500);
+        }
+
+        function shootBolt(srcX, srcBottom, target) {
+          if (!target.isConnected) return;
+          const bolt = document.createElement("div");
+          bolt.className = "spell-bolt";
+          bolt.style.left = srcX + "px";
+          bolt.style.bottom = srcBottom + "px";
+          peopleLayer.appendChild(bolt);
+
+          // Trail sparkles
+          const trail = setInterval(() => {
+            const bl = parseFloat(bolt.style.left) || srcX;
+            const bb = parseFloat(bolt.style.bottom) || srcBottom;
+            const rect = bolt.getBoundingClientRect();
+            // Use computed style for in-flight position
+            const cs = getComputedStyle(bolt);
+            spawnSparkle(parseFloat(cs.left), parseFloat(cs.bottom), "#c080e0");
+          }, 60);
+
+          const tx = parseFloat(getComputedStyle(target).left) + 6;
+          const tb = (parseFloat(target.style.bottom) || 8) + 10;
+
+          requestAnimationFrame(() => {
+            bolt.style.transition = "left 0.9s linear, bottom 0.9s ease-in";
+            bolt.style.left = tx + "px";
+            bolt.style.bottom = tb + "px";
+          });
+
+          setTimeout(() => {
+            clearInterval(trail);
+            // Impact: flash + sparkles
+            for (let i = 0; i < 8; i++) {
+              setTimeout(() => spawnSparkle(tx, tb, "#fff8d0"), i * 50);
+            }
+            if (target.isConnected && !target.classList.contains("defeated")) {
+              target.classList.add("defeated");
+              setTimeout(() => target.remove(), 1000);
+              logEvent("A bolt of arcane lightning strikes from the tower!", "bad");
+            }
+            bolt.remove();
+          }, 950);
+        }
+
         /* ============= ROYAL CASTLE CONSTRUCTION ============= */
         function spawnRoyalCastle() {
           if (document.hidden || reduced) return;
@@ -2560,7 +2791,7 @@
 
         /* ============= STRUCTURES (houses, towers, wells, signposts, campfires) ============= */
         const houses = [];
-        const STRUCTURE_KINDS = ["house", "tower", "well", "signpost", "campfire", "castle"];
+        const STRUCTURE_KINDS = ["house", "tower", "well", "signpost", "campfire", "castle", "wizardtower"];
         const STRUCTURE_BUILD_LOG = {
           house:    { mid: "Walls rise from the foundation.",    done: "A house stands complete!" },
           tower:    { mid: "The watchtower shaft climbs higher.", done: "A watchtower keeps vigil!" },
@@ -2568,6 +2799,7 @@
           signpost: { mid: null, done: "A signpost is planted at the crossroads." },
           campfire: { mid: "Logs are stacked for the fire.",     done: "A campfire crackles to life." },
           castle:   { mid: "The castle walls rise, stone by stone.", done: "The castle stands — long live the realm!" },
+          wizardtower: { mid: "The tower's walls shimmer into being.", done: "A wizard's tower pierces the sky!" },
         };
 
         function structureSVG(kind) {
@@ -2687,6 +2919,53 @@
                 <polygon points="11,13 15,5 19,13" fill="#f0c440"/>
                 <polygon points="12,12 15,8 18,12" fill="#fff4a0"/>
                 <rect x="14" y="0" width="1" height="3" fill="#fff4a0"/>
+              </g>
+            </svg>`;
+
+            case "wizardtower": return `<svg viewBox="0 0 36 110" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+              <!-- foundation -->
+              <rect x="2" y="104" width="32" height="6" fill="#5a4030"/>
+              <rect x="2" y="104" width="32" height="2" fill="#7a5840"/>
+              <!-- walls (stage 1) -->
+              <g class="hs-walls" opacity="0">
+                <rect x="8" y="24" width="20" height="80" fill="#4a3858"/>
+                <rect x="8" y="24" width="20" height="2" fill="#6a5878"/>
+                <rect x="8" y="102" width="20" height="2" fill="#3a2848"/>
+                <rect x="16" y="88" width="4" height="14" fill="#3a2410"/>
+                <rect x="14" y="86" width="8" height="2" fill="#3a2410"/>
+                <rect x="16" y="76" width="4" height="6" fill="#1a1228"/>
+                <rect x="16" y="60" width="4" height="6" fill="#1a1228"/>
+                <rect x="16" y="44" width="4" height="6" fill="#1a1228"/>
+                <rect x="11" y="32" width="2" height="2" fill="#3a2848"/>
+                <rect x="23" y="36" width="2" height="2" fill="#3a2848"/>
+                <rect x="11" y="50" width="2" height="2" fill="#3a2848"/>
+                <rect x="23" y="54" width="2" height="2" fill="#3a2848"/>
+                <rect x="11" y="68" width="2" height="2" fill="#3a2848"/>
+                <rect x="23" y="72" width="2" height="2" fill="#3a2848"/>
+              </g>
+              <!-- crown / pointed roof (stage 2) -->
+              <g class="hs-roof" opacity="0">
+                <rect x="3" y="20" width="30" height="4" fill="#5a4868"/>
+                <rect x="3" y="20" width="30" height="2" fill="#7a5888"/>
+                <rect x="12" y="10" width="12" height="10" fill="#1a1228"/>
+                <rect x="12" y="10" width="12" height="2" fill="#3a2848"/>
+                <rect x="14" y="12" width="2" height="2" fill="#a0a0ff" opacity="0.6"/>
+                <rect x="20" y="12" width="2" height="2" fill="#a0a0ff" opacity="0.6"/>
+                <rect x="8" y="6" width="20" height="4" fill="#3a2848"/>
+                <polygon points="2,10 34,10 18,-12" fill="#6a3a8a"/>
+                <polygon points="6,9 30,9 18,-8" fill="#8a4aa0"/>
+                <polygon points="10,7 26,7 18,-4" fill="#a060c0"/>
+                <rect x="17" y="-14" width="2" height="2" fill="#f0d060"/>
+                <rect x="16" y="-13" width="4" height="1" fill="#f0d060"/>
+                <rect x="16" y="-12" width="4" height="1" fill="#fff8d0"/>
+              </g>
+              <g class="hs-windows-lit">
+                <rect x="16" y="76" width="4" height="6" fill="#a060c0"/>
+                <rect x="16" y="60" width="4" height="6" fill="#a060c0"/>
+                <rect x="16" y="44" width="4" height="6" fill="#a060c0"/>
+                <rect x="12" y="10" width="12" height="10" fill="#c080e0"/>
+                <rect x="14" y="12" width="2" height="2" fill="#fff8d0"/>
+                <rect x="20" y="12" width="2" height="2" fill="#fff8d0"/>
               </g>
             </svg>`;
 
@@ -3220,6 +3499,7 @@
           setTimeout(() => loop(plantCropPatch, 50000, 100000), 25000);
           setTimeout(() => loop(spawnWedding, 150000, 280000), 65000);
           setTimeout(() => loop(spawnRoyalCastle, 280000, 480000), 140000);
+          setTimeout(() => loop(spawnWizardTower, 220000, 360000), 95000);
         }
       })();
     </script>
