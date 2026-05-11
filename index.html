@@ -212,6 +212,44 @@
       .world[data-time="dusk"]  .house[data-kind="wizardtower"] .hs-windows-lit { opacity: 1; }
       .world[data-time="dawn"]  .house[data-kind="wizardtower"] .hs-windows-lit { opacity: 1; }
 
+      /* SKY WIZARD (on broom) */
+      .sky-wizard {
+        position: absolute;
+        width: 36px; height: 22px;
+        z-index: 4;
+        pointer-events: none;
+        animation: sky-bob 1.6s ease-in-out infinite;
+      }
+      .sky-wizard svg { width: 100%; height: 100%; display: block; overflow: visible; }
+      @keyframes sky-bob {
+        0%,100% { translate: 0 0; }
+        50%     { translate: 0 -3px; }
+      }
+
+      /* TOWER WIZARD (perches on top of tower) */
+      .tower-wizard {
+        position: absolute;
+        width: 12px; height: 22px;
+        z-index: 6;
+        pointer-events: none;
+        animation: walk-bob 0.6s steps(2) infinite;
+      }
+      .tower-wizard svg { width: 100%; height: 100%; display: block; overflow: visible; }
+
+      /* FLYING CASTLE */
+      .flying-castle {
+        position: absolute;
+        width: 180px; height: 120px;
+        z-index: 2;
+        pointer-events: none;
+        animation: castle-bob 5s ease-in-out infinite;
+      }
+      .flying-castle svg { width: 100%; height: 100%; display: block; overflow: visible; }
+      @keyframes castle-bob {
+        0%,100% { translate: 0 0; }
+        50%     { translate: 0 -4px; }
+      }
+
       /* SPELL BOLT (wizard projectile) */
       .spell-bolt {
         position: absolute;
@@ -1273,7 +1311,7 @@
             }, i * 30);
           }
         }
-        if (!reduced) seedClouds(5);
+        if (!reduced) seedClouds(10);
 
         /* ============= PARTICLES ============= */
         function spawnParticle(x, y, kind = "chip") {
@@ -1918,6 +1956,169 @@
           }, walkTime * 1000 + 200);
         }
 
+        /* ============= SKY WIZARD (broom-flying) ============= */
+        function skyWizardSVG() {
+          return `<svg viewBox="0 0 36 22" xmlns="http://www.w3.org/2000/svg">
+            <!-- broom handle -->
+            <rect x="4" y="14" width="22" height="1" fill="#6a4828"/>
+            <rect x="4" y="15" width="22" height="1" fill="#3a2410"/>
+            <!-- broom bristles -->
+            <rect x="26" y="11" width="8" height="6" fill="#a87838"/>
+            <rect x="26" y="11" width="8" height="1" fill="#c89858"/>
+            <rect x="28" y="17" width="6" height="1" fill="#5a3818"/>
+            <rect x="30" y="18" width="4" height="1" fill="#5a3818"/>
+            <!-- wizard body -->
+            <rect x="10" y="6" width="6" height="8" fill="#6a3a8a"/>
+            <rect x="10" y="6" width="6" height="1" fill="#8a4aa0"/>
+            <rect x="9" y="14" width="8" height="1" fill="#d4a017"/>
+            <!-- arms -->
+            <rect x="9" y="8" width="1" height="5" fill="#6a3a8a"/>
+            <rect x="16" y="8" width="1" height="5" fill="#6a3a8a"/>
+            <!-- head -->
+            <rect x="11" y="2" width="4" height="4" fill="#d4a888"/>
+            <!-- pointy hat -->
+            <polygon points="9,2 17,2 13,-4" fill="#3a2848"/>
+            <rect x="9" y="2" width="8" height="1" fill="#1a0c20"/>
+            <rect x="12" y="-1" width="1" height="1" fill="#d4a017"/>
+            <!-- beard -->
+            <rect x="11" y="5" width="4" height="2" fill="#d8d4c0"/>
+            <!-- staff -->
+            <rect x="6" y="0" width="1" height="12" fill="#5a3818"/>
+            <rect x="5" y="-2" width="3" height="3" fill="#d4a017"/>
+            <rect x="6" y="-1" width="1" height="1" fill="#ffe080"/>
+            <!-- subtle trail glow -->
+            <rect x="0" y="14" width="4" height="1" fill="#a060c0" opacity="0.4"/>
+            <rect x="2" y="13" width="4" height="1" fill="#a060c0" opacity="0.6"/>
+          </svg>`;
+        }
+
+        function spawnSkyWizard() {
+          if (document.hidden || reduced) return;
+          const w = document.createElement("div");
+          w.className = "sky-wizard";
+          w.innerHTML = skyWizardSVG();
+          const dir = Math.random() > 0.5 ? "left" : "right";
+          if (dir === "left") w.style.transform = "scaleX(-1)";
+          const startX = dir === "left" ? W() + 60 : -60;
+          const endX = dir === "left" ? -60 : W() + 60;
+          w.style.left = startX + "px";
+          w.style.top = (4 + Math.random() * 14) + "%";
+          cloudsLayer.appendChild(w);
+          const dur = 30 + Math.random() * 20;
+          requestAnimationFrame(() => {
+            w.style.transition = `left ${dur}s linear`;
+            w.style.left = endX + "px";
+          });
+          // Sparkle trail
+          const trailTimer = setInterval(() => {
+            if (!w.isConnected) { clearInterval(trailTimer); return; }
+            const cs = getComputedStyle(w);
+            const x = parseFloat(cs.left) + (dir === "left" ? 24 : 0);
+            const yPercent = parseFloat(w.style.top) / 100 * H();
+            spawnSparkle(x, H() - yPercent - 6, "#c080e0");
+          }, 320);
+          setTimeout(() => { clearInterval(trailTimer); w.remove(); }, dur * 1000 + 500);
+          logEvent("A wizard streaks across the sky on a broomstick!", "good");
+        }
+
+        /* ============= FLYING CASTLE ============= */
+        function flyingCastleSVG() {
+          return `<svg viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+            <!-- big puffy cloud base -->
+            <ellipse cx="22" cy="68" rx="14" ry="8" fill="#f0e4c0"/>
+            <ellipse cx="40" cy="64" rx="18" ry="9" fill="#f0e4c0"/>
+            <ellipse cx="60" cy="62" rx="20" ry="10" fill="#f0e4c0"/>
+            <ellipse cx="80" cy="64" rx="18" ry="9" fill="#f0e4c0"/>
+            <ellipse cx="100" cy="68" rx="14" ry="8" fill="#f0e4c0"/>
+            <rect x="20" y="58" width="80" height="14" fill="#f0e4c0"/>
+            <rect x="20" y="70" width="80" height="3" fill="#c8b890"/>
+            <rect x="28" y="73" width="64" height="2" fill="#a89878"/>
+
+            <!-- main castle base -->
+            <rect x="36" y="38" width="48" height="22" fill="#a8a098"/>
+            <rect x="36" y="38" width="48" height="2" fill="#c8c0b0"/>
+            <rect x="36" y="58" width="48" height="2" fill="#80786a"/>
+            <!-- gate -->
+            <rect x="56" y="48" width="8" height="12" fill="#3a2410"/>
+            <rect x="56" y="48" width="8" height="2" fill="#5a3818"/>
+            <rect x="59" y="50" width="2" height="10" fill="#7a5828"/>
+            <!-- base wall windows -->
+            <rect x="42" y="44" width="3" height="5" fill="#1a1208"/>
+            <rect x="75" y="44" width="3" height="5" fill="#1a1208"/>
+
+            <!-- LEFT narrow tall tower -->
+            <rect x="30" y="14" width="8" height="44" fill="#a8a098"/>
+            <rect x="30" y="14" width="8" height="2" fill="#c8c0b0"/>
+            <rect x="32" y="22" width="4" height="6" fill="#1a1208"/>
+            <rect x="32" y="36" width="4" height="6" fill="#1a1208"/>
+            <polygon points="28,14 40,14 34,2" fill="#6a3a8a"/>
+            <polygon points="30,13 38,13 34,5" fill="#8a4aa0"/>
+            <rect x="34" y="-2" width="0.5" height="6" fill="#5a3818"/>
+            <rect x="34" y="0" width="3" height="2" fill="#c84a35"/>
+
+            <!-- RIGHT narrow tall tower -->
+            <rect x="82" y="14" width="8" height="44" fill="#a8a098"/>
+            <rect x="82" y="14" width="8" height="2" fill="#c8c0b0"/>
+            <rect x="84" y="22" width="4" height="6" fill="#1a1208"/>
+            <rect x="84" y="36" width="4" height="6" fill="#1a1208"/>
+            <polygon points="80,14 92,14 86,2" fill="#6a3a8a"/>
+            <polygon points="82,13 90,13 86,5" fill="#8a4aa0"/>
+            <rect x="86" y="-2" width="0.5" height="6" fill="#5a3818"/>
+            <rect x="86" y="0" width="3" height="2" fill="#c84a35"/>
+
+            <!-- CENTRAL tall keep -->
+            <rect x="52" y="6" width="16" height="34" fill="#a8a098"/>
+            <rect x="52" y="6" width="16" height="2" fill="#c8c0b0"/>
+            <rect x="55" y="14" width="4" height="6" fill="#1a1208"/>
+            <rect x="61" y="14" width="4" height="6" fill="#1a1208"/>
+            <rect x="55" y="26" width="4" height="6" fill="#1a1208"/>
+            <rect x="61" y="26" width="4" height="6" fill="#1a1208"/>
+            <!-- crown -->
+            <rect x="50" y="4" width="20" height="3" fill="#80786a"/>
+            <rect x="50" y="0" width="3" height="4" fill="#80786a"/>
+            <rect x="55" y="0" width="3" height="4" fill="#80786a"/>
+            <rect x="60" y="0" width="4" height="4" fill="#80786a"/>
+            <rect x="65" y="0" width="3" height="4" fill="#80786a"/>
+            <!-- royal flag on central -->
+            <rect x="59" y="-10" width="1" height="14" fill="#5a3818"/>
+            <rect x="60" y="-8" width="8" height="5" fill="#6a2848"/>
+            <rect x="60" y="-8" width="8" height="1" fill="#8a3868"/>
+            <rect x="63" y="-6" width="2" height="2" fill="#d4a017"/>
+
+            <!-- chains hanging from base -->
+            <rect x="44" y="60" width="1" height="6" fill="#5a504a"/>
+            <rect x="76" y="60" width="1" height="6" fill="#5a504a"/>
+            <rect x="60" y="60" width="1" height="8" fill="#5a504a"/>
+
+            <!-- subtle magical sparkles around -->
+            <rect x="14" y="56" width="1" height="1" fill="#fff8d0" opacity="0.8"/>
+            <rect x="108" y="58" width="1" height="1" fill="#fff8d0" opacity="0.8"/>
+            <rect x="22" y="50" width="1" height="1" fill="#c080e0" opacity="0.8"/>
+            <rect x="100" y="48" width="1" height="1" fill="#c080e0" opacity="0.8"/>
+          </svg>`;
+        }
+
+        function spawnFlyingCastle() {
+          if (document.hidden || reduced) return;
+          const fc = document.createElement("div");
+          fc.className = "flying-castle";
+          fc.innerHTML = flyingCastleSVG();
+          const dir = Math.random() > 0.5 ? "left" : "right";
+          if (dir === "left") fc.style.transform = "scaleX(-1)";
+          fc.style.top = (3 + Math.random() * 10) + "%";
+          const startX = dir === "left" ? W() + 250 : -250;
+          const endX = dir === "left" ? -250 : W() + 250;
+          fc.style.left = startX + "px";
+          cloudsLayer.appendChild(fc);
+          const dur = 90 + Math.random() * 50;
+          requestAnimationFrame(() => {
+            fc.style.transition = `left ${dur}s linear`;
+            fc.style.left = endX + "px";
+          });
+          setTimeout(() => fc.remove(), dur * 1000 + 500);
+          logEvent("A flying castle drifts majestically through the clouds!", "good");
+        }
+
         /* ============= WIZARD TOWER ============= */
         function spawnWizardTower() {
           if (document.hidden || reduced) return;
@@ -1973,16 +2174,29 @@
               h.querySelectorAll(".hs-roof").forEach((el) => el.setAttribute("opacity", 1));
               logEvent("A wizard's tower pierces the sky!", "good");
 
-              // Wizard ascends into the tower
+              // Wizard ascends and emerges on top of the tower
               setTimeout(() => {
                 wiz.style.transition = "left 1s linear, opacity 1s ease-out";
                 wiz.style.left = (x + 16) + "px";
                 wiz.style.opacity = "0";
-                logEvent("The wizard ascends into the tower.");
+                logEvent("The wizard ascends into the tower...");
               }, 1500);
 
               setTimeout(() => {
                 wiz.remove();
+                // Spawn perched wizard on top of tower
+                const perched = document.createElement("div");
+                perched.className = "tower-wizard";
+                perched.innerHTML = personSVG("mage");
+                perched.style.left = (x + 11) + "px";
+                perched.style.bottom = "144px"; // tower body top, below conical roof
+                peopleLayer.appendChild(perched);
+                // Sparkle entrance
+                for (let i = 0; i < 8; i++) {
+                  setTimeout(() => spawnSparkle(x + 17, 150, "#c080e0"), i * 80);
+                }
+                logEvent("The wizard emerges atop the tower, staff raised!", "bad");
+                rec.perchedWizard = perched;
                 startWizardOffensive(rec);
               }, 3000);
             }, 5500);
@@ -2017,9 +2231,14 @@
             } else {
               setTimeout(() => {
                 logEvent("The wizard's tower falls dim and silent.");
-                // Wizard teleports away with sparkles
-                for (let i = 0; i < 14; i++) {
-                  setTimeout(() => spawnSparkle(towerRec.x + 18, 145, "#c080e0"), i * 90);
+                // Perched wizard teleports away with sparkles
+                if (towerRec.perchedWizard && towerRec.perchedWizard.isConnected) {
+                  for (let i = 0; i < 14; i++) {
+                    setTimeout(() => spawnSparkle(towerRec.x + 18, 150, "#c080e0"), i * 90);
+                  }
+                  towerRec.perchedWizard.style.transition = "opacity 1s ease-out";
+                  towerRec.perchedWizard.style.opacity = "0";
+                  setTimeout(() => towerRec.perchedWizard.remove(), 1100);
                 }
               }, 2000);
             }
@@ -3491,7 +3710,7 @@
           setTimeout(() => loop(spawnLumberjack, 28000, 60000), 18000);
           setTimeout(() => loop(spawnLoneBuilder, 60000, 130000), 35000);
           setTimeout(() => loop(attackRandomHouse, 50000, 110000), 60000);
-          setTimeout(() => loop(randomCloud, 9000, 18000), 1000);
+          setTimeout(() => loop(randomCloud, 5000, 10000), 1000);
           // New loops
           setTimeout(() => loop(spawnSheep, 35000, 75000), 14000);
           setTimeout(() => loop(spawnDog, 60000, 120000), 22000);
@@ -3500,6 +3719,8 @@
           setTimeout(() => loop(spawnWedding, 150000, 280000), 65000);
           setTimeout(() => loop(spawnRoyalCastle, 280000, 480000), 140000);
           setTimeout(() => loop(spawnWizardTower, 220000, 360000), 95000);
+          setTimeout(() => loop(spawnSkyWizard, 60000, 130000), 25000);
+          setTimeout(() => loop(spawnFlyingCastle, 200000, 360000), 70000);
         }
       })();
     </script>
