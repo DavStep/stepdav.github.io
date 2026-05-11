@@ -4,846 +4,1753 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Dav Stepanyan | Game Dev Portfolio</title>
-    <meta
-      name="description"
-      content="Portfolio of Dav Stepanyan, game developer working on Idle Outpost, previously on Sandship, GGJ participant."
-    />
+    <meta name="description" content="Portfolio of Dav Stepanyan, game developer working on Idle Outpost, previously on Sandship and Battle Cards." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet" />
     <style>
-      @import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Mono:wght@400;700&family=VT323&display=swap");
-
       :root {
-        --bg: #08060f;
-        --bg-2: #0d0b18;
-        --panel: #101526;
-        --panel-soft: #151c33;
-        --ink: #f8f6ff;
-        --muted: #b2b6d3;
-        --accent: #00f5d4;
-        --accent-2: #ff4ecd;
-        --accent-3: #f9c74f;
-        --accent-4: #7bff6a;
-        --ring: rgba(255, 255, 255, 0.18);
-        --shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
-        --glow: 0 0 18px rgba(0, 245, 212, 0.45);
+        --bg: #1a1410;
+        --panel: rgba(28, 20, 12, 0.96);
+        --frame: #4a3422;
+        --frame-light: #6b4a30;
+        --ink: #e8d9b0;
+        --muted: #9a8466;
+        --gold: #d4a017;
+        --ember: #c84a35;
+        --moss: #6b8e3a;
+        --rare: #6b8cca;
+        --epic: #a060c0;
+        --grass: #3a5a28;
+        --grass-dark: #25401a;
       }
 
-      * {
-        box-sizing: border-box;
-      }
-
+      * { box-sizing: border-box; image-rendering: pixelated; }
+      html, body { overflow-x: hidden; }
       body {
         margin: 0;
         font-family: "VT323", monospace;
-        font-size: 18px;
+        font-size: 20px;
+        line-height: 1.4;
         color: var(--ink);
-        background: radial-gradient(
-            1000px 520px at 15% 0%,
-            rgba(255, 78, 205, 0.18),
-            transparent 60%
-          ),
-          radial-gradient(
-            900px 520px at 85% 10%,
-            rgba(0, 245, 212, 0.18),
-            transparent 55%
-          ),
-          radial-gradient(
-            800px 520px at 50% 95%,
-            rgba(249, 199, 79, 0.18),
-            transparent 60%
-          ),
-          linear-gradient(180deg, #05040c 0%, #090a18 60%, #070b14 100%);
+        background: #0a0810;
         min-height: 100vh;
-        position: relative;
       }
 
-      body::before,
-      body::after {
-        content: "";
-        position: fixed;
-        inset: 0;
+      /* ============= WORLD ============= */
+      .world { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+
+      .sky {
+        position: absolute; inset: 0; z-index: 0;
+        background: linear-gradient(180deg,
+          var(--sky-top, #6a98c8) 0%,
+          var(--sky-mid, #d8c8a8) 70%,
+          var(--sky-bot, #b89868) 100%);
+      }
+
+      .weather-veil {
+        position: absolute; inset: 0; z-index: 3;
+        background: rgba(20, 20, 30, 0);
+        transition: background 8s ease;
         pointer-events: none;
-        z-index: 0;
+      }
+      .world[data-weather="cloudy"] .weather-veil { background: rgba(20, 20, 30, 0.25); }
+      .world[data-weather="rain"]   .weather-veil { background: rgba(15, 15, 25, 0.45); }
+      .world[data-weather="storm"]  .weather-veil { background: rgba(8, 8, 18, 0.65); }
+      .world.manual-weather .weather-veil { transition: background 1.4s ease; }
+
+      .stars {
+        position: absolute; inset: 0; z-index: 1;
+        background-image:
+          radial-gradient(1px 1px at 5% 8%, #fff, transparent 100%),
+          radial-gradient(1px 1px at 12% 22%, #fff, transparent 100%),
+          radial-gradient(1px 1px at 19% 5%, #fff, transparent 100%),
+          radial-gradient(1px 1px at 27% 18%, #fff, transparent 100%),
+          radial-gradient(1px 1px at 34% 12%, #fff, transparent 100%),
+          radial-gradient(1px 1px at 41% 25%, #fff, transparent 100%),
+          radial-gradient(1px 1px at 48% 6%, #fff, transparent 100%),
+          radial-gradient(1px 1px at 55% 20%, #fff, transparent 100%),
+          radial-gradient(1px 1px at 62% 10%, #fff, transparent 100%),
+          radial-gradient(1px 1px at 69% 23%, #fff, transparent 100%),
+          radial-gradient(1px 1px at 76% 8%, #fff, transparent 100%),
+          radial-gradient(1px 1px at 83% 16%, #fff, transparent 100%),
+          radial-gradient(1px 1px at 90% 5%, #fff, transparent 100%),
+          radial-gradient(1px 1px at 97% 19%, #fff, transparent 100%);
+        opacity: var(--stars-opacity, 0);
+        animation: twinkle 4s steps(2) infinite;
+      }
+      @keyframes twinkle { 0%,100% { filter: brightness(1); } 50% { filter: brightness(0.65); } }
+
+      .sun {
+        position: absolute;
+        left: var(--sun-x, 18%); top: var(--sun-y, 8%);
+        width: 28px; height: 28px;
+        background: var(--sun-color, #f0d060);
+        border-radius: 50%;
+        box-shadow: 0 0 22px 6px var(--sun-glow, rgba(240, 208, 96, 0.45));
+        opacity: var(--sun-opacity, 0);
+        transform: translate(-50%, -50%); z-index: 1;
       }
 
-      body::before {
-        background: repeating-linear-gradient(
-          0deg,
-          rgba(255, 255, 255, 0.08) 0,
-          rgba(255, 255, 255, 0.08) 1px,
-          transparent 1px,
-          transparent 4px
-        );
-        opacity: 0.12;
-        mix-blend-mode: screen;
+      .moon {
+        position: absolute;
+        left: var(--moon-x, 82%); top: var(--moon-y, 12%);
+        width: 24px; height: 24px;
+        background: #e0d4a8; border-radius: 50%;
+        box-shadow: 0 0 16px 3px rgba(224, 212, 168, 0.35), inset -6px -3px 0 -2px #b4a684;
+        opacity: var(--moon-opacity, 0);
+        transform: translate(-50%, -50%); z-index: 1;
       }
 
-      body::after {
-        background: radial-gradient(
-            circle at 18% 22%,
-            rgba(255, 255, 255, 0.08),
-            transparent 20%
-          ),
-          radial-gradient(
-            circle at 78% 28%,
-            rgba(255, 255, 255, 0.06),
-            transparent 18%
-          ),
-          radial-gradient(
-            circle at 45% 72%,
-            rgba(255, 255, 255, 0.06),
-            transparent 20%
-          );
-        opacity: 0.35;
-        animation: flicker 6s infinite;
+      /* CLOUDS — dynamically spawned */
+      .clouds-layer { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+      .cloud {
+        position: absolute;
+        width: 16px; height: 14px;
+        background: var(--cloud-light, #f0e4c0);
+        transition: filter 6s ease, opacity 6s ease;
+        will-change: transform;
+      }
+      .world[data-weather="rain"] .cloud,
+      .world[data-weather="storm"] .cloud { filter: brightness(0.55) saturate(0.35); }
+      .world.manual-weather .cloud { transition: filter 1.4s ease, opacity 1.4s ease; }
+
+      /* DRAGONS */
+      .dragons-layer { position: absolute; inset: 0; z-index: 4; }
+      .dragon {
+        position: absolute;
+        width: 32px; height: 12px;
+        background: linear-gradient(90deg, transparent 0 4px, #1a0a1a 4px 28px, transparent 28px 32px);
+        animation: flap 0.3s steps(2) infinite;
+        will-change: transform, left, top;
+      }
+      .dragon::before {
+        content: ""; position: absolute; top: -6px; left: 10px;
+        width: 12px; height: 6px; background: #1a0a1a;
+        clip-path: polygon(0 100%, 50% 0, 100% 100%);
+      }
+      .dragon::after {
+        content: ""; position: absolute; bottom: -6px; left: 10px;
+        width: 12px; height: 6px; background: #1a0a1a;
+        clip-path: polygon(0 0, 50% 100%, 100% 0);
+      }
+      .dragon.flyby { animation: flyby linear forwards, flap 0.3s steps(2) infinite; }
+      @keyframes flyby {
+        from { left: -50px; } to { left: calc(100% + 50px); }
+      }
+      @keyframes flap { 0%,100% { transform: scaleY(1); } 50% { transform: scaleY(0.55); } }
+
+      /* FIRE BREATH */
+      .fire-breath {
+        position: absolute;
+        width: 28px; height: 26px;
+        z-index: 6;
+        pointer-events: none;
+        background-image:
+          radial-gradient(circle 6px at 50% 50%, #fff4a0 0 30%, #f0c440 31% 55%, #d04830 56% 80%, transparent 81%);
+        filter: blur(0.5px);
+        animation: fire-flicker 0.1s steps(2) infinite, fire-fade 1.2s ease-out forwards;
+      }
+      @keyframes fire-flicker {
+        0%,100% { transform: scale(1) rotate(0deg); }
+        50%     { transform: scale(0.9) rotate(8deg); }
+      }
+      @keyframes fire-fade {
+        0%   { opacity: 0.95; }
+        80%  { opacity: 0.7; }
+        100% { opacity: 0; }
       }
 
-      a {
-        color: inherit;
-        text-decoration: none;
+      /* HILLS */
+      .hills {
+        position: absolute; bottom: 60px; left: -10%;
+        width: 120%; height: 120px;
+        background:
+          radial-gradient(ellipse 220px 80px at 15% 100%, #2a2018 0 70%, transparent 71%),
+          radial-gradient(ellipse 280px 100px at 40% 100%, #1f180f 0 70%, transparent 71%),
+          radial-gradient(ellipse 200px 70px at 70% 100%, #2a2018 0 70%, transparent 71%),
+          radial-gradient(ellipse 260px 90px at 95% 100%, #1f180f 0 70%, transparent 71%);
+        z-index: 5; opacity: 0.9;
+        filter: brightness(var(--world-brightness, 1));
       }
 
-      .page {
-        position: relative;
-        z-index: 1;
+      /* TREES */
+      .trees-layer { position: absolute; inset: 0; z-index: 6; pointer-events: none; }
+      .tree {
+        position: absolute;
+        bottom: 48px;
+        width: 24px; height: 48px;
+        transform: scale(var(--g, 0));
+        transform-origin: bottom center;
+        transition: transform 2.5s cubic-bezier(.34, 1.2, .64, 1);
+      }
+      .tree svg { width: 100%; height: 100%; display: block; }
+      .tree.falling { animation: fall 1.4s cubic-bezier(.45, 0, .85, .55) forwards; }
+      @keyframes fall {
+        0%   { transform: scale(var(--g, 1)) rotate(0deg); }
+        20%  { transform: scale(var(--g, 1)) rotate(-4deg); }
+        100% { transform: scale(var(--g, 1)) rotate(86deg); opacity: 0.4; }
       }
 
+      /* HOUSES */
+      .house {
+        position: absolute;
+        bottom: 48px;
+        width: 48px;
+        height: 42px;
+        transform-origin: bottom center;
+      }
+      .house svg { width: 100%; height: 100%; display: block; overflow: visible; }
+      .house .hs-walls, .house .hs-roof { transition: opacity 0.6s ease; }
+      .house.crumbling { animation: crumble 1.6s ease-in forwards; }
+      @keyframes crumble {
+        0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+        20%  { transform: translateY(2px) rotate(-3deg) skewX(-2deg); }
+        45%  { transform: translateY(6px) rotate(4deg) skewX(3deg); opacity: 0.85; }
+        100% { transform: translateY(22px) rotate(-10deg) skewX(-4deg); opacity: 0; }
+      }
+
+      /* PEOPLE */
+      .people-layer { position: absolute; inset: 0; z-index: 7; pointer-events: none; }
+      .person {
+        position: absolute;
+        width: 8px; height: 14px;
+        background: linear-gradient(180deg, transparent 0 2px, #6b4a30 2px 8px, transparent 8px 10px, #3a2a1a 10px 14px);
+      }
+      .person::before {
+        content: ""; position: absolute; top: -1px; left: 1px;
+        width: 6px; height: 4px; background: #2a1f15;
+      }
+      .person.warrior::after {
+        content: ""; position: absolute; right: -3px; top: 4px;
+        width: 5px; height: 1px; background: #d4a017;
+        box-shadow: 0 1px 0 #d4a017;
+      }
+      .person.mage { background: linear-gradient(180deg, transparent 0 2px, #6b3a8a 2px 10px, #3a2a1a 10px 14px); }
+      .person.mage::after {
+        content: ""; position: absolute; left: -2px; top: 6px;
+        width: 1px; height: 6px; background: #d4a017;
+      }
+      .person.lumberjack {
+        background: linear-gradient(180deg, transparent 0 2px, #8a4a2a 2px 8px, #1a1410 8px 10px, #3a2a1a 10px 14px);
+      }
+      .person.lumberjack::after {
+        content: ""; position: absolute; right: -4px; top: 3px;
+        width: 6px; height: 2px; background: #c8c0b0;
+        box-shadow: -1px 1px 0 #8a6840, 0 1px 0 #c8c0b0, -1px 2px 0 #8a6840;
+        transform-origin: -2px 1px;
+      }
+      .person.lumberjack.chopping::after { animation: chop 0.45s steps(2) infinite; }
+      @keyframes chop {
+        0%,100% { transform: rotate(-40deg); } 50% { transform: rotate(20deg); }
+      }
+      .person.builder {
+        background: linear-gradient(180deg, transparent 0 2px, #2a6a8a 2px 8px, #1a1410 8px 10px, #3a2a1a 10px 14px);
+      }
+      .person.builder::after {
+        content: ""; position: absolute; right: -3px; top: 4px;
+        width: 4px; height: 2px; background: #c8a060;
+        box-shadow: 0 1px 0 #8a6840;
+      }
+      .person.builder.working::after { animation: chop 0.5s steps(2) infinite; }
+
+      /* HORSEMAN / HORSE / CART / SOLDIER / KING */
+      .horseman { position: absolute; bottom: 4px; width: 28px; height: 26px; }
+      .horseman svg { width: 100%; height: 100%; display: block; }
+      .horseman.attacking .hr-sword { animation: slash 0.4s steps(2) infinite; transform-origin: 0 100%; }
+      @keyframes slash { 0%,100% { transform: rotate(-45deg); } 50% { transform: rotate(35deg); } }
+
+      .cart { position: absolute; bottom: 2px; width: 32px; height: 22px; }
+      .cart svg { width: 100%; height: 100%; display: block; }
+
+      .soldier { position: absolute; bottom: 4px; width: 12px; height: 18px; }
+      .soldier svg { width: 100%; height: 100%; display: block; overflow: visible; }
+      .soldier.banner { width: 14px; height: 22px; }
+
+      .king { position: absolute; bottom: 4px; width: 18px; height: 22px; }
+      .king svg { width: 100%; height: 100%; display: block; }
+
+      /* DUEL */
+      .person.fighting::before {
+        animation: bob 0.15s steps(2) infinite;
+      }
+      @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-1px); } }
+      .person.fighting.warrior::after {
+        animation: slash 0.3s steps(2) infinite; transform-origin: 0 50%;
+      }
+      .person.fighting.mage::after {
+        animation: zap 0.4s steps(2) infinite; transform-origin: 0 50%;
+      }
+      @keyframes zap {
+        0%,100% { box-shadow: 1px 0 0 #d4a017; }
+        50% { box-shadow: 1px 0 0 #ffd060, -1px 0 0 #ffd060; }
+      }
+      .person.defeated {
+        animation: defeat 1s ease-out forwards;
+      }
+      @keyframes defeat {
+        0% { transform: rotate(0deg); opacity: 1; }
+        40% { transform: rotate(-30deg) translateY(-2px); }
+        100% { transform: rotate(-90deg) translateY(6px); opacity: 0; }
+      }
+
+      /* GRASS */
+      .grass {
+        position: absolute; left: 0; right: 0; bottom: 0;
+        height: 60px; z-index: 5;
+        background: linear-gradient(180deg, var(--grass) 0%, var(--grass-dark) 100%);
+        box-shadow: inset 0 6px 0 #4a6a30, inset 0 12px 0 #2f4a20;
+        filter: brightness(var(--world-brightness, 1));
+      }
+      .grass::before {
+        content: ""; position: absolute; top: -6px; left: 0; right: 0; height: 8px;
+        background-image:
+          radial-gradient(circle 2px at 4px 4px, #4a6a30 2px, transparent 3px),
+          radial-gradient(circle 2px at 16px 2px, #5a7a36 2px, transparent 3px),
+          radial-gradient(circle 2px at 28px 5px, #4a6a30 2px, transparent 3px);
+        background-size: 36px 8px;
+        background-repeat: repeat-x;
+      }
+
+      .rain-canvas { position: absolute; inset: 0; z-index: 8; pointer-events: none; }
+
+      .lightning {
+        position: absolute; inset: 0; z-index: 9;
+        background: rgba(220, 230, 255, 0); pointer-events: none;
+      }
+      .lightning.flash { animation: flash 0.5s ease-out; }
+      @keyframes flash {
+        0%   { background: rgba(220, 230, 255, 0); }
+        8%   { background: rgba(230, 240, 255, 0.9); }
+        20%  { background: rgba(230, 240, 255, 0.15); }
+        35%  { background: rgba(230, 240, 255, 0.75); }
+        100% { background: rgba(230, 240, 255, 0); }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .cloud, .dragon, .rain-canvas, .lightning,
+        .person, .tree, .house, .horseman, .stars { animation: none !important; transition: none !important; }
+      }
+
+      /* ============= CONTENT ============= */
       .container {
-        width: min(1120px, 92vw);
+        width: min(820px, 92vw);
         margin: 0 auto;
-      }
-
-      .nav {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 16px 20px;
-        margin-top: 18px;
-        border-radius: 8px;
-        background: rgba(7, 9, 20, 0.88);
-        border: 2px solid rgba(255, 255, 255, 0.2);
-        box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.5) inset, var(--shadow);
         position: relative;
-        overflow: hidden;
+        z-index: 10;
       }
 
-      .nav::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(
-          90deg,
-          rgba(0, 245, 212, 0.1),
-          transparent,
-          rgba(255, 78, 205, 0.12)
-        );
-        opacity: 0.6;
-        pointer-events: none;
+      a { color: var(--gold); text-decoration: none; }
+      a:hover { color: #f0c040; }
+
+      h1, h2, h3 {
+        font-family: "Press Start 2P", monospace;
+        font-weight: normal; line-height: 1.5;
+      }
+      h1 {
+        font-size: clamp(1.1rem, 2.6vw, 1.5rem);
+        color: var(--gold); margin: 0 0 16px;
+        text-shadow: 2px 2px 0 #000;
+      }
+      h2 {
+        font-size: 0.8rem; color: var(--ember);
+        margin: 0 0 18px; letter-spacing: 1px;
+        text-shadow: 2px 2px 0 #000;
+      }
+      h3 { font-size: 0.65rem; color: var(--ink); margin: 0 0 10px; letter-spacing: 0.5px; }
+
+      .ico {
+        font-family: "VT323", "Segoe UI Symbol", monospace;
+        font-size: 1.4em; vertical-align: -0.05em; margin-right: 0.25em;
       }
 
-      .brand {
-        display: flex;
-        gap: 12px;
-        align-items: center;
-        font-family: "Press Start 2P", sans-serif;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-        font-size: 0.85rem;
-        text-shadow: 0 0 12px rgba(255, 78, 205, 0.35);
+      nav {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 24px 0 18px;
+        font-family: "Press Start 2P", monospace;
+        font-size: 0.55rem; letter-spacing: 1px;
       }
+      nav .brand { color: var(--gold); text-shadow: 2px 2px 0 #000; }
+      nav .links { display: flex; gap: 16px; }
+      nav .links a { color: var(--muted); }
+      nav .links a:hover { color: var(--ink); }
 
-      .brand-mark {
-        width: 40px;
-        height: 40px;
-        border-radius: 6px;
-        background: linear-gradient(135deg, var(--accent), var(--accent-2));
-        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2),
-          0 0 14px rgba(0, 245, 212, 0.5);
-        position: relative;
-        animation: float 5s ease-in-out infinite;
-      }
-
-      .brand-mark::after {
-        content: "";
-        position: absolute;
-        inset: 6px;
-        border-radius: 4px;
-        background: rgba(7, 9, 20, 0.9);
-        border: 2px solid rgba(255, 255, 255, 0.25);
-      }
-
-      .nav-links {
-        display: flex;
-        gap: 12px;
-        font-size: 0.55rem;
-        color: var(--muted);
-        font-family: "Press Start 2P", sans-serif;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        position: relative;
-        z-index: 1;
-      }
-
-      .nav-links a {
-        padding: 10px 12px;
-        border-radius: 6px;
-        border: 2px solid transparent;
-        background: rgba(255, 255, 255, 0.03);
-        transition: border 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
-      }
-
-      .nav-links a:hover {
-        border-color: rgba(0, 245, 212, 0.7);
-        color: var(--ink);
-        box-shadow: var(--glow);
-      }
-
-      .hero {
-        display: grid;
-        gap: 32px;
-        padding: 40px 0 80px;
-      }
-
-      .hero-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 32px;
-        align-items: center;
-      }
+      header.hero { padding: 24px 0 16px; }
 
       .kicker {
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        font-size: 0.6rem;
-        color: var(--accent-4);
-        font-family: "Press Start 2P", sans-serif;
-        font-weight: 600;
+        font-family: "Press Start 2P", monospace;
+        font-size: 0.5rem; color: var(--moss);
+        letter-spacing: 1px; margin-bottom: 18px;
+        text-shadow: 1px 1px 0 #000;
       }
-
-      h1 {
-        font-family: "Press Start 2P", sans-serif;
-        font-size: clamp(2rem, 3vw, 3rem);
-        line-height: 1.3;
-        margin: 16px 0 18px;
-        text-shadow: 0 0 18px rgba(0, 245, 212, 0.3);
-      }
-
-      h2 {
-        font-family: "Press Start 2P", sans-serif;
-        font-size: clamp(1.4rem, 2.6vw, 2rem);
-        line-height: 1.4;
-      }
-
-      h3 {
-        font-family: "Space Mono", monospace;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-      }
-
       .lead {
-        font-size: 1.1rem;
-        color: var(--muted);
-        max-width: 520px;
-        line-height: 1.7;
+        color: var(--ink); max-width: 600px; margin: 0 0 22px;
+        font-size: 1.05rem; text-shadow: 1px 1px 0 #000;
       }
 
-      .cta {
-        display: flex;
-        gap: 14px;
-        margin: 26px 0 22px;
-        flex-wrap: wrap;
-      }
-
-      .btn {
-        padding: 12px 18px;
-        border-radius: 6px;
-        font-weight: 600;
-        border: 2px solid transparent;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-family: "Press Start 2P", sans-serif;
-        font-size: 0.6rem;
-        text-transform: uppercase;
-        letter-spacing: 0.8px;
-        box-shadow: 0 6px 0 rgba(0, 0, 0, 0.5);
-      }
-
-      .btn.primary {
-        background: linear-gradient(135deg, var(--accent-3), #f6a94d);
-        color: #0a0d16;
-        border-color: #f6c44d;
-        box-shadow: 0 6px 0 rgba(0, 0, 0, 0.45), 0 0 18px rgba(249, 199, 79, 0.3);
-      }
-
-      .btn.ghost {
-        border-color: rgba(255, 255, 255, 0.25);
-        background: rgba(7, 9, 20, 0.6);
-        color: var(--ink);
-      }
-
-      .btn:hover {
-        transform: translateY(-2px);
-      }
-
-      .btn:active {
-        transform: translateY(2px);
-        box-shadow: 0 2px 0 rgba(0, 0, 0, 0.5);
-      }
-
-      .pill-group {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-      }
-
-      .pill {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        color: var(--muted);
-        padding: 6px 12px;
-        border-radius: 6px;
-        font-size: 0.8rem;
-        font-family: "Space Mono", monospace;
-      }
-
-      .panel {
-        background: linear-gradient(160deg, rgba(21, 28, 51, 0.96), rgba(13, 18, 34, 0.96));
-        padding: 26px;
-        border-radius: 10px;
-        box-shadow: var(--shadow);
-        border: 2px solid rgba(255, 255, 255, 0.16);
-      }
-
-      .status-card {
+      .sheet {
         display: grid;
-        gap: 18px;
+        grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+        border: 2px solid var(--frame);
+        background: var(--panel);
+        box-shadow: inset 0 0 0 2px #000, 4px 4px 0 #000;
       }
+      .sheet .stat {
+        padding: 10px 12px;
+        border-right: 2px solid var(--frame);
+        text-align: center;
+        font-family: "Press Start 2P", monospace;
+        font-size: 0.5rem; color: var(--muted);
+      }
+      .sheet .stat:last-child { border-right: none; }
+      .sheet .stat b {
+        display: block; margin-top: 6px;
+        color: var(--gold); font-weight: normal; font-size: 0.7rem;
+        overflow-wrap: break-word; word-break: normal;
+      }
+      .sheet .stat.long b { font-size: 0.5rem; line-height: 1.6; }
 
-      .status-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-      }
-
-      .status-title {
-        font-family: "Press Start 2P", sans-serif;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        font-size: 0.55rem;
-        color: var(--accent-4);
-      }
-
-      .status-level {
-        font-size: 1.1rem;
-        font-weight: 600;
-      }
-
-      .badge {
-        background: rgba(255, 78, 205, 0.2);
-        color: #ffd6f0;
-        padding: 6px 10px;
-        border-radius: 6px;
-        border: 2px solid rgba(255, 78, 205, 0.5);
-        font-size: 0.55rem;
-        font-family: "Press Start 2P", sans-serif;
-        text-transform: uppercase;
-        letter-spacing: 0.6px;
-        white-space: nowrap;
-      }
-
-      .xp {
-        display: grid;
-        gap: 8px;
-      }
-
-      .xp-label {
-        display: flex;
-        justify-content: space-between;
-        font-family: "Space Mono", monospace;
-        font-size: 0.75rem;
-        color: var(--muted);
-      }
-
-      .xp-bar {
-        height: 12px;
-        border-radius: 6px;
-        background: rgba(7, 9, 20, 0.9);
-        border: 2px solid rgba(255, 255, 255, 0.2);
-        overflow: hidden;
-      }
-
-      .xp-bar span {
-        display: block;
-        height: 100%;
-        width: 0;
-        border-radius: 4px;
-        background: linear-gradient(90deg, var(--accent-4), var(--accent-3));
-        box-shadow: 0 0 16px rgba(123, 255, 106, 0.4);
-        animation: xp-fill 1.4s ease forwards;
-      }
-
-      .stat-grid {
-        display: grid;
-        gap: 14px;
-      }
-
-      .stat-card {
-        background: rgba(255, 255, 255, 0.04);
-        border-radius: 8px;
-        padding: 16px;
-        border: 2px solid rgba(255, 255, 255, 0.12);
-      }
-
-      .stat-card h3 {
-        margin: 0 0 8px;
-        font-size: 0.95rem;
-        color: var(--ink);
-      }
-
-      .stat-card p {
-        margin: 0;
-        color: var(--muted);
-        font-size: 0.95rem;
-      }
-
-      section {
-        padding: 64px 0;
-      }
-
-      .section-title {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-bottom: 18px;
-      }
-
-      .section-title span {
-        font-family: "Press Start 2P", sans-serif;
-        font-size: 0.55rem;
-        color: var(--accent-2);
-        text-transform: uppercase;
-        letter-spacing: 0.8px;
-      }
+      section { padding: 36px 0 20px; }
 
       .cards {
-        display: grid;
-        gap: 20px;
-        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        display: grid; gap: 16px;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
       }
-
-      .card {
-        background: linear-gradient(165deg, rgba(21, 28, 51, 0.92), rgba(13, 18, 34, 0.95));
-        border-radius: 10px;
-        padding: 22px;
-        border: 2px solid rgba(255, 255, 255, 0.12);
-        box-shadow: 0 14px 34px rgba(6, 8, 18, 0.5);
-        position: relative;
-        overflow: hidden;
+      .card, a.card {
+        position: relative; padding: 18px;
+        background: var(--panel);
+        border: 2px solid var(--frame);
+        box-shadow: inset 0 0 0 2px #000, 4px 4px 0 #000;
+        transition: transform 0.1s, border-color 0.1s;
+        color: var(--ink); text-decoration: none; display: block;
       }
-
-      .card::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        border-radius: 10px;
-        border: 1px dashed rgba(255, 255, 255, 0.14);
-        opacity: 0.4;
-        pointer-events: none;
+      a.card:hover {
+        border-color: var(--gold);
+        transform: translate(-2px, -2px);
+        box-shadow: inset 0 0 0 2px #000, 6px 6px 0 #000;
       }
-
-      .card::after {
-        content: "";
-        position: absolute;
-        top: -40px;
-        right: -40px;
-        width: 140px;
-        height: 140px;
-        background: radial-gradient(circle, rgba(255, 78, 205, 0.18), transparent 70%);
-        border-radius: 50%;
+      .card-head {
+        display: flex; justify-content: space-between; align-items: baseline;
+        font-family: "Press Start 2P", monospace;
+        font-size: 0.45rem; color: var(--muted);
+        margin-bottom: 12px; letter-spacing: 0.5px;
       }
+      .card-head .reward { color: var(--gold); }
+      .card p { margin: 0 0 12px; color: var(--ink); font-size: 1rem; }
+      .card.locked { border-style: dashed; opacity: 0.85; }
+      .card.locked h3 { color: var(--muted); }
 
-      .card-top {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 0.6rem;
-        font-family: "Press Start 2P", sans-serif;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        color: var(--accent-4);
-        margin-bottom: 12px;
-      }
-
-      .card-score {
-        color: var(--accent-3);
-      }
-
-      .card h3 {
-        margin: 0 0 8px;
-      }
-
-      .card p {
-        color: var(--muted);
-        line-height: 1.6;
-        margin: 0 0 16px;
-      }
-
-      .tag-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-      }
-
+      .tags { display: flex; flex-wrap: wrap; gap: 4px; }
       .tag {
-        background: rgba(0, 245, 212, 0.15);
-        color: #c9fff5;
-        padding: 4px 10px;
-        border-radius: 6px;
-        font-size: 0.75rem;
-        border: 1px solid rgba(0, 245, 212, 0.45);
-        font-family: "Space Mono", monospace;
+        font-family: "Press Start 2P", monospace;
+        font-size: 0.45rem; padding: 4px 6px;
+        background: rgba(0, 0, 0, 0.4);
+        border: 1px solid var(--frame-light);
+        color: var(--muted); letter-spacing: 0.5px;
       }
+      .tag.uncommon { color: var(--moss); border-color: var(--moss); }
+      .tag.rare     { color: var(--rare); border-color: var(--rare); }
+      .tag.epic     { color: var(--epic); border-color: var(--epic); }
+      .tag.legendary{ color: var(--gold); border-color: var(--gold); }
 
-      .split {
-        display: grid;
-        gap: 24px;
-        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      .skill-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; font-size: 1.05rem; }
+      .skill-list li { padding-left: 22px; position: relative; text-shadow: 1px 1px 0 #000; }
+      .skill-list li::before { content: "✦"; position: absolute; left: 0; color: var(--gold); }
+      .skill-list b { color: var(--gold); font-weight: normal; }
+
+      .actions { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 16px; }
+      .btn {
+        display: inline-block; padding: 10px 16px;
+        background: var(--panel);
+        border: 2px solid var(--frame);
+        box-shadow: inset 0 0 0 2px #000, 4px 4px 0 #000;
+        font-family: "Press Start 2P", monospace;
+        font-size: 0.55rem; letter-spacing: 1px;
+        color: var(--ink);
+        transition: transform 0.1s, color 0.1s, border-color 0.1s;
+        cursor: pointer;
       }
+      .btn:hover {
+        color: var(--gold); border-color: var(--gold);
+        transform: translate(-2px, -2px);
+        box-shadow: inset 0 0 0 2px #000, 6px 6px 0 #000;
+      }
+      .btn:active { transform: translate(2px, 2px); box-shadow: inset 0 0 0 2px #000, 0 0 0 #000; }
+      .btn.gold { color: var(--gold); border-color: var(--gold); }
 
-      .list {
-        display: grid;
-        gap: 10px;
-        margin: 0;
-        padding: 0;
-        list-style: none;
+      footer {
+        padding: 40px 0 90px;
         color: var(--muted);
+        font-family: "Press Start 2P", monospace;
+        font-size: 0.5rem; text-align: center; letter-spacing: 1px;
+        text-shadow: 1px 1px 0 #000;
       }
 
-      .list li {
-        background: rgba(7, 9, 20, 0.7);
-        padding: 10px 14px;
-        border-radius: 8px;
-        border: 2px solid rgba(255, 255, 255, 0.12);
+      /* HUD (top right) */
+      .hud {
+        position: fixed; top: 14px; right: 14px; z-index: 11;
+        display: flex; gap: 6px;
+        font-family: "Press Start 2P", monospace; font-size: 0.45rem;
       }
-
-      .highlight {
-        border: 2px solid rgba(0, 245, 212, 0.5);
-        padding: 14px 16px;
-        color: var(--muted);
-        line-height: 1.7;
-        background: rgba(0, 245, 212, 0.08);
-        border-radius: 8px;
+      .hud span {
+        color: var(--muted); background: var(--panel);
+        border: 1px solid var(--frame);
+        padding: 6px 8px; letter-spacing: 0.5px;
+        cursor: pointer; user-select: none;
       }
+      .hud span:hover { color: var(--gold); border-color: var(--gold); }
 
-      .cta-banner {
-        background: linear-gradient(120deg, rgba(19, 26, 47, 0.96), rgba(11, 15, 28, 0.98));
-        border-radius: 12px;
-        padding: 28px;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 18px;
-        align-items: center;
-        justify-content: space-between;
-        border: 2px solid rgba(255, 78, 205, 0.3);
-        box-shadow: var(--shadow);
-      }
-
-      .cta-kicker {
-        font-family: "Press Start 2P", sans-serif;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        font-size: 0.55rem;
-        color: var(--accent-2);
-      }
-
-      .cta-banner h3 {
-        margin: 8px 0 8px;
-      }
-
-      .cta-banner p {
-        margin: 0;
-        color: var(--muted);
-      }
-
-      .footer {
-        padding: 36px 0 60px;
-        color: var(--muted);
+      /* ACTIVITY LOG (top left) */
+      .log {
+        position: fixed; top: 14px; left: 14px; z-index: 11;
+        width: min(280px, 55vw);
+        pointer-events: none;
+        font-family: "VT323", monospace;
         font-size: 0.95rem;
-        text-align: center;
-        font-family: "Space Mono", monospace;
+      }
+      .log-title {
+        font-family: "Press Start 2P", monospace;
+        font-size: 0.45rem;
+        color: var(--gold);
+        margin-bottom: 6px; letter-spacing: 0.5px;
+        text-shadow: 1px 1px 0 #000;
+      }
+      .log-entry {
+        background: rgba(20, 14, 8, 0.88);
+        border-left: 2px solid var(--frame-light);
+        padding: 3px 8px; margin-bottom: 3px;
+        color: var(--ink);
+        text-shadow: 1px 1px 0 #000;
+        animation: log-in 0.35s ease-out forwards, log-out 1.5s ease-out 14s forwards;
+        line-height: 1.2;
+      }
+      .log-entry.good { border-left-color: var(--moss); }
+      .log-entry.bad  { border-left-color: var(--ember); color: #f0a880; }
+      .log-entry.weather { border-left-color: var(--rare); }
+      .log-entry.time { border-left-color: var(--gold); }
+      @keyframes log-in {
+        from { opacity: 0; transform: translateX(-12px); }
+        to   { opacity: 1; transform: translateX(0); }
+      }
+      @keyframes log-out {
+        to { opacity: 0; transform: translateX(-30px); max-height: 0; padding: 0; margin: 0; }
       }
 
-      .reveal {
-        opacity: 0;
-        animation: reveal 0.9s ease forwards;
-        animation-delay: var(--d, 0s);
-      }
-
-      @keyframes reveal {
-        from {
-          opacity: 0;
-          transform: translateY(18px) scale(0.98);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0) scale(1);
-        }
-      }
-
-      @keyframes float {
-        0%,
-        100% {
-          transform: translateY(0px);
-        }
-        50% {
-          transform: translateY(-6px);
-        }
-      }
-
-      @keyframes xp-fill {
-        to {
-          width: var(--xp);
-        }
-      }
-
-      @keyframes flicker {
-        0%,
-        100% {
-          opacity: 0.28;
-        }
-        45% {
-          opacity: 0.4;
-        }
-        50% {
-          opacity: 0.18;
-        }
-        60% {
-          opacity: 0.36;
-        }
-      }
-
-      @media (max-width: 720px) {
-        .nav {
-          flex-direction: column;
-          gap: 14px;
-        }
-
-        .nav-links {
-          flex-wrap: wrap;
-          justify-content: center;
-        }
-
-        .hero {
-          padding-top: 24px;
-        }
-
-        .status-header {
-          flex-direction: column;
-          align-items: flex-start;
-        }
+      @media (max-width: 600px) {
+        nav { flex-direction: column; gap: 14px; }
+        .sheet .stat { border-right: none; border-bottom: 2px solid var(--frame); }
+        .sheet .stat:last-child { border-bottom: none; }
+        .hud { top: 8px; right: 8px; }
+        .log { width: 150px; font-size: 0.8rem; top: 8px; left: 8px; }
       }
     </style>
   </head>
   <body>
-    <div class="page">
-      <header class="container hero">
-        <nav class="nav reveal" style="--d: 0.05s">
-          <div class="brand">
-            <div class="brand-mark"></div>
-            <div>Dav Stepanyan</div>
-          </div>
-          <div class="nav-links">
-            <a href="#work">Arcade</a>
-            <a href="#about">Perks</a>
-            <a href="#now">Now Playing</a>
-            <a href="https://davstep.github.io/shmixel/">Shmixel</a>
-            <a href="#contact">Co-op</a>
-          </div>
-        </nav>
+    <div class="world" data-weather="clear" data-time="day" aria-hidden="true">
+      <div class="sky"></div>
+      <div class="stars"></div>
+      <div class="sun"></div>
+      <div class="moon"></div>
+      <div class="clouds-layer"></div>
+      <div class="weather-veil"></div>
+      <div class="dragons-layer"></div>
+      <div class="hills"></div>
+      <div class="grass"></div>
+      <div class="trees-layer"></div>
+      <div class="people-layer"></div>
+      <canvas class="rain-canvas"></canvas>
+      <div class="lightning"></div>
+    </div>
 
-        <div class="hero-grid">
-          <div class="hero-copy reveal" style="--d: 0.15s">
-            <div class="kicker">Insert Coin // Player One</div>
-            <h1>Designing crunchy loops and high-score economies.</h1>
-            <p class="lead">
-              I build systems where progression feels earned, choices feel
-              crunchy, and the next upgrade is always one run away. Currently
-              crafting Idle Outpost, previously shipped Sandship, and always
-              chasing the next bold prototype.
-            </p>
-            <div class="cta">
-              <a class="btn primary" href="#work">Start game</a>
-              <a class="btn ghost" href="#now">Continue run</a>
-            </div>
-            <div class="pill-group">
-              <span class="pill">Idle Outpost</span>
-              <span class="pill">Sandship</span>
-              <span class="pill">GGJ participant</span>
-            </div>
-          </div>
-          <div class="panel status-card reveal" style="--d: 0.25s">
-            <div class="status-header">
-              <div>
-                <div class="status-title">Player card</div>
-                <div class="status-level">Level 12 systems designer</div>
-              </div>
-              <div class="badge">Rank: Builder</div>
-            </div>
-            <div class="xp">
-              <div class="xp-label">
-                <span>XP</span>
-                <span>68%</span>
-              </div>
-              <div class="xp-bar" style="--xp: 68%">
-                <span></span>
-              </div>
-            </div>
-            <div class="stat-grid">
-              <div class="stat-card">
-                <h3>Main quest</h3>
-                <p>Idle Outpost, progression systems and player economy.</p>
-              </div>
-              <div class="stat-card">
-                <h3>Completed runs</h3>
-                <p>Sandship, crafting loops and feature polish.</p>
-              </div>
-              <div class="stat-card">
-                <h3>Loadout</h3>
-                <p>Systems design, UX clarity, rapid prototyping.</p>
-              </div>
-            </div>
-          </div>
+    <div class="hud">
+      <span id="hud-time" title="Click to change time">DAY</span>
+      <span id="hud-weather" title="Click to change weather">CLEAR</span>
+    </div>
+
+    <div class="log" id="log">
+      <div class="log-title">✦ chronicle</div>
+    </div>
+
+    <div class="container">
+      <nav>
+        <div class="brand"><span class="ico">✦</span>DAV THE CRAFTSMAN</div>
+        <div class="links">
+          <a href="#hired">hired</a>
+          <a href="#personal">personal</a>
+          <a href="https://davstep.github.io/shmixel/" target="_blank" rel="noopener">shmixel</a>
+          <a href="#skills">skills</a>
+          <a href="#tavern">tavern</a>
+        </div>
+      </nav>
+
+      <header class="hero">
+        <div class="kicker"><span class="ico">▸</span>adventurer has entered the realm</div>
+        <h1>Game dev forging crunchy loops &amp; deep economies.</h1>
+        <p class="lead">
+          Systems designer working in the dungeons of progression, balance,
+          and economy. Currently crafting Idle Outpost; previously shipped
+          Sandship and Battle Cards.
+        </p>
+        <div class="sheet">
+          <div class="stat long">CLASS<b>Lead Code Wizard</b></div>
+          <div class="stat">LVL<b>23</b></div>
+          <div class="stat">HP<b>87/100</b></div>
+          <div class="stat">MP<b>∞</b></div>
+          <div class="stat">XP<b>68%</b></div>
         </div>
       </header>
 
-      <main class="container">
-        <section id="work">
-          <div class="section-title">
-            <span>High score table</span>
-            <h2>Projects and experiments</h2>
-          </div>
-          <div class="cards">
-            <article class="card reveal" style="--d: 0.1s">
-              <div class="card-top">
-                <div>Story mode</div>
-                <div class="card-score">+3200 XP</div>
-              </div>
-              <h3>Idle Outpost</h3>
-              <p>
-                A long-form idle experience with city scale growth, layered
-                upgrades, and crunchy optimization. Building the loop, balance,
-                and pacing.
-              </p>
-              <div class="tag-row">
-                <span class="tag">Idle systems</span>
-                <span class="tag">Economy</span>
-                <span class="tag">Progression</span>
-              </div>
-            </article>
-            <article class="card reveal" style="--d: 0.2s">
-              <div class="card-top">
-                <div>Legacy run</div>
-                <div class="card-score">+2100 XP</div>
-              </div>
-              <h3>Sandship</h3>
-              <p>
-                Shipped features and polish on a deep crafting automation game.
-                Focused on clarity, player goals, and satisfying payoffs.
-              </p>
-              <div class="tag-row">
-                <span class="tag">Automation</span>
-                <span class="tag">Crafting</span>
-                <span class="tag">Live updates</span>
-              </div>
-            </article>
-            <article class="card reveal" style="--d: 0.3s">
-              <div class="card-top">
-                <div>Speed run</div>
-                <div class="card-score">+900 XP</div>
-              </div>
-              <h3>Global Game Jams</h3>
-              <p>
-                Fast prototypes, weird ideas, and tight teams. I love turning a
-                theme into a playable core in 48 hours.
-              </p>
-              <div class="tag-row">
-                <span class="tag">Rapid prototyping</span>
-                <span class="tag">Teamwork</span>
-                <span class="tag">GGJ</span>
-              </div>
-            </article>
-          </div>
-        </section>
+      <section id="hired">
+        <h2><span class="ico">✦</span>Hired Adventures</h2>
+        <div class="cards">
+          <a class="card" href="https://rockbitegames.com/games/idleoutpost" target="_blank" rel="noopener">
+            <div class="card-head"><span>main quest</span><span class="reward">+3200 G</span></div>
+            <h3>Idle Outpost</h3>
+            <p>Long-form idle with city-scale growth and layered upgrades. Forging the loop, balance, and pacing.</p>
+            <div class="tags">
+              <span class="tag legendary">idle</span>
+              <span class="tag epic">economy</span>
+              <span class="tag rare">progression</span>
+            </div>
+          </a>
+          <a class="card" href="https://rockbitegames.com/games/sandship" target="_blank" rel="noopener">
+            <div class="card-head"><span>completed quest</span><span class="reward">+2100 G</span></div>
+            <h3>Sandship</h3>
+            <p>Shipped features on a deep crafting automation game. Focused on clarity, player goals, and satisfying payoffs.</p>
+            <div class="tags">
+              <span class="tag epic">automation</span>
+              <span class="tag rare">crafting</span>
+              <span class="tag uncommon">live ops</span>
+            </div>
+          </a>
+          <a class="card" href="https://rockbitegames.com/games" target="_blank" rel="noopener">
+            <div class="card-head"><span>completed quest</span><span class="reward">+1800 G</span></div>
+            <h3>Battle Cards</h3>
+            <p>Card-based strategy with deep deck building. Worked on progression flow and unlock cadence.</p>
+            <div class="tags">
+              <span class="tag epic">strategy</span>
+              <span class="tag rare">deck-building</span>
+              <span class="tag uncommon">pvp</span>
+            </div>
+          </a>
+        </div>
+      </section>
 
-        <section id="about">
-          <div class="section-title">
-            <span>Skill tree</span>
-            <h2>How I work</h2>
-          </div>
-          <div class="split">
-            <div class="panel reveal" style="--d: 0.1s">
-              <h3>Systems first, then flavor</h3>
-              <p class="highlight">
-                I like games where the loop is instantly readable, but mastery
-                takes time. I aim for clean interaction, clear goals, and the
-                joy of optimization.
-              </p>
+      <section id="personal">
+        <h2><span class="ico">✦</span>Personal Tomes</h2>
+        <div class="cards">
+          <a class="card" href="https://davstep.github.io/shmixel/" target="_blank" rel="noopener">
+            <div class="card-head"><span>solo quest</span><span class="reward">+1500 G</span></div>
+            <h3>Shmixel</h3>
+            <p>Pixel art creation tool. Draw, edit, and export pixel artwork right in the browser.</p>
+            <div class="tags">
+              <span class="tag legendary">tool</span>
+              <span class="tag epic">pixel art</span>
+              <span class="tag uncommon">web</span>
             </div>
-            <div class="panel reveal" style="--d: 0.2s">
-              <h3>Iterate with players</h3>
-              <p class="highlight">
-                From balance tweaks to new features, I focus on keeping momentum
-                and respecting player time. Every patch should feel like a
-                better journey.
-              </p>
-            </div>
-          </div>
-        </section>
+          </a>
+        </div>
+      </section>
 
-        <section id="now">
-          <div class="section-title">
-            <span>Now playing</span>
-            <h2>What I am into</h2>
-          </div>
-          <div class="split">
-            <div>
-              <h3>Playing</h3>
-              <ul class="list reveal" style="--d: 0.1s">
-                <li>Arc Raiders for squad chaos and traversal.</li>
-                <li>The Finals for high stakes, high polish matches.</li>
-                <li>Minecraft for endless building ideas.</li>
-                <li>Elden Ring for bosses and world design.</li>
-              </ul>
-            </div>
-            <div>
-              <h3>Watching</h3>
-              <ul class="list reveal" style="--d: 0.2s">
-                <li>Anime with strong world building.</li>
-                <li>GDC talks on retention and progression.</li>
-                <li>Devlogs from small teams shipping big ideas.</li>
-              </ul>
-            </div>
-          </div>
-        </section>
+      <section id="skills">
+        <h2><span class="ico">✦</span>Skill Tree</h2>
+        <ul class="skill-list">
+          <li><b>Systems Design</b> — progression, economy, balance tuning</li>
+          <li><b>UX Clarity</b> — readable loops, instant feedback</li>
+          <li><b>Rapid Prototyping</b> — idea to playable in days</li>
+          <li><b>Live Ops</b> — patch cadence, player-driven iteration</li>
+        </ul>
+      </section>
 
-        <section id="contact">
-          <div class="cta-banner reveal" style="--d: 0.1s">
-            <div>
-              <div class="cta-kicker">Co-op invite</div>
-              <h3>Open to co-op builds and bold problems</h3>
-              <p>
-                If you are making something daring, I am up to chat about
-                systems design, progression, or a fast prototype.
-              </p>
-            </div>
-            <a class="btn primary" href="mailto:your@email.com">Start a quest</a>
-          </div>
-        </section>
-      </main>
+      <section id="tavern">
+        <h2><span class="ico">✦</span>The Tavern</h2>
+        <p class="lead">Pull up a chair. Open to chats about systems design, progression, or a fast prototype run.</p>
+        <div class="actions">
+          <a class="btn gold" href="mailto:davitstepanyan99@gmail.com"><span class="ico">✦</span>send a raven</a>
+          <a class="btn" href="https://github.com/DavStep" target="_blank" rel="noopener"><span class="ico">◆</span>guild hall</a>
+        </div>
+      </section>
 
-      <footer class="container footer">Insert coin to continue.</footer>
+      <footer><span class="ico">◆</span>the adventure continues<span class="ico">◆</span></footer>
     </div>
+
+    <script>
+      (function () {
+        const world = document.querySelector(".world");
+        const peopleLayer = world.querySelector(".people-layer");
+        const dragonsLayer = world.querySelector(".dragons-layer");
+        const treesLayer = world.querySelector(".trees-layer");
+        const cloudsLayer = world.querySelector(".clouds-layer");
+        const lightning = world.querySelector(".lightning");
+        const hudTime = document.getElementById("hud-time");
+        const hudWeather = document.getElementById("hud-weather");
+        const logEl = document.getElementById("log");
+        const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+        const W = () => innerWidth;
+        const H = () => innerHeight;
+
+        /* ============= LOG ============= */
+        const MAX_LOG = 5;
+        function logEvent(text, kind = "") {
+          const e = document.createElement("div");
+          e.className = "log-entry" + (kind ? " " + kind : "");
+          e.textContent = text;
+          logEl.appendChild(e);
+          // cap entries
+          const entries = logEl.querySelectorAll(".log-entry");
+          if (entries.length > MAX_LOG) entries[0].remove();
+          setTimeout(() => { if (e.isConnected) e.remove(); }, 16000);
+        }
+
+        /* ============= DAY / NIGHT (continuous interpolation) ============= */
+        const phases = ["dawn", "day", "dusk", "night"];
+        const phaseLabels = { dawn: "DAWN", day: "DAY", dusk: "DUSK", night: "NIGHT" };
+        const phaseLog = {
+          dawn: "Dawn breaks across the realm.",
+          day: "The sun climbs high.",
+          dusk: "Dusk paints the horizon.",
+          night: "Night falls. Stars wake.",
+        };
+
+        const palette = {
+          dawn:  { skyTop:"#3a2848", skyMid:"#c87a4a", skyBot:"#f0b870",
+                   cloudL:"#f0c4a0", cloudD:"#c89878",
+                   sun:"#f08850", sunGlow:"rgba(240,136,80,0.45)",
+                   sunO:0.65, moonO:0.25, starsO:0.4, bright:0.78 },
+          day:   { skyTop:"#6a98c8", skyMid:"#d8c8a8", skyBot:"#b89868",
+                   cloudL:"#f0e4c0", cloudD:"#c8b890",
+                   sun:"#f0d060", sunGlow:"rgba(240,208,96,0.45)",
+                   sunO:1, moonO:0, starsO:0, bright:1 },
+          dusk:  { skyTop:"#5a2848", skyMid:"#c84a35", skyBot:"#8a3018",
+                   cloudL:"#e08858", cloudD:"#a85838",
+                   sun:"#d04830", sunGlow:"rgba(208,72,48,0.45)",
+                   sunO:0.6, moonO:0.25, starsO:0.3, bright:0.78 },
+          night: { skyTop:"#08081a", skyMid:"#181230", skyBot:"#261a3a",
+                   cloudL:"#2a2438", cloudD:"#14101e",
+                   sun:"#1a1428", sunGlow:"rgba(20,16,32,0)",
+                   sunO:0, moonO:0.95, starsO:0.95, bright:0.45 },
+        };
+
+        const DAY_LENGTH_MS = 120000;
+        let dayStart = performance.now() - 0.25 * DAY_LENGTH_MS; // start at "day"
+        let manualOverride = null; // { startTime, fromT, toT, duration }
+
+        const hexRgb = (h) => { const v = parseInt(h.slice(1),16); return [(v>>16)&255,(v>>8)&255,v&255]; };
+        const rgbStr = (c) => `rgb(${c[0]|0}, ${c[1]|0}, ${c[2]|0})`;
+        const mix = (a,b,t) => a + (b-a)*t;
+        const mixRgb = (a,b,t) => [mix(a[0],b[0],t), mix(a[1],b[1],t), mix(a[2],b[2],t)];
+        const smooth = (t) => t*t*(3-2*t);
+
+        const parseColor = (c) => {
+          if (c.startsWith("#")) { const r = hexRgb(c); return [r[0],r[1],r[2],1]; }
+          const m = c.match(/rgba?\(([^)]+)\)/); if (!m) return [0,0,0,0];
+          const p = m[1].split(",").map((s)=>parseFloat(s));
+          return [p[0],p[1],p[2], p[3] == null ? 1 : p[3]];
+        };
+        const rgbaStr = (c) => `rgba(${c[0]|0}, ${c[1]|0}, ${c[2]|0}, ${c[3].toFixed(3)})`;
+        const mixRgba = (a,b,t) => [mix(a[0],b[0],t), mix(a[1],b[1],t), mix(a[2],b[2],t), mix(a[3],b[3],t)];
+
+        const pp = {};
+        for (const k in palette) {
+          pp[k] = {
+            skyTop: hexRgb(palette[k].skyTop),
+            skyMid: hexRgb(palette[k].skyMid),
+            skyBot: hexRgb(palette[k].skyBot),
+            cloudL: hexRgb(palette[k].cloudL),
+            cloudD: hexRgb(palette[k].cloudD),
+            sun: hexRgb(palette[k].sun),
+            sunGlow: parseColor(palette[k].sunGlow),
+            sunO: palette[k].sunO,
+            moonO: palette[k].moonO,
+            starsO: palette[k].starsO,
+            bright: palette[k].bright,
+          };
+        }
+
+        const root = document.documentElement;
+        let lastHudPhase = "";
+
+        function computeT() {
+          if (manualOverride) {
+            const elapsed = performance.now() - manualOverride.startTime;
+            if (elapsed >= manualOverride.duration) {
+              const finalT = manualOverride.toT;
+              dayStart = performance.now() - finalT * DAY_LENGTH_MS;
+              manualOverride = null;
+              return finalT;
+            }
+            const p = elapsed / manualOverride.duration;
+            const ep = smooth(p);
+            // shortest signed delta on a circular [0,1)
+            let delta = manualOverride.toT - manualOverride.fromT;
+            if (delta > 0.5) delta -= 1;
+            else if (delta < -0.5) delta += 1;
+            return ((manualOverride.fromT + delta * ep) % 1 + 1) % 1;
+          }
+          return ((performance.now() - dayStart) % DAY_LENGTH_MS) / DAY_LENGTH_MS;
+        }
+
+        function updateDay() {
+          const t = computeT();
+          const pf = t * phases.length;
+          const i = Math.floor(pf) % phases.length;
+          const frac = smooth(pf - Math.floor(pf));
+          const cur = phases[i];
+          const nxt = phases[(i + 1) % phases.length];
+          const a = pp[cur], b = pp[nxt];
+
+          root.style.setProperty("--sky-top", rgbStr(mixRgb(a.skyTop, b.skyTop, frac)));
+          root.style.setProperty("--sky-mid", rgbStr(mixRgb(a.skyMid, b.skyMid, frac)));
+          root.style.setProperty("--sky-bot", rgbStr(mixRgb(a.skyBot, b.skyBot, frac)));
+          root.style.setProperty("--cloud-light", rgbStr(mixRgb(a.cloudL, b.cloudL, frac)));
+          root.style.setProperty("--cloud-dark",  rgbStr(mixRgb(a.cloudD, b.cloudD, frac)));
+          root.style.setProperty("--sun-color",   rgbStr(mixRgb(a.sun, b.sun, frac)));
+          root.style.setProperty("--sun-glow",    rgbaStr(mixRgba(a.sunGlow, b.sunGlow, frac)));
+          root.style.setProperty("--sun-opacity", mix(a.sunO, b.sunO, frac));
+          root.style.setProperty("--moon-opacity", mix(a.moonO, b.moonO, frac));
+          root.style.setProperty("--stars-opacity", mix(a.starsO, b.starsO, frac));
+          root.style.setProperty("--world-brightness", mix(a.bright, b.bright, frac));
+
+          if (t < 0.625) {
+            const sp = t / 0.625;
+            root.style.setProperty("--sun-x", (5 + sp * 90) + "%");
+            root.style.setProperty("--sun-y", (50 - Math.sin(sp * Math.PI) * 40) + "%");
+          }
+          if (t >= 0.5) {
+            const mp = (t - 0.5) / 0.5;
+            root.style.setProperty("--moon-x", (5 + mp * 90) + "%");
+            root.style.setProperty("--moon-y", (50 - Math.sin(mp * Math.PI) * 40) + "%");
+          }
+
+          const labelPhase = frac < 0.5 ? cur : nxt;
+          if (labelPhase !== lastHudPhase) {
+            lastHudPhase = labelPhase;
+            world.dataset.time = labelPhase;
+            hudTime.textContent = phaseLabels[labelPhase];
+            // only log natural transitions (not manual overrides)
+            if (!manualOverride) logEvent(phaseLog[labelPhase], "time");
+          }
+        }
+
+        if (!reduced) {
+          updateDay();
+          setInterval(updateDay, 66);
+        } else {
+          world.dataset.time = "day"; hudTime.textContent = "DAY";
+        }
+
+        /* ============= WEATHER ============= */
+        const weatherStates = ["clear","clear","clear","cloudy","cloudy","rain","storm"];
+        const weatherLabels = { clear:"CLEAR", cloudy:"CLOUDY", rain:"RAIN", storm:"STORM" };
+        const weatherLog = {
+          clear: "The clouds drift away. Skies clear.",
+          cloudy: "Clouds gather overhead.",
+          rain: "Rain begins to fall. Villagers run for shelter!",
+          storm: "A storm rolls in. Lightning splits the sky!",
+        };
+        let weather = "clear";
+
+        function setWeather(w, manual = false) {
+          if (w === weather) return;
+          const old = weather;
+          weather = w;
+          if (manual) {
+            world.classList.add("manual-weather");
+            setTimeout(() => world.classList.remove("manual-weather"), 1800);
+          }
+          world.dataset.weather = w;
+          hudWeather.textContent = weatherLabels[w];
+          logEvent(weatherLog[w], "weather");
+          if (w === "storm") scheduleLightning();
+          if ((w === "rain" || w === "storm") && !(old === "rain" || old === "storm")) {
+            fleeFromWeather();
+          }
+        }
+        function cycleWeather() {
+          const next = weatherStates[Math.floor(Math.random() * weatherStates.length)];
+          setWeather(next, false);
+          setTimeout(cycleWeather, 22000 + Math.random() * 22000);
+        }
+        function scheduleLightning() {
+          if (weather !== "storm") return;
+          setTimeout(() => {
+            if (weather !== "storm") return;
+            lightning.classList.add("flash");
+            setTimeout(() => lightning.classList.remove("flash"), 500);
+            logEvent("Lightning strikes!", "weather");
+            scheduleLightning();
+          }, 4000 + Math.random() * 6000);
+        }
+        if (!reduced) setTimeout(cycleWeather, 14000);
+
+        // HUD clicks — FAST manual transitions
+        hudWeather.addEventListener("click", () => {
+          const order = ["clear","cloudy","rain","storm"];
+          setWeather(order[(order.indexOf(weather) + 1) % order.length], true);
+        });
+        hudTime.addEventListener("click", () => {
+          const curIdx = phases.indexOf(lastHudPhase || "day");
+          const targetT = ((curIdx + 1) % phases.length) / phases.length;
+          const curT = computeT();
+          manualOverride = { startTime: performance.now(), fromT: curT, toT: targetT, duration: 1500 };
+        });
+
+        /* ============= RAIN CANVAS ============= */
+        const canvas = world.querySelector(".rain-canvas");
+        const ctx = canvas.getContext("2d");
+        let CW, CH;
+        function resize() {
+          const dpr = Math.min(window.devicePixelRatio || 1, 2);
+          CW = innerWidth; CH = innerHeight;
+          canvas.width = CW * dpr; canvas.height = CH * dpr;
+          canvas.style.width = CW + "px"; canvas.style.height = CH + "px";
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+        resize();
+        addEventListener("resize", resize);
+
+        const drops = [];
+        let wind = 0, windTarget = 0, gustTimer = 0;
+        let intensity = 0, intensityTarget = 0;
+
+        function ensureDrops(n) {
+          while (drops.length < n) drops.push({
+            x: Math.random() * CW, y: Math.random() * CH,
+            speed: 9 + Math.random() * 6,
+            len: 7 + Math.random() * 9,
+            alpha: 0.35 + Math.random() * 0.35,
+          });
+        }
+        function tickRain() {
+          wind += (windTarget - wind) * 0.02;
+          intensity += (intensityTarget - intensity) * 0.012;
+          gustTimer--;
+          if (gustTimer <= 0 && intensityTarget > 0) {
+            const base = weather === "storm" ? 9 : 4;
+            windTarget = (Math.random() * 2 - 1) * base;
+            gustTimer = 120 + Math.random() * 180;
+          }
+          ctx.clearRect(0, 0, CW, CH);
+          if (intensity < 0.01) { requestAnimationFrame(tickRain); return; }
+          const want = Math.floor(intensity * 260);
+          ensureDrops(want);
+          ctx.lineWidth = 1.2; ctx.lineCap = "round";
+          for (let i = 0; i < want; i++) {
+            const d = drops[i];
+            const vx = wind, vy = d.speed;
+            d.x += vx * 0.6; d.y += vy;
+            if (d.y > CH + 10) { d.y = -20; d.x = Math.random() * (CW + 200) - 100; }
+            if (d.x > CW + 60) d.x = -40;
+            if (d.x < -60) d.x = CW + 40;
+            const k = d.len / Math.hypot(vx, vy);
+            ctx.strokeStyle = `rgba(190, 210, 240, ${d.alpha * intensity})`;
+            ctx.beginPath();
+            ctx.moveTo(d.x, d.y); ctx.lineTo(d.x - vx * k, d.y - vy * k);
+            ctx.stroke();
+          }
+          requestAnimationFrame(tickRain);
+        }
+        if (!reduced) tickRain();
+        new MutationObserver(() => {
+          if (weather === "rain") intensityTarget = 0.55;
+          else if (weather === "storm") intensityTarget = 1;
+          else intensityTarget = 0;
+        }).observe(world, { attributes: true, attributeFilter: ["data-weather"] });
+
+        /* ============= CLOUDS (dynamic, random shapes) ============= */
+        function randomCloud() {
+          const c = document.createElement("div");
+          c.className = "cloud";
+
+          // Generate a random pixel-cluster cloud via box-shadows
+          // Two tiers: light top, dark bottom
+          const cells = 5 + Math.floor(Math.random() * 5);
+          const shadows = [];
+          let x = 0;
+          let prevY = 0;
+          const tops = [];
+          for (let i = 0; i < cells; i++) {
+            const dy = -3 + Math.round((Math.random() - 0.5) * 8);
+            const y = Math.max(-10, Math.min(6, prevY + dy));
+            tops.push({ x, y });
+            x += 10 + Math.floor(Math.random() * 6);
+            prevY = y;
+          }
+          for (const t of tops) shadows.push(`${t.x}px ${t.y}px 0 0 var(--cloud-light)`);
+          // dark underside (sparser, slightly below)
+          for (let i = 0; i < tops.length; i++) {
+            if (i % 2 === 0) shadows.push(`${tops[i].x}px ${tops[i].y + 10}px 0 0 var(--cloud-dark)`);
+          }
+          c.style.boxShadow = shadows.join(", ");
+          // Anchor — random vertical position in upper third of viewport
+          const top = 4 + Math.random() * 22; // %
+          c.style.top = top + "%";
+          const scale = 0.7 + Math.random() * 0.7;
+
+          // Drift the cloud manually via CSS transition for smoother control
+          const fromLeft = Math.random() > 0.5;
+          const startX = fromLeft ? -120 : (W() + 40);
+          const endX = fromLeft ? (W() + 120) : -120;
+          c.style.left = startX + "px";
+          c.style.transform = `scale(${scale})`;
+          cloudsLayer.appendChild(c);
+
+          const speed = 8 + Math.random() * 18; // px/s — slow, dreamy
+          const dist = Math.abs(endX - startX);
+          const dur = dist / speed;
+          requestAnimationFrame(() => {
+            c.style.transition = `left ${dur}s linear, filter 6s ease, opacity 6s ease`;
+            c.style.left = endX + "px";
+          });
+          setTimeout(() => c.remove(), dur * 1000 + 500);
+        }
+
+        // Seed clouds across the sky so it's not empty on load
+        function seedClouds(n) {
+          for (let i = 0; i < n; i++) {
+            setTimeout(() => {
+              // create a cloud at random horizontal position
+              randomCloud();
+              const lastCloud = cloudsLayer.lastElementChild;
+              if (!lastCloud) return;
+              // place it somewhere mid-screen by adjusting --rand
+              const x = Math.random() * W();
+              lastCloud.style.left = x + "px";
+            }, i * 30);
+          }
+        }
+        if (!reduced) seedClouds(4);
+
+        /* ============= PEOPLE ============= */
+        const personTypes = ["", "warrior", "mage"];
+        const personLogs = {
+          "": ["A peasant wanders the path.", "A traveler crosses the road."],
+          warrior: ["A warrior strides past.", "A warrior surveys the fields."],
+          mage: ["A mage drifts by, robes trailing.", "A mage murmurs an incantation."],
+        };
+
+        function makePerson(type, dir, opts = {}) {
+          const p = document.createElement("div");
+          p.className = "person " + type + (opts.extra ? " " + opts.extra : "");
+          p.dataset.dir = dir;
+          p.style.bottom = (opts.bottom != null ? opts.bottom : (2 + Math.random() * 14)) + "px";
+          const startX = opts.startX != null ? opts.startX : (dir === "left" ? W() + 20 : -20);
+          p.style.left = startX + "px";
+          if (dir === "left") p.style.transform = "scaleX(-1)";
+          peopleLayer.appendChild(p);
+          return p;
+        }
+
+        function walkPerson(p, dur, endX) {
+          requestAnimationFrame(() => {
+            p.style.transition = `left ${dur}s linear`;
+            p.style.left = endX + "px";
+          });
+          setTimeout(() => { if (p.isConnected) p.remove(); }, dur * 1000 + 500);
+        }
+
+        function spawnPerson(opts = {}) {
+          if (document.hidden || reduced) return;
+          const dir = opts.dir || (Math.random() > 0.5 ? "left" : "right");
+          const type = opts.type || personTypes[Math.floor(Math.random() * personTypes.length)];
+          const isRainy = weather === "rain" || weather === "storm";
+          // Slower base walk (30-55s normal, 9-15s when fleeing rain)
+          const baseDur = isRainy ? (9 + Math.random() * 6) : (30 + Math.random() * 25);
+          const dur = opts.duration || baseDur;
+          const startOffset = opts.offset || 0;
+          const startX = (dir === "left" ? W() + 20 : -20) + startOffset;
+          const endX = dir === "left" ? -20 : W() + 20;
+          const p = makePerson(type, dir, { startX, bottom: opts.bottom });
+          walkPerson(p, dur, endX);
+
+          if (!opts.silent && Math.random() < 0.3) {
+            const ops = personLogs[type];
+            logEvent(ops[Math.floor(Math.random() * ops.length)]);
+          }
+          return p;
+        }
+
+        // Groups: 2-4 friends walking together
+        function spawnGroup() {
+          if (document.hidden || reduced) return;
+          const dir = Math.random() > 0.5 ? "left" : "right";
+          const size = 2 + Math.floor(Math.random() * 3); // 2-4
+          const baseDur = 32 + Math.random() * 20;
+          for (let i = 0; i < size; i++) {
+            const type = personTypes[Math.floor(Math.random() * personTypes.length)];
+            const offset = (dir === "left" ? 1 : -1) * i * (14 + Math.random() * 10);
+            spawnPerson({ dir, type, duration: baseDur + (Math.random() - 0.5) * 4, offset, silent: true, bottom: 2 + Math.random() * 12 });
+          }
+          const labels = [
+            "A merry band rambles down the road.",
+            "A group of friends pass through together.",
+            "Travelers move as one — strength in numbers.",
+            size >= 3 ? "A small party crosses the realm." : "Two companions walk side by side."
+          ];
+          logEvent(labels[Math.floor(Math.random() * labels.length)]);
+        }
+
+        /* ============= HORSES ============= */
+        function horseSVG(withRider) {
+          const rider = withRider ? `
+            <!-- rider torso -->
+            <rect x="8" y="6" width="6" height="8" fill="#6a4828"/>
+            <rect x="8" y="6" width="6" height="2" fill="#8a6840"/>
+            <!-- head -->
+            <rect x="9" y="2" width="4" height="4" fill="#d4a888"/>
+            <!-- hat / hood -->
+            <rect x="9" y="1" width="4" height="2" fill="#3a2410"/>
+          ` : "";
+          return `<svg viewBox="0 0 28 26" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="14" width="20" height="6" fill="#5a3a20"/>
+            <rect x="2" y="14" width="20" height="2" fill="#7a5028"/>
+            <rect x="20" y="11" width="6" height="5" fill="#5a3a20"/>
+            <rect x="20" y="11" width="6" height="1" fill="#7a5028"/>
+            <rect x="25" y="13" width="1" height="2" fill="#1a1208"/>
+            <rect x="17" y="10" width="4" height="3" fill="#1a1208"/>
+            <rect x="4" y="20" width="2" height="6" fill="#1a1208"/>
+            <rect x="9" y="20" width="2" height="6" fill="#1a1208"/>
+            <rect x="14" y="20" width="2" height="6" fill="#1a1208"/>
+            <rect x="19" y="20" width="2" height="6" fill="#1a1208"/>
+            <rect x="0" y="13" width="2" height="6" fill="#1a1208"/>
+            ${rider}
+          </svg>`;
+        }
+
+        function spawnHorse() {
+          if (document.hidden || reduced) return;
+          const dir = Math.random() > 0.5 ? "left" : "right";
+          const withRider = Math.random() > 0.4;
+          const h = document.createElement("div");
+          h.className = "horseman peaceful";
+          h.innerHTML = horseSVG(withRider);
+          if (dir === "left") h.style.transform = "scaleX(-1)";
+          const startX = dir === "left" ? W() + 30 : -30;
+          const endX = dir === "left" ? -30 : W() + 30;
+          h.style.left = startX + "px";
+          h.style.bottom = "4px";
+          peopleLayer.appendChild(h);
+          const isRainy = weather === "rain" || weather === "storm";
+          const dur = isRainy ? (10 + Math.random() * 4) : (20 + Math.random() * 12);
+          requestAnimationFrame(() => {
+            h.style.transition = `left ${dur}s linear`;
+            h.style.left = endX + "px";
+          });
+          setTimeout(() => h.remove(), dur * 1000 + 500);
+          logEvent(withRider ? "A rider canters through on horseback." : "A loose horse trots across the meadow.");
+        }
+
+        /* ============= CARAVAN ============= */
+        function cartSVG() {
+          return `<svg viewBox="0 0 32 22" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="6" width="28" height="12" fill="#6a4828"/>
+            <rect x="2" y="6" width="28" height="2" fill="#8a6840"/>
+            <rect x="4" y="8" width="2" height="10" fill="#3a2410"/>
+            <rect x="14" y="8" width="2" height="10" fill="#3a2410"/>
+            <rect x="26" y="8" width="2" height="10" fill="#3a2410"/>
+            <rect x="6" y="3" width="6" height="4" fill="#a87858"/>
+            <rect x="14" y="2" width="8" height="5" fill="#a87858"/>
+            <rect x="14" y="2" width="8" height="1" fill="#c89878"/>
+            <circle cx="8" cy="20" r="3" fill="#1a1208"/>
+            <circle cx="24" cy="20" r="3" fill="#1a1208"/>
+            <circle cx="8" cy="20" r="1" fill="#5a3818"/>
+            <circle cx="24" cy="20" r="1" fill="#5a3818"/>
+          </svg>`;
+        }
+
+        function spawnCaravan() {
+          if (document.hidden || reduced) return;
+          const dir = Math.random() > 0.5 ? "left" : "right";
+          const dur = 42 + Math.random() * 18;
+          // Horse pulling cart + 2 guards. Spawn them with offsets.
+          // We'll spawn the cart first, then horse just ahead, then guards behind.
+          const lead = dir === "right" ? 1 : -1;
+
+          // Horse (in front of cart in walking direction)
+          const hp = document.createElement("div");
+          hp.className = "horseman peaceful caravan-horse";
+          hp.innerHTML = horseSVG(false);
+          if (dir === "left") hp.style.transform = "scaleX(-1)";
+          hp.style.bottom = "4px";
+          const horseStart = dir === "left" ? (W() + 30) : -30;
+          hp.style.left = horseStart + "px";
+          peopleLayer.appendChild(hp);
+          requestAnimationFrame(() => {
+            hp.style.transition = `left ${dur}s linear`;
+            hp.style.left = (dir === "left" ? -30 : W() + 30) + "px";
+          });
+          setTimeout(() => hp.remove(), dur * 1000 + 500);
+
+          // Cart (behind the horse)
+          const cart = document.createElement("div");
+          cart.className = "cart";
+          cart.innerHTML = cartSVG();
+          if (dir === "left") cart.style.transform = "scaleX(-1)";
+          cart.style.bottom = "2px";
+          const cartStart = horseStart + (dir === "left" ? 32 : -32);
+          cart.style.left = cartStart + "px";
+          peopleLayer.appendChild(cart);
+          const cartEnd = dir === "left" ? -60 : W() + 60;
+          requestAnimationFrame(() => {
+            cart.style.transition = `left ${dur}s linear`;
+            cart.style.left = cartEnd + "px";
+          });
+          setTimeout(() => cart.remove(), dur * 1000 + 500);
+
+          // 2 guards walking alongside
+          for (let i = 0; i < 2; i++) {
+            const offset = (dir === "left" ? 1 : -1) * (60 + i * 20);
+            spawnPerson({
+              dir, type: "warrior",
+              duration: dur,
+              offset,
+              silent: true,
+              bottom: 4 + i * 8,
+            });
+          }
+          logEvent("A trade caravan rolls through. Guards keep watch.");
+        }
+
+        /* ============= ROYAL ARMY ============= */
+        function kingSVG() {
+          return `<svg viewBox="0 0 14 22" xmlns="http://www.w3.org/2000/svg">
+            <rect x="4" y="14" width="2" height="6" fill="#3a2848"/>
+            <rect x="8" y="14" width="2" height="6" fill="#3a2848"/>
+            <rect x="2" y="8" width="10" height="10" fill="#6a2848"/>
+            <rect x="2" y="8" width="10" height="2" fill="#8a3868"/>
+            <rect x="2" y="16" width="10" height="1" fill="#d4a017"/>
+            <rect x="5" y="4" width="4" height="4" fill="#d4a888"/>
+            <rect x="4" y="7" width="6" height="2" fill="#c8c0b0"/>
+            <rect x="4" y="2" width="6" height="2" fill="#d4a017"/>
+            <rect x="4" y="0" width="1" height="2" fill="#d4a017"/>
+            <rect x="6" y="0" width="2" height="2" fill="#d4a017"/>
+            <rect x="9" y="0" width="1" height="2" fill="#d4a017"/>
+            <rect x="7" y="0" width="1" height="1" fill="#c84a35"/>
+          </svg>`;
+        }
+
+        function soldierSVG() {
+          return `<svg viewBox="0 0 10 18" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="12" width="2" height="6" fill="#3a2a1a"/>
+            <rect x="6" y="12" width="2" height="6" fill="#3a2a1a"/>
+            <rect x="2" y="6" width="6" height="6" fill="#8890a0"/>
+            <rect x="2" y="6" width="6" height="1" fill="#b8c0d0"/>
+            <rect x="2" y="11" width="6" height="1" fill="#555a68"/>
+            <rect x="3" y="2" width="4" height="4" fill="#8890a0"/>
+            <rect x="3" y="2" width="4" height="1" fill="#b8c0d0"/>
+            <rect x="3" y="4" width="4" height="1" fill="#222"/>
+            <rect x="4" y="0" width="2" height="2" fill="#c84a35"/>
+            <rect x="8" y="0" width="1" height="14" fill="#6a4828"/>
+            <rect x="7" y="0" width="3" height="2" fill="#c0c4cc"/>
+            <rect x="0" y="7" width="2" height="5" fill="#c84a35"/>
+            <rect x="0" y="7" width="2" height="1" fill="#e06a45"/>
+          </svg>`;
+        }
+
+        function bannerSVG() {
+          return `<svg viewBox="0 0 10 22" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="12" width="2" height="6" fill="#3a2a1a"/>
+            <rect x="6" y="12" width="2" height="6" fill="#3a2a1a"/>
+            <rect x="2" y="6" width="6" height="6" fill="#8890a0"/>
+            <rect x="3" y="2" width="4" height="4" fill="#8890a0"/>
+            <rect x="3" y="4" width="4" height="1" fill="#222"/>
+            <!-- pole -->
+            <rect x="8" y="-6" width="1" height="20" fill="#6a4828"/>
+            <!-- banner cloth -->
+            <rect x="9" y="-5" width="6" height="6" fill="#6a2848"/>
+            <rect x="9" y="-5" width="6" height="1" fill="#8a3868"/>
+            <rect x="11" y="-3" width="2" height="2" fill="#d4a017"/>
+          </svg>`;
+        }
+
+        function spawnArmy() {
+          if (document.hidden || reduced) return;
+          const dir = Math.random() > 0.5 ? "left" : "right";
+          const dur = 55 + Math.random() * 25;
+          // Order in walking direction: 2 vanguard soldiers, banner-bearer, king, 2 rear soldiers
+          const units = [
+            { kind: "soldier", offset: 0 },
+            { kind: "soldier", offset: 22 },
+            { kind: "banner",  offset: 48 },
+            { kind: "king",    offset: 74 },
+            { kind: "soldier", offset: 100 },
+            { kind: "soldier", offset: 122 },
+          ];
+          for (const u of units) {
+            const el = document.createElement("div");
+            if (u.kind === "king") {
+              el.className = "king";
+              el.innerHTML = kingSVG();
+            } else if (u.kind === "banner") {
+              el.className = "soldier banner";
+              el.innerHTML = bannerSVG();
+            } else {
+              el.className = "soldier";
+              el.innerHTML = soldierSVG();
+            }
+            if (dir === "left") el.style.transform = "scaleX(-1)";
+            el.style.bottom = "4px";
+            const sign = dir === "right" ? 1 : -1;
+            const startX = (dir === "left" ? W() + 30 : -30) - sign * u.offset;
+            const endX = (dir === "left" ? -30 : W() + 30) - sign * u.offset;
+            el.style.left = startX + "px";
+            peopleLayer.appendChild(el);
+            requestAnimationFrame(() => {
+              el.style.transition = `left ${dur}s linear`;
+              el.style.left = endX + "px";
+            });
+            setTimeout(() => el.remove(), dur * 1000 + 500);
+          }
+          logEvent("The King's host marches through with banners high!", "good");
+        }
+
+        /* ============= DUELS ============= */
+        function spawnDuel() {
+          if (document.hidden || reduced) return;
+          // Pick a meeting point roughly center-screen
+          const meetX = W() * (0.35 + Math.random() * 0.3);
+          const lhs = Math.random() > 0.5 ? "warrior" : "";
+          const rhs = Math.random() > 0.5 ? "warrior" : "mage";
+          const dur = 18 + Math.random() * 6;
+
+          // Walker A (from left, moving right)
+          const a = makePerson(lhs, "right", { startX: -20, bottom: 6 });
+          // Walker B (from right, moving left)
+          const b = makePerson(rhs, "left", { startX: W() + 20, bottom: 6 });
+
+          // Walk toward meetX over T seconds
+          const T = dur / 2;
+          requestAnimationFrame(() => {
+            a.style.transition = `left ${T}s linear`;
+            a.style.left = (meetX - 10) + "px";
+            b.style.transition = `left ${T}s linear`;
+            b.style.left = (meetX + 2) + "px";
+          });
+          logEvent("Two strangers approach on the path…");
+
+          setTimeout(() => {
+            a.classList.add("fighting");
+            b.classList.add("fighting");
+            logEvent("A quarrel breaks out — steel rings out!", "bad");
+
+            setTimeout(() => {
+              // Decide winner
+              const aWins = Math.random() > 0.5;
+              const loser = aWins ? b : a;
+              const winner = aWins ? a : b;
+              loser.classList.add("defeated");
+              logEvent(aWins ? "The traveler from the east is bested." : "The traveler from the west flees the field.", "bad");
+              setTimeout(() => loser.remove(), 1000);
+
+              // Winner continues
+              winner.classList.remove("fighting");
+              const winnerDir = winner.dataset.dir;
+              const exitX = winnerDir === "left" ? -20 : (W() + 20);
+              const continueDur = 8 + Math.random() * 6;
+              winner.style.transition = `left ${continueDur}s linear`;
+              winner.style.left = exitX + "px";
+              setTimeout(() => winner.remove(), continueDur * 1000 + 500);
+            }, 3200);
+          }, T * 1000 + 100);
+        }
+
+        function fleeFromWeather() {
+          peopleLayer.querySelectorAll(".person").forEach((p) => {
+            if (p.classList.contains("lumberjack") || p.classList.contains("horseman") || p.classList.contains("builder")) return;
+            if (p.dataset.fled === "1") return;
+            p.dataset.fled = "1";
+            const cur = parseFloat(getComputedStyle(p).left);
+            const dir = p.dataset.dir;
+            const target = dir === "left" ? -30 : (W() + 30);
+            const dist = Math.abs(target - cur);
+            const newDur = dist / 220; // sprint speed
+            p.style.transition = `left ${newDur}s linear`;
+            requestAnimationFrame(() => { p.style.left = target + "px"; });
+            setTimeout(() => p.remove(), newDur * 1000 + 200);
+          });
+        }
+
+        /* ============= TREES ============= */
+        const treeStages = [0, 0.25, 0.55, 0.85, 1.1];
+        const trees = [];
+        const TREE_MIN_SPACING = 80;
+
+        function makeTreeSVG() {
+          return `<svg viewBox="0 0 24 48" xmlns="http://www.w3.org/2000/svg">
+            <rect x="10" y="34" width="4" height="14" fill="#3a2410"/>
+            <rect x="11" y="34" width="2" height="14" fill="#5a3818"/>
+            <rect x="3" y="22" width="18" height="10" fill="#1a3010"/>
+            <rect x="5" y="14" width="14" height="10" fill="#2a4a1a"/>
+            <rect x="7" y="6" width="10" height="10" fill="#3a5a26"/>
+            <rect x="9" y="0" width="6" height="6" fill="#4a6a36"/>
+            <rect x="6" y="20" width="2" height="2" fill="#1a3010"/>
+            <rect x="16" y="22" width="2" height="2" fill="#1a3010"/>
+            <rect x="8" y="12" width="2" height="2" fill="#1a3010"/>
+            <rect x="14" y="10" width="2" height="2" fill="#1a3010"/>
+          </svg>`;
+        }
+        function findTreeSpot() {
+          for (let i = 0; i < 25; i++) {
+            const x = 40 + Math.random() * (W() - 80);
+            const free = !trees.some((t) => Math.abs(t.x - x) < TREE_MIN_SPACING)
+                      && !houses.some((h) => Math.abs(h.x - x) < TREE_MIN_SPACING);
+            if (free) return x;
+          }
+          return null;
+        }
+        function plantTree(immediate = false) {
+          const x = findTreeSpot();
+          if (x == null) return null;
+          const t = document.createElement("div");
+          t.className = "tree";
+          t.innerHTML = makeTreeSVG();
+          t.style.left = x + "px";
+          t.style.setProperty("--g", "0");
+          treesLayer.appendChild(t);
+          const rec = { el: t, x, stage: 0 };
+          trees.push(rec);
+          if (immediate) {
+            rec.stage = treeStages.length - 1;
+            t.style.setProperty("--g", treeStages[rec.stage]);
+            return rec;
+          }
+          logEvent("A sapling takes root.");
+          function step() {
+            if (!t.isConnected) return;
+            rec.stage++;
+            if (rec.stage >= treeStages.length) {
+              logEvent("A tree stands tall.", "good");
+              return;
+            }
+            t.style.setProperty("--g", treeStages[rec.stage]);
+            setTimeout(step, 5000 + Math.random() * 4000);
+          }
+          setTimeout(step, 1500);
+          return rec;
+        }
+        function removeTree(rec) {
+          const i = trees.indexOf(rec);
+          if (i >= 0) trees.splice(i, 1);
+        }
+
+        /* ============= HOUSES ============= */
+        const houses = [];
+        function houseSVG() {
+          return `<svg viewBox="0 0 36 32" xmlns="http://www.w3.org/2000/svg">
+            <!-- foundation -->
+            <rect x="0" y="26" width="36" height="6" fill="#5a4030"/>
+            <rect x="0" y="26" width="36" height="2" fill="#7a5840"/>
+            <rect x="2" y="30" width="32" height="2" fill="#3a2818"/>
+            <!-- walls (stage 1+) -->
+            <g class="hs-walls" opacity="0">
+              <rect x="4" y="12" width="28" height="14" fill="#a87858"/>
+              <rect x="4" y="12" width="28" height="2" fill="#c89878"/>
+              <rect x="4" y="24" width="28" height="2" fill="#80583a"/>
+              <rect x="6" y="14" width="2" height="10" fill="#6a4828"/>
+              <rect x="28" y="14" width="2" height="10" fill="#6a4828"/>
+              <!-- door -->
+              <rect x="16" y="18" width="4" height="8" fill="#3a2410"/>
+              <rect x="19" y="22" width="1" height="1" fill="#d4a017"/>
+              <!-- window -->
+              <rect x="8" y="16" width="4" height="4" fill="#5a4830"/>
+              <rect x="9" y="17" width="1" height="2" fill="#f0d890"/>
+              <rect x="11" y="17" width="1" height="2" fill="#f0d890"/>
+              <rect x="24" y="16" width="4" height="4" fill="#5a4830"/>
+              <rect x="25" y="17" width="1" height="2" fill="#f0d890"/>
+              <rect x="27" y="17" width="1" height="2" fill="#f0d890"/>
+            </g>
+            <!-- roof (stage 2+) -->
+            <g class="hs-roof" opacity="0">
+              <polygon points="0,12 18,2 36,12" fill="#8a3a25"/>
+              <polygon points="2,11 18,4 34,11" fill="#a8442a"/>
+              <rect x="0" y="11" width="36" height="2" fill="#6a2818"/>
+              <rect x="22" y="-2" width="3" height="8" fill="#3a2410"/>
+              <rect x="22" y="-2" width="3" height="2" fill="#5a3820"/>
+            </g>
+          </svg>`;
+        }
+
+        function spawnBuilder(targetX, onDone) {
+          if (reduced) { if (onDone) onDone(); return; }
+          const lj = document.createElement("div");
+          lj.className = "person builder";
+          const fromLeft = targetX > W() / 2;
+          const startX = fromLeft ? -20 : W() + 20;
+          const stopX = targetX + (fromLeft ? -6 : 18);
+          if (!fromLeft) lj.style.transform = "scaleX(-1)";
+          lj.style.bottom = "4px"; lj.style.left = startX + "px";
+          peopleLayer.appendChild(lj);
+          const walkDist = Math.abs(stopX - startX);
+          const walkTime = walkDist / 60;
+          requestAnimationFrame(() => {
+            lj.style.transition = `left ${walkTime}s linear`;
+            lj.style.left = stopX + "px";
+          });
+          setTimeout(() => {
+            lj.classList.add("working");
+            logEvent("A builder breaks ground.", "good");
+            // Spawn the house and grow it
+            const h = document.createElement("div");
+            h.className = "house";
+            h.innerHTML = houseSVG();
+            h.style.left = targetX + "px";
+            treesLayer.appendChild(h);
+            const rec = { el: h, x: targetX, stage: 0 };
+            houses.push(rec);
+            // stage 1: walls
+            setTimeout(() => {
+              if (!h.isConnected) return;
+              rec.stage = 1;
+              h.querySelectorAll(".hs-walls").forEach((el) => el.setAttribute("opacity", 1));
+              logEvent("Walls rise from the foundation.");
+            }, 4500);
+            // stage 2: roof + done
+            setTimeout(() => {
+              if (!h.isConnected) return;
+              rec.stage = 2;
+              h.querySelectorAll(".hs-roof").forEach((el) => el.setAttribute("opacity", 1));
+              logEvent("A house was built!", "good");
+              lj.classList.remove("working");
+              const exitX = fromLeft ? W() + 20 : -20;
+              const exitDur = Math.abs(exitX - stopX) / 60;
+              lj.style.transition = `left ${exitDur}s linear`;
+              lj.style.left = exitX + "px";
+              setTimeout(() => lj.remove(), exitDur * 1000 + 500);
+              if (onDone) onDone(rec);
+            }, 10000);
+          }, walkTime * 1000 + 100);
+        }
+
+        function destroyHouse(rec) {
+          if (!rec.el.isConnected) return;
+          rec.el.classList.add("crumbling");
+          const i = houses.indexOf(rec);
+          if (i >= 0) houses.splice(i, 1);
+          setTimeout(() => rec.el.remove(), 1700);
+        }
+
+        /* ============= LUMBERJACK ============= */
+        function spawnLumberjack() {
+          if (document.hidden || reduced) return;
+          const grown = trees.filter((t) => t.stage >= 3);
+          if (grown.length === 0) return;
+          const target = grown[Math.floor(Math.random() * grown.length)];
+          const tx = target.x;
+          const fromLeft = tx > W() / 2;
+          const startX = fromLeft ? -20 : W() + 20;
+          const stopX = tx + (fromLeft ? -6 : 18);
+          const lj = document.createElement("div");
+          lj.className = "person lumberjack";
+          if (!fromLeft) lj.style.transform = "scaleX(-1)";
+          lj.style.bottom = "4px"; lj.style.left = startX + "px";
+          peopleLayer.appendChild(lj);
+          const walkDist = Math.abs(stopX - startX);
+          const walkTime = walkDist / 60;
+          logEvent("A lumberjack spies a fine tree.");
+          requestAnimationFrame(() => {
+            lj.style.transition = `left ${walkTime}s linear`;
+            lj.style.left = stopX + "px";
+          });
+          setTimeout(() => {
+            if (!target.el.isConnected) {
+              const exitX = fromLeft ? W() + 20 : -20;
+              lj.style.transition = `left 6s linear`;
+              lj.style.left = exitX + "px";
+              setTimeout(() => lj.remove(), 6500);
+              return;
+            }
+            lj.classList.add("chopping");
+            setTimeout(() => {
+              target.el.classList.add("falling");
+              removeTree(target);
+              setTimeout(() => target.el.remove(), 1500);
+              lj.classList.remove("chopping");
+              logEvent("A lumberjack felled a tree.", "good");
+              const exitX = fromLeft ? W() + 20 : -20;
+              const exitDist = Math.abs(exitX - stopX);
+              const exitTime = exitDist / 60;
+              lj.style.transition = `left ${exitTime}s linear`;
+              lj.style.left = exitX + "px";
+              setTimeout(() => lj.remove(), exitTime * 1000 + 500);
+              // Builder arrives after lumberjack leaves
+              setTimeout(() => spawnBuilder(target.x), 5000);
+            }, 3500);
+          }, walkTime * 1000 + 100);
+        }
+
+        /* ============= DRAGON FLY-BY ============= */
+        function spawnDragon() {
+          if (document.hidden || reduced) return;
+          const d = document.createElement("div");
+          d.className = "dragon flyby";
+          const dur = 14 + Math.random() * 10;
+          d.style.animationDuration = dur + "s, 0.3s";
+          d.style.top = (40 + Math.random() * (H() * 0.3)) + "px";
+          dragonsLayer.appendChild(d);
+          setTimeout(() => d.remove(), dur * 1000 + 500);
+        }
+
+        /* ============= DRAGON ATTACK ============= */
+        function dragonAttack(target) {
+          if (!target || !target.el.isConnected || reduced) return;
+          const d = document.createElement("div");
+          d.className = "dragon"; // no flyby animation, manual control
+          d.style.top = "60px";
+          d.style.left = "-50px";
+          dragonsLayer.appendChild(d);
+          logEvent("A dragon descends upon a house!", "bad");
+
+          // Approach
+          requestAnimationFrame(() => {
+            d.style.transition = "left 4.5s linear, top 4.5s ease-in";
+            d.style.left = (target.x - 8) + "px";
+            d.style.top = (H() - 130) + "px";
+          });
+
+          // Fire breath
+          setTimeout(() => {
+            for (let i = 0; i < 4; i++) {
+              setTimeout(() => {
+                const f = document.createElement("div");
+                f.className = "fire-breath";
+                f.style.left = (target.x + 16 + (Math.random() * 12 - 6)) + "px";
+                f.style.bottom = (60 + Math.random() * 14) + "px";
+                dragonsLayer.appendChild(f);
+                setTimeout(() => f.remove(), 1500);
+              }, i * 180);
+            }
+            destroyHouse(target);
+            logEvent("The house is burned to ash!", "bad");
+          }, 4700);
+
+          // Fly away
+          setTimeout(() => {
+            d.style.transition = "left 4.5s linear, top 4.5s ease-out";
+            d.style.left = (W() + 60) + "px";
+            d.style.top = "40px";
+          }, 6200);
+
+          setTimeout(() => d.remove(), 11000);
+        }
+
+        /* ============= HORSEMAN ATTACK ============= */
+        function horsemanSVG() {
+          return `<svg viewBox="0 0 28 26" xmlns="http://www.w3.org/2000/svg">
+            <!-- horse body -->
+            <rect x="2" y="14" width="20" height="6" fill="#3a2418"/>
+            <rect x="2" y="14" width="20" height="2" fill="#5a3a28"/>
+            <!-- horse head -->
+            <rect x="20" y="11" width="6" height="5" fill="#3a2418"/>
+            <rect x="20" y="11" width="6" height="1" fill="#5a3a28"/>
+            <rect x="25" y="13" width="1" height="2" fill="#1a1208"/>
+            <!-- horse mane -->
+            <rect x="17" y="10" width="4" height="3" fill="#1a1208"/>
+            <!-- horse legs -->
+            <rect x="4" y="20" width="2" height="6" fill="#1a1208"/>
+            <rect x="9" y="20" width="2" height="6" fill="#1a1208"/>
+            <rect x="14" y="20" width="2" height="6" fill="#1a1208"/>
+            <rect x="19" y="20" width="2" height="6" fill="#1a1208"/>
+            <!-- tail -->
+            <rect x="0" y="13" width="2" height="6" fill="#1a1208"/>
+            <!-- rider armor -->
+            <rect x="8" y="6" width="8" height="9" fill="#8890a0"/>
+            <rect x="8" y="6" width="8" height="2" fill="#b8c0d0"/>
+            <rect x="8" y="13" width="8" height="2" fill="#555a68"/>
+            <!-- helmet -->
+            <rect x="9" y="1" width="6" height="6" fill="#8890a0"/>
+            <rect x="9" y="1" width="6" height="2" fill="#b8c0d0"/>
+            <rect x="9" y="4" width="6" height="1" fill="#222"/>
+            <!-- plume -->
+            <rect x="11" y="-2" width="2" height="3" fill="#c84a35"/>
+            <!-- sword -->
+            <g class="hr-sword">
+              <rect x="16" y="3" width="1" height="9" fill="#e0e4ec"/>
+              <rect x="15" y="11" width="3" height="1" fill="#888"/>
+              <rect x="16" y="12" width="1" height="2" fill="#6a4828"/>
+            </g>
+            <!-- shield -->
+            <rect x="6" y="9" width="3" height="5" fill="#c84a35"/>
+            <rect x="6" y="9" width="3" height="1" fill="#e06a45"/>
+            <rect x="7" y="11" width="1" height="1" fill="#d4a017"/>
+          </svg>`;
+        }
+
+        function horsemanAttack(target) {
+          if (!target || !target.el.isConnected || reduced) return;
+          const h = document.createElement("div");
+          h.className = "horseman";
+          h.innerHTML = horsemanSVG();
+          const fromLeft = Math.random() > 0.5;
+          const startX = fromLeft ? -40 : W() + 40;
+          const stopX = target.x + (fromLeft ? -16 : 28);
+          if (!fromLeft) h.style.transform = "scaleX(-1)";
+          h.style.left = startX + "px";
+          peopleLayer.appendChild(h);
+
+          const dur = Math.abs(stopX - startX) / 160; // gallop speed
+          logEvent("An armored horseman charges in!", "bad");
+          requestAnimationFrame(() => {
+            h.style.transition = `left ${dur}s linear`;
+            h.style.left = stopX + "px";
+          });
+          setTimeout(() => {
+            h.classList.add("attacking");
+            setTimeout(() => {
+              destroyHouse(target);
+              logEvent("The horseman smashes the house!", "bad");
+              h.classList.remove("attacking");
+              const exitX = fromLeft ? W() + 40 : -40;
+              const exitDur = Math.abs(exitX - stopX) / 160;
+              h.style.transition = `left ${exitDur}s linear`;
+              h.style.left = exitX + "px";
+              setTimeout(() => h.remove(), exitDur * 1000 + 400);
+            }, 2200);
+          }, dur * 1000 + 100);
+        }
+
+        function attackRandomHouse() {
+          if (houses.length === 0) return;
+          const target = houses[Math.floor(Math.random() * houses.length)];
+          if (target.stage < 2) return; // only attack finished houses
+          (Math.random() < 0.5 ? dragonAttack : horsemanAttack)(target);
+        }
+
+        /* ============= SPAWN LOOPS ============= */
+        function loop(fn, min, max) {
+          fn();
+          setTimeout(() => loop(fn, min, max), min + Math.random() * (max - min));
+        }
+
+        // Seed: trees so a lumberjack has something to chop quickly
+        setTimeout(() => {
+          plantTree(true);
+          setTimeout(() => plantTree(true), 60);
+          setTimeout(() => plantTree(true), 120);
+        }, 200);
+
+        if (!reduced) {
+          setTimeout(() => logEvent("Adventurer enters the realm.", "good"), 500);
+
+          // Mixed person spawner — most lone, some grouped
+          function spawnRandomTraveler() {
+            const r = Math.random();
+            if (r < 0.18) spawnGroup();
+            else spawnPerson();
+          }
+
+          setTimeout(() => loop(spawnRandomTraveler, 6000, 12000), 800);
+          setTimeout(() => loop(spawnHorse, 25000, 55000), 11000);
+          setTimeout(() => loop(spawnCaravan, 80000, 150000), 40000);
+          setTimeout(() => loop(spawnDuel, 45000, 95000), 30000);
+          setTimeout(() => loop(spawnArmy, 180000, 320000), 120000);
+          setTimeout(() => loop(spawnDragon, 35000, 80000), 8000);
+          setTimeout(() => loop(() => plantTree(false), 14000, 28000), 4000);
+          setTimeout(() => loop(spawnLumberjack, 28000, 60000), 18000);
+          setTimeout(() => loop(attackRandomHouse, 50000, 110000), 60000);
+          setTimeout(() => loop(randomCloud, 9000, 18000), 1000);
+        }
+      })();
+    </script>
   </body>
 </html>
