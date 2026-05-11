@@ -2540,7 +2540,18 @@
                 p.el.style.left = (exitX + (exitDir === "right" ? i * 18 : -i * 18)) + "px";
                 setTimeout(() => p.el.remove(), exitTime * 1000 + 500);
               });
-              // Campfire stays (smoke continues automatically)
+              // Campfire smolders for a while, then dies
+              setTimeout(() => {
+                if (!camp.isConnected) return;
+                logEvent("The abandoned campfire dies down to ashes.");
+                camp.style.transition = "opacity 5s ease";
+                camp.style.opacity = "0";
+                setTimeout(() => {
+                  camp.remove();
+                  const i = houses.indexOf(rec);
+                  if (i >= 0) houses.splice(i, 1);
+                }, 5200);
+              }, 60000 + Math.random() * 40000);
             }, stayDur);
           }, walkTime * 1000 + 100);
         }
@@ -3564,7 +3575,9 @@
           if (reduced) { if (onDone) onDone(); return; }
           // Pick a kind if not provided. Houses & towers more common than wells/signs/campfires.
           if (!kind) {
-            const weighted = ["house", "house", "house", "tower", "tower", "well", "signpost", "campfire", "campfire"];
+            // Note: no "campfire" here — those belong to adventurer camps only,
+            // a lone fire with nobody around feels weird.
+            const weighted = ["house", "house", "house", "house", "tower", "tower", "well", "well", "signpost"];
             kind = weighted[Math.floor(Math.random() * weighted.length)];
           }
           const lj = makePerson("builder", targetX > W() / 2 ? "right" : "left", { bottom: 40 });
@@ -4009,7 +4022,7 @@
           setTimeout(() => loop(spawnWizardTower, 220000, 360000), 95000);
           setTimeout(() => loop(spawnSkyWizard, 60000, 130000), 25000);
           setTimeout(() => loop(spawnFlyingCastle, 200000, 360000), 70000);
-          setTimeout(() => loop(spawnAdventurerCamp, 110000, 220000), 45000);
+          setTimeout(() => loop(spawnAdventurerCamp, 70000, 140000), 20000);
           setTimeout(() => loop(maybeSolarHalo, 260000, 480000), 95000);
           setTimeout(() => loop(spawnShepherdFlock, 110000, 200000), 38000);
         }
