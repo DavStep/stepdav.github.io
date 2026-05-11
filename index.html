@@ -970,6 +970,17 @@
 
     <script>
       (function () {
+        // === Time-scaling: speed multiplier affects ALL entities ===
+        // setTimeout/setInterval delays are divided by current speed at call time,
+        // CSS transitions get playbackRate set via a polling interval.
+        const SPEED_OPTIONS = [1, 2, 4, 8];
+        let speedIdx = 0;
+        function getSpeed() { return SPEED_OPTIONS[speedIdx]; }
+        const _setTimeout  = window.setTimeout.bind(window);
+        const _setInterval = window.setInterval.bind(window);
+        const setTimeout  = (fn, ms, ...rest) => _setTimeout(fn, (ms || 0) / getSpeed(), ...rest);
+        const setInterval = (fn, ms, ...rest) => _setInterval(fn, (ms || 0) / getSpeed(), ...rest);
+
         const world = document.querySelector(".world");
         const peopleLayer = world.querySelector(".people-layer");
         const dragonsLayer = world.querySelector(".dragons-layer");
@@ -980,6 +991,14 @@
         const hudWeather = document.getElementById("hud-weather");
         const logEl = document.getElementById("log");
         const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+        // Continuously ensure all in-flight CSS animations match current speed
+        function applySpeedToAnimations() {
+          if (typeof document.getAnimations !== "function") return;
+          const s = getSpeed();
+          document.getAnimations().forEach((a) => { try { a.playbackRate = s; } catch (e) {} });
+        }
+        _setInterval(applySpeedToAnimations, 400);
 
         const W = () => innerWidth;
         const H = () => innerHeight;
@@ -1031,9 +1050,7 @@
         let dayStart = performance.now() - 0.25 * dayLengthMs; // start at "day"
         let manualOverride = null; // { startTime, fromT, toT, duration }
 
-        // Time speed multiplier
-        const SPEED_OPTIONS = [1, 2, 4, 8];
-        let speedIdx = 0;
+        // Time speed multiplier (SPEED_OPTIONS / speedIdx / getSpeed defined at top)
         const hudSpeed = document.getElementById("hud-speed");
         function cycleSpeed() {
           // Preserve current t when changing speed
@@ -1043,6 +1060,8 @@
           dayLengthMs = BASE_DAY_LENGTH_MS / newSpeed;
           dayStart = performance.now() - currentT * dayLengthMs;
           hudSpeed.textContent = newSpeed + "×";
+          // Immediately scale all in-flight CSS transitions/animations
+          applySpeedToAnimations();
           logEvent("Time flows at " + newSpeed + "× speed.", "time");
         }
         hudSpeed.addEventListener("click", cycleSpeed);
@@ -1544,7 +1563,7 @@
 
           logEvent("A shepherd guides their hopping flock through the meadow.", "good");
 
-          // Sheep flock (3-6 sheep, mixed adults and lambs)
+          // Sheep flock (3-6 sheep, mixed adults and lambs) — tight cluster ahead of shepherd
           const flockSize = 3 + Math.floor(Math.random() * 4);
           const sign = dir === "left" ? 1 : -1;
           for (let i = 0; i < flockSize; i++) {
@@ -1554,18 +1573,25 @@
               s.className = "sheep hopping" + (isLamb ? " lamb" : "");
               s.innerHTML = sheepSVG();
               if (dir === "left") s.style.transform = "scaleX(-1)";
-              const offset = sign * (28 + i * 14 + (Math.random() - 0.5) * 6);
+              // Tight cluster: sheep 7px apart in 2 staggered rows, just ahead of shepherd
+              const row = i % 2;          // 0 = front row, 1 = back row
+              const col = Math.floor(i / 2);
+              const baseAhead = 12;       // first sheep is 12px ahead of shepherd
+              const colSpacing = 7;       // sheep clustered tight horizontally
+              const rowJitter = row === 0 ? 0 : 4;  // back row sits 4px offset
+              const offset = sign * (baseAhead + col * colSpacing + rowJitter + (Math.random() - 0.5) * 2);
               s.style.left = (startX + offset) + "px";
-              s.style.bottom = (3 + Math.random() * 8) + "px";
+              // Tight vertical jitter so sheep cluster reads as a flock
+              s.style.bottom = (3 + row * 3 + Math.random() * 3) + "px";
               s.style.animationDelay = (Math.random() * 0.6) + "s";
               peopleLayer.appendChild(s);
-              const sheepDur = dur + (Math.random() - 0.5) * 3;
+              const sheepDur = dur + (Math.random() - 0.5) * 1.5;
               requestAnimationFrame(() => {
                 s.style.transition = `left ${sheepDur}s linear`;
                 s.style.left = (endX + offset) + "px";
               });
               setTimeout(() => s.remove(), sheepDur * 1000 + 500);
-            }, i * 250);
+            }, i * 180);
           }
         }
 
