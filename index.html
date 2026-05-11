@@ -214,6 +214,39 @@
       .world[data-time="dusk"]  .house[data-kind="wizardtower"] .hs-windows-lit { opacity: 1; }
       .world[data-time="dawn"]  .house[data-kind="wizardtower"] .hs-windows-lit { opacity: 1; }
 
+      /* UPGRADE LEVELS — each level scales up + brightens */
+      .house[data-upgrade] { transition: transform 1s cubic-bezier(.34, 1.2, .64, 1), filter 1s ease; }
+      .house[data-upgrade="1"] { transform: scale(1.06); filter: brightness(1.05) saturate(1.05); }
+      .house[data-upgrade="2"] { transform: scale(1.12); filter: brightness(1.1) saturate(1.1); }
+      .house[data-upgrade="3"] { transform: scale(1.18); filter: brightness(1.15) saturate(1.15); }
+      .house[data-upgrade="4"] { transform: scale(1.3);  filter: brightness(1.2)  saturate(1.2); }
+      /* Castle L4 is HUGE and golden */
+      .house[data-kind="castle"][data-upgrade="4"] {
+        transform: scale(1.6);
+        filter: brightness(1.25) saturate(1.3) sepia(0.18) hue-rotate(-8deg);
+        z-index: 7;
+      }
+      .house[data-kind="castle"][data-upgrade="4"]::after {
+        content: ""; position: absolute;
+        inset: -8px;
+        border: 2px solid rgba(212, 160, 23, 0.5);
+        box-shadow: 0 0 18px rgba(212, 160, 23, 0.5);
+        pointer-events: none;
+        opacity: 0;
+        animation: castle-glow 4s ease-in-out infinite;
+      }
+      @keyframes castle-glow {
+        0%,100% { opacity: 0.2; }
+        50%     { opacity: 0.55; }
+      }
+
+      /* HUGE DRAGON */
+      .dragon.huge {
+        width: 110px; height: 50px;
+        filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.6));
+        z-index: 5;
+      }
+
       /* SKY WIZARD (on broom) */
       .sky-wizard {
         position: absolute;
@@ -2572,7 +2605,7 @@
             const tentOffsets = [];
             for (let i = 0; i < tentCount; i++) {
               const side = i % 2 === 0 ? -1 : 1;
-              const offset = side * (26 + Math.floor(i / 2) * 22);
+              const offset = side * (40 + Math.floor(i / 2) * 26);
               tentOffsets.push(offset);
             }
             tentOffsets.forEach((offset, i) => {
@@ -2588,6 +2621,25 @@
                 if (i === 0) logEvent("Tents are pitched around the fire.");
               }, 1200 + i * 900);
             });
+
+            // Once tents are up, party members visibly walk into them to sleep
+            setTimeout(() => {
+              partyMembers.forEach((p, i) => {
+                if (i >= tentOffsets.length) return; // a couple stay outside to watch
+                const tentOffset = tentOffsets[i % tentOffsets.length];
+                const targetX = x + tentOffset - 4;
+                setTimeout(() => {
+                  p.el.style.transition = "left 2.2s linear";
+                  p.el.style.left = targetX + "px";
+                  setTimeout(() => {
+                    p.el.style.transition = "opacity 1s ease-out";
+                    p.el.style.opacity = "0";
+                    p.el.dataset.sleeping = "1";
+                    logEvent("An adventurer slips into a tent for the night.");
+                  }, 2300);
+                }, i * 700);
+              });
+            }, 1200 + tentCount * 900 + 1500);
 
             // Restful chatter while waiting the night
             const restLogs = [
@@ -2613,20 +2665,39 @@
               const idx = activeCamps.indexOf(campRec);
               if (idx >= 0) activeCamps.splice(idx, 1);
 
-              logEvent("Dawn breaks. The adventurers strike camp.", "good");
-              // Tear down tents one by one
-              tents.forEach((t, i) => {
-                setTimeout(() => {
-                  t.classList.add("collapsing");
-                  setTimeout(() => t.remove(), 1700);
-                }, i * 400);
+              logEvent("Dawn breaks. The adventurers stir from their tents.", "good");
+              // Wake sleepers — they emerge from their tents first
+              partyMembers.forEach((p, i) => {
+                if (p.el.dataset.sleeping === "1") {
+                  setTimeout(() => {
+                    p.el.style.transition = "opacity 0.8s ease-in";
+                    p.el.style.opacity = "1";
+                    p.el.dataset.sleeping = "0";
+                  }, i * 350);
+                }
               });
+
+              // Then tear down tents
+              const tentCollapseStart = partyMembers.length * 350 + 800;
+              setTimeout(() => {
+                logEvent("The adventurers strike the tents.");
+                tents.forEach((t, i) => {
+                  setTimeout(() => {
+                    t.classList.add("collapsing");
+                    spawnParticle(parseFloat(t.style.left) + 11, 50, "dust");
+                    spawnParticle(parseFloat(t.style.left) + 11, 56, "dust");
+                    setTimeout(() => t.remove(), 1700);
+                  }, i * 600);
+                });
+              }, tentCollapseStart);
 
               setTimeout(() => {
                 logEvent("The party packs up and journeys onward.", "good");
                 const exitDir = Math.random() > 0.4 ? dir : (dir === "right" ? "left" : "right");
                 const exitX = exitDir === "right" ? (W() + 30) : -30;
                 partyMembers.forEach((p, i) => {
+                  if (!p.el.isConnected) return;
+                  p.el.style.opacity = "1"; // make sure anyone still hidden becomes visible
                   const memberX = parseFloat(getComputedStyle(p.el).left);
                   const dist = Math.abs(exitX - memberX);
                   const exitTime = dist / 45;
@@ -2634,7 +2705,7 @@
                     p.el.style.transform = p.el.style.transform.indexOf("scaleX(-1)") >= 0 ? "" : "scaleX(-1)";
                     p.el.dataset.dir = exitDir === "right" ? "right" : "left";
                   }
-                  p.el.style.transition = `left ${exitTime}s linear`;
+                  p.el.style.transition = `left ${exitTime}s linear, opacity 0.5s ease-in`;
                   p.el.style.left = (exitX + (exitDir === "right" ? i * 18 : -i * 18)) + "px";
                   setTimeout(() => p.el.remove(), exitTime * 1000 + 500);
                 });
@@ -2651,7 +2722,7 @@
                     if (hi >= 0) houses.splice(hi, 1);
                   }, 5200);
                 }, 12000);
-              }, tents.length * 400 + 800);
+              }, partyMembers.length * 350 + 800 + tents.length * 600 + 1200);
             };
 
             // Fallback: if dawn never comes (e.g., extremely long manual freeze), end after 5 min
@@ -3716,7 +3787,8 @@
             h.innerHTML = structureSVG(kind);
             h.style.left = targetX + "px";
             treesLayer.appendChild(h);
-            const rec = { el: h, x: targetX, kind, stage: 0 };
+            const rec = { el: h, x: targetX, kind, stage: 0, upgrade: 0 };
+            h.dataset.upgrade = "0";
             houses.push(rec);
 
             const midDelay = kind === "signpost" ? 0
@@ -3920,6 +3992,10 @@
         /* ============= DRAGON ATTACK ============= */
         function dragonAttack(target) {
           if (!target || !target.el.isConnected || reduced) return;
+          if (target.kind === "castle" && (target.upgrade || 0) >= 4) {
+            logEvent("A dragon swoops in but recoils — the great castle is too well-fortified!");
+            return;
+          }
           const d = makeDragon(DRAGON_PALETTES[0]); // ember dragon for attacks
           d.style.top = "60px";
           d.style.left = "-60px";
@@ -4003,6 +4079,10 @@
 
         function horsemanAttack(target) {
           if (!target || !target.el.isConnected || reduced) return;
+          if (target.kind === "castle" && (target.upgrade || 0) >= 4) {
+            logEvent("A horseman charges the castle but turns away — its walls are too strong!");
+            return;
+          }
           const h = document.createElement("div");
           h.className = "horseman";
           h.innerHTML = horsemanSVG();
@@ -4035,19 +4115,24 @@
         }
 
         function attackRandomHouse() {
-          // Only attack worthwhile buildings — houses & towers
-          const attackable = houses.filter((h) => h.stage >= 2 && (h.kind === "house" || h.kind === "tower" || h.kind === "castle"));
+          // Only attack worthwhile buildings — houses & towers; L4 castles are invincible to normal attacks
+          const attackable = houses.filter((h) =>
+            h.stage >= 2
+            && (h.kind === "house" || h.kind === "tower" || (h.kind === "castle" && (h.upgrade || 0) < 4))
+          );
           if (attackable.length === 0) return;
           const target = attackable[Math.floor(Math.random() * attackable.length)];
           (Math.random() < 0.5 ? dragonAttack : horsemanAttack)(target);
         }
 
-        // Find any free spot on the grass that isn't near an existing tree/structure
+        // Find any free spot on the grass with comfortable distance from
+        // existing trees/structures so buildings don't crowd each other.
+        const MIN_BUILD_SPACING = 130;
         function findOpenSpot() {
-          for (let i = 0; i < 30; i++) {
-            const x = 60 + Math.random() * (W() - 120);
-            const free = !trees.some((t) => Math.abs(t.x - x) < 80)
-                      && !houses.some((h) => Math.abs(h.x - x) < 80);
+          for (let i = 0; i < 40; i++) {
+            const x = 100 + Math.random() * (W() - 200);
+            const free = !trees.some((t) => Math.abs(t.x - x) < MIN_BUILD_SPACING)
+                      && !houses.some((h) => Math.abs(h.x - x) < MIN_BUILD_SPACING);
             if (free) return x;
           }
           return null;
@@ -4057,6 +4142,177 @@
           const x = findOpenSpot();
           if (x == null) return;
           spawnBuilder(x);
+        }
+
+        /* ============= UPGRADER ============= */
+        function spawnUpgrader() {
+          if (document.hidden || reduced) return;
+          const upgradeable = houses.filter((h) =>
+            h.stage >= 2
+            && (h.upgrade || 0) < 4
+            && (h.kind === "house" || h.kind === "tower" || h.kind === "castle")
+          );
+          if (upgradeable.length === 0) return;
+          const target = upgradeable[Math.floor(Math.random() * upgradeable.length)];
+          const fromLeft = target.x > W() / 2;
+          const startX = fromLeft ? -20 : (W() + 20);
+          const stopX = target.x + (fromLeft ? -8 : 40);
+          const dir = fromLeft ? "right" : "left";
+          const upgr = makePerson("builder", dir, { bottom: 40, silent: true });
+          upgr.style.left = startX + "px";
+
+          const walkTime = Math.abs(stopX - startX) / 50;
+          requestAnimationFrame(() => {
+            upgr.style.transition = `left ${walkTime}s linear`;
+            upgr.style.left = stopX + "px";
+          });
+
+          const nextLevel = (target.upgrade || 0) + 1;
+          const labels = {
+            house: ["expands the cottage", "adds a second story to the cottage", "fortifies the cottage with stone", "transforms the cottage into a manor"],
+            tower: ["reinforces the watchtower", "raises the watchtower higher", "fortifies the tower with iron", "crowns the tower with a grand spire"],
+            castle: ["fortifies the castle walls", "raises new castle towers", "crowns the castle with banners", "transforms the castle into a mighty bastion"],
+          };
+          const label = (labels[target.kind] || ["upgrades the structure"])[nextLevel - 1] || "improves the building";
+          logEvent(`A master builder arrives to ${label}.`, "good");
+
+          setTimeout(() => {
+            upgr.classList.add("working");
+            const dustTimer = setInterval(() => {
+              spawnParticle(target.x + 24 + (Math.random() - 0.5) * 40, 50 + Math.random() * 22, "dust");
+            }, 220);
+            // Big upgrade structures take longer
+            const buildTime = target.kind === "castle" ? 15000 : 8000;
+            setTimeout(() => {
+              clearInterval(dustTimer);
+              upgr.classList.remove("working");
+              target.upgrade = nextLevel;
+              target.el.dataset.upgrade = String(nextLevel);
+              for (let i = 0; i < 10; i++) {
+                setTimeout(() => spawnSparkle(target.x + 24, 80, "#f0d060"), i * 70);
+              }
+              logEvent(`The building reaches Level ${nextLevel}!`, "good");
+              if (target.kind === "castle" && nextLevel === 4) {
+                logEvent("The Grand Castle stands invincible — only a colossal dragon could threaten it now!", "good");
+              }
+              const exitX = fromLeft ? (W() + 20) : -20;
+              const exitDur = Math.abs(exitX - stopX) / 50;
+              upgr.style.transition = `left ${exitDur}s linear`;
+              upgr.style.left = exitX + "px";
+              setTimeout(() => upgr.remove(), exitDur * 1000 + 500);
+            }, buildTime);
+          }, walkTime * 1000 + 100);
+        }
+
+        /* ============= HUGE DRAGON (only threat to L4 castles) ============= */
+        function hugeDragonSVG() {
+          // Bigger, scarier version of the ember dragon
+          const p = { body: "#5a1010", bodyL: "#8a2020", bodyD: "#2a0606", eye: "#ffa040", horn: "#0a0000", belly: "#c84a35" };
+          return `<svg viewBox="0 0 56 26" xmlns="http://www.w3.org/2000/svg">
+            <rect x="0" y="13" width="3" height="2" fill="${p.bodyD}"/>
+            <rect x="0" y="11" width="3" height="3" fill="${p.bodyD}"/>
+            <rect x="2" y="13" width="4" height="2" fill="${p.body}"/>
+            <rect x="5" y="11" width="5" height="4" fill="${p.body}"/>
+            <rect x="5" y="11" width="5" height="1" fill="${p.bodyL}"/>
+            <rect x="9" y="9" width="22" height="8" fill="${p.body}"/>
+            <rect x="9" y="9" width="22" height="1" fill="${p.bodyL}"/>
+            <rect x="11" y="16" width="18" height="1" fill="${p.bodyD}"/>
+            <rect x="13" y="14" width="14" height="3" fill="${p.belly}" opacity="0.7"/>
+            <rect x="10" y="6" width="3" height="3" fill="${p.bodyD}"/>
+            <rect x="15" y="5" width="3" height="4" fill="${p.bodyD}"/>
+            <rect x="20" y="5" width="3" height="4" fill="${p.bodyD}"/>
+            <rect x="25" y="5" width="3" height="4" fill="${p.bodyD}"/>
+            <rect x="12" y="17" width="3" height="5" fill="${p.body}"/>
+            <rect x="12" y="21" width="3" height="1" fill="${p.bodyD}"/>
+            <rect x="24" y="17" width="3" height="5" fill="${p.body}"/>
+            <rect x="24" y="21" width="3" height="1" fill="${p.bodyD}"/>
+            <rect x="31" y="8" width="4" height="5" fill="${p.body}"/>
+            <rect x="31" y="8" width="4" height="1" fill="${p.bodyL}"/>
+            <rect x="35" y="6" width="10" height="8" fill="${p.body}"/>
+            <rect x="35" y="6" width="10" height="1" fill="${p.bodyL}"/>
+            <rect x="45" y="9" width="3" height="3" fill="${p.body}"/>
+            <rect x="38" y="13" width="8" height="3" fill="${p.bodyD}"/>
+            <rect x="43" y="12" width="1" height="1" fill="#fff"/>
+            <rect x="45" y="12" width="1" height="1" fill="#fff"/>
+            <rect x="38" y="8" width="3" height="3" fill="${p.eye}"/>
+            <rect x="39" y="9" width="2" height="2" fill="#000"/>
+            <rect x="36" y="2" width="2" height="4" fill="${p.horn}"/>
+            <rect x="34" y="0" width="2" height="3" fill="${p.horn}"/>
+            <rect x="41" y="2" width="2" height="4" fill="${p.horn}"/>
+            <rect x="39" y="0" width="2" height="3" fill="${p.horn}"/>
+            <g class="dr-wing-up">
+              <polygon points="11,8 26,8 32,-6 25,1 19,-6 14,1" fill="${p.bodyD}"/>
+              <polygon points="13,8 25,8 28,-1 23,3 19,-1 16,3" fill="${p.body}"/>
+            </g>
+            <g class="dr-wing-dn">
+              <polygon points="12,13 24,13 28,24 22,16 18,24 14,16" fill="${p.bodyD}" opacity="0.6"/>
+            </g>
+          </svg>`;
+        }
+
+        function spawnHugeDragon() {
+          if (document.hidden || reduced) return;
+          // Pick a Level-4 castle
+          const targets = houses.filter((h) => h.kind === "castle" && (h.upgrade || 0) >= 4 && h.el.isConnected);
+          if (targets.length === 0) return;
+          const target = targets[Math.floor(Math.random() * targets.length)];
+
+          const d = document.createElement("div");
+          d.className = "dragon huge";
+          d.innerHTML = hugeDragonSVG();
+          d.style.top = "30px";
+          d.style.left = "-110px";
+          dragonsLayer.appendChild(d);
+          logEvent("A COLOSSAL DRAGON darkens the sky! The realm trembles.", "bad");
+
+          // Slow, deliberate approach
+          requestAnimationFrame(() => {
+            d.style.transition = "left 6s linear, top 6s ease-in";
+            d.style.left = (target.x - 24) + "px";
+            d.style.top = (H() - 200) + "px";
+          });
+
+          // Massive fire breath onslaught
+          setTimeout(() => {
+            logEvent("It unleashes a torrent of fire upon the castle!", "bad");
+            for (let i = 0; i < 14; i++) {
+              setTimeout(() => {
+                const fire = document.createElement("div");
+                fire.className = "fire-breath";
+                fire.style.width = "44px";
+                fire.style.height = "40px";
+                fire.style.left = (target.x + 20 + (Math.random() - 0.5) * 36) + "px";
+                fire.style.bottom = (60 + Math.random() * 60) + "px";
+                dragonsLayer.appendChild(fire);
+                setTimeout(() => fire.remove(), 1800);
+              }, i * 140);
+            }
+            // Castle ultimately falls
+            setTimeout(() => {
+              if (target.el.isConnected) {
+                target.el.classList.add("crumbling");
+                const i = houses.indexOf(target);
+                if (i >= 0) houses.splice(i, 1);
+                setTimeout(() => target.el.remove(), 1700);
+                logEvent("The Grand Castle crumbles to ruin under the colossal dragon's wrath!", "bad");
+              }
+            }, 2400);
+          }, 6200);
+
+          // Soar away
+          setTimeout(() => {
+            d.style.transition = "left 6s linear, top 6s ease-out";
+            d.style.left = (W() + 110) + "px";
+            d.style.top = "30px";
+          }, 11000);
+          setTimeout(() => d.remove(), 17500);
+        }
+
+        function maybeHugeDragon() {
+          // Only spawn when an L4 castle actually exists
+          if (houses.some((h) => h.kind === "castle" && (h.upgrade || 0) >= 4)) {
+            spawnHugeDragon();
+          }
         }
 
         /* ============= SOLAR HALO ============= */
@@ -4128,6 +4384,8 @@
           setTimeout(() => loop(spawnAdventurerCamp, 70000, 140000), 20000);
           setTimeout(() => loop(maybeSolarHalo, 260000, 480000), 95000);
           setTimeout(() => loop(spawnShepherdFlock, 110000, 200000), 38000);
+          setTimeout(() => loop(spawnUpgrader, 80000, 160000), 30000);
+          setTimeout(() => loop(maybeHugeDragon, 240000, 420000), 180000);
         }
       })();
     </script>
