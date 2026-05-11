@@ -102,43 +102,43 @@
         transform: translate(-50%, -50%); z-index: 1;
       }
 
-      /* CLOUDS — dynamically spawned */
+      /* CLOUDS — SVG puffs */
       .clouds-layer { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
       .cloud {
         position: absolute;
-        width: 16px; height: 14px;
-        background: var(--cloud-light, #f0e4c0);
+        width: 64px; height: 24px;
         transition: filter 6s ease, opacity 6s ease;
         will-change: transform;
+        color: var(--cloud-light, #f0e4c0);
       }
+      .cloud svg { width: 100%; height: 100%; display: block; }
+      .cloud .cl-light { fill: var(--cloud-light, #f0e4c0); }
+      .cloud .cl-dark  { fill: var(--cloud-dark, #c8b890); }
       .world[data-weather="rain"] .cloud,
       .world[data-weather="storm"] .cloud { filter: brightness(0.55) saturate(0.35); }
       .world.manual-weather .cloud { transition: filter 1.4s ease, opacity 1.4s ease; }
 
-      /* DRAGONS */
+      /* DRAGONS — SVG sprite */
       .dragons-layer { position: absolute; inset: 0; z-index: 4; }
       .dragon {
         position: absolute;
-        width: 32px; height: 12px;
-        background: linear-gradient(90deg, transparent 0 4px, #1a0a1a 4px 28px, transparent 28px 32px);
-        animation: flap 0.3s steps(2) infinite;
+        width: 56px; height: 26px;
         will-change: transform, left, top;
       }
-      .dragon::before {
-        content: ""; position: absolute; top: -6px; left: 10px;
-        width: 12px; height: 6px; background: #1a0a1a;
-        clip-path: polygon(0 100%, 50% 0, 100% 100%);
+      .dragon svg { width: 100%; height: 100%; display: block; overflow: visible; }
+      .dragon .dr-wing-up, .dragon .dr-wing-dn {
+        animation: flap 0.45s steps(2) infinite;
+        transform-origin: 28px 13px;
       }
-      .dragon::after {
-        content: ""; position: absolute; bottom: -6px; left: 10px;
-        width: 12px; height: 6px; background: #1a0a1a;
-        clip-path: polygon(0 0, 50% 100%, 100% 0);
+      .dragon .dr-wing-dn { animation-delay: 0.225s; }
+      @keyframes flap {
+        0%,100% { transform: scaleY(1); }
+        50%     { transform: scaleY(0.4) translateY(-1px); }
       }
-      .dragon.flyby { animation: flyby linear forwards, flap 0.3s steps(2) infinite; }
+      .dragon.flyby { animation: flyby linear forwards; }
       @keyframes flyby {
-        from { left: -50px; } to { left: calc(100% + 50px); }
+        from { left: -80px; } to { left: calc(100% + 80px); }
       }
-      @keyframes flap { 0%,100% { transform: scaleY(1); } 50% { transform: scaleY(0.55); } }
 
       /* FIRE BREATH */
       .fire-breath {
@@ -161,18 +161,20 @@
         100% { opacity: 0; }
       }
 
-      /* HILLS */
+      /* HILLS — SVG silhouette */
       .hills {
-        position: absolute; bottom: 60px; left: -10%;
-        width: 120%; height: 120px;
-        background:
-          radial-gradient(ellipse 220px 80px at 15% 100%, #2a2018 0 70%, transparent 71%),
-          radial-gradient(ellipse 280px 100px at 40% 100%, #1f180f 0 70%, transparent 71%),
-          radial-gradient(ellipse 200px 70px at 70% 100%, #2a2018 0 70%, transparent 71%),
-          radial-gradient(ellipse 260px 90px at 95% 100%, #1f180f 0 70%, transparent 71%);
-        z-index: 5; opacity: 0.9;
+        position: absolute; bottom: 56px; left: 0;
+        width: 100%; height: 140px;
+        z-index: 5;
         filter: brightness(var(--world-brightness, 1));
       }
+      .hills .hills-far, .hills .hills-near {
+        position: absolute; left: 0; right: 0;
+        width: 100%; pointer-events: none;
+      }
+      .hills .hills-far  { bottom: 30px; height: 120px; opacity: 0.7; }
+      .hills .hills-near { bottom: 0;    height: 90px;  opacity: 0.95; }
+      .hills svg { width: 100%; height: 100%; display: block; }
 
       /* TREES */
       .trees-layer { position: absolute; inset: 0; z-index: 6; pointer-events: none; }
@@ -227,11 +229,32 @@
       }
       .person svg { width: 100%; height: 100%; display: block; overflow: visible; }
       .person .p-tool { transform-origin: 9px 8px; }
-      .person.lumberjack.chopping .p-tool { animation: chop 0.45s steps(2) infinite; }
-      .person.builder.working .p-tool { animation: chop 0.5s steps(2) infinite; }
+      .person.lumberjack.chopping .p-tool { animation: chop 0.7s ease-in-out infinite; }
+      .person.builder.working .p-tool { animation: hammer 0.6s ease-in-out infinite; }
       @keyframes chop {
+        0%,100% { transform: rotate(-70deg); }
+        45%     { transform: rotate(35deg); }
+        55%     { transform: rotate(35deg); }
+      }
+      @keyframes hammer {
         0%,100% { transform: rotate(-50deg); }
-        50%     { transform: rotate(25deg); }
+        40%     { transform: rotate(40deg); }
+        50%     { transform: rotate(40deg); }
+      }
+      /* PARTICLES — wood chips & dust */
+      .particle {
+        position: absolute;
+        width: 3px; height: 3px;
+        z-index: 7;
+        pointer-events: none;
+        animation: particle-fly 0.9s ease-out forwards;
+        will-change: transform, opacity;
+      }
+      .particle.chip { background: #5a3818; box-shadow: inset 0 -1px 0 #3a2410; }
+      .particle.dust { background: #b8a890; border-radius: 50%; }
+      @keyframes particle-fly {
+        0%   { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+        100% { transform: translate(var(--vx, 12px), var(--vy, -20px)) rotate(180deg); opacity: 0; }
       }
       /* tiny bob while walking */
       .person { animation: walk-bob 0.4s steps(2) infinite; }
@@ -527,7 +550,14 @@
       <div class="clouds-layer"></div>
       <div class="weather-veil"></div>
       <div class="dragons-layer"></div>
-      <div class="hills"></div>
+      <div class="hills">
+        <svg class="hills-far" viewBox="0 0 1200 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M0,120 L0,80 L40,80 L40,68 L80,68 L80,56 L120,56 L120,48 L160,48 L160,56 L200,56 L200,72 L240,72 L240,60 L280,60 L280,52 L320,52 L320,44 L360,44 L360,52 L400,52 L400,60 L440,60 L440,72 L480,72 L480,64 L520,64 L520,52 L560,52 L560,44 L600,44 L600,52 L640,52 L640,40 L680,40 L680,52 L720,52 L720,64 L760,64 L760,76 L800,76 L800,68 L840,68 L840,56 L880,56 L880,48 L920,48 L920,40 L960,40 L960,48 L1000,48 L1000,60 L1040,60 L1040,72 L1080,72 L1080,64 L1120,64 L1120,56 L1160,56 L1160,68 L1200,68 L1200,120 Z" fill="#1a1208"/>
+        </svg>
+        <svg class="hills-near" viewBox="0 0 1200 90" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M0,90 L0,72 L24,72 L24,60 L48,60 L48,48 L72,48 L72,36 L96,36 L96,28 L132,28 L132,40 L168,40 L168,52 L204,52 L204,64 L240,64 L240,56 L276,56 L276,44 L312,44 L312,36 L348,36 L348,48 L384,48 L384,60 L420,60 L420,72 L456,72 L456,60 L492,60 L492,48 L528,48 L528,40 L564,40 L564,32 L600,32 L600,40 L636,40 L636,52 L672,52 L672,64 L708,64 L708,56 L744,56 L744,44 L780,44 L780,36 L816,36 L816,28 L852,28 L852,40 L888,40 L888,52 L924,52 L924,64 L960,64 L960,56 L996,56 L996,44 L1032,44 L1032,36 L1068,36 L1068,48 L1104,48 L1104,60 L1140,60 L1140,72 L1176,72 L1176,64 L1200,64 L1200,90 Z" fill="#2a2018"/>
+        </svg>
+      </div>
       <div class="grass"></div>
       <div class="trees-layer"></div>
       <div class="people-layer"></div>
@@ -931,45 +961,48 @@
           else intensityTarget = 0;
         }).observe(world, { attributes: true, attributeFilter: ["data-weather"] });
 
-        /* ============= CLOUDS (dynamic, random shapes) ============= */
+        /* ============= CLOUDS (SVG puffs) ============= */
+        // Each cloud is a stack of overlapping pixel rectangles forming a fluffy silhouette.
+        function cloudSVG() {
+          // Random number of "puffs" along the cloud body
+          const W_ = 64, H_ = 24;
+          const puffs = 3 + Math.floor(Math.random() * 3); // 3-5
+          const cells = [];
+          let cursor = 4;
+          for (let i = 0; i < puffs; i++) {
+            const w = 14 + Math.floor(Math.random() * 8);
+            const h = 10 + Math.floor(Math.random() * 6);
+            const y = 8 + Math.floor((Math.random() - 0.5) * 6);
+            cells.push({ x: cursor, y, w, h });
+            cursor += Math.floor(w * 0.55);
+          }
+          // dark underside slab
+          const minY = Math.max(...cells.map((c) => c.y + c.h)) - 4;
+          const minX = Math.min(...cells.map((c) => c.x));
+          const maxX = Math.max(...cells.map((c) => c.x + c.w));
+          const undersideRects = `
+            <rect x="${minX + 3}" y="${minY}" width="${maxX - minX - 6}" height="4" class="cl-dark"/>
+          `;
+          // light puffs
+          const puffRects = cells.map((c) => `<rect x="${c.x}" y="${c.y}" width="${c.w}" height="${c.h}" class="cl-light"/>`).join("");
+          // tiny highlight band on the top of each puff
+          const highlightRects = cells.map((c) => `<rect x="${c.x + 2}" y="${c.y}" width="${c.w - 4}" height="2" class="cl-light" opacity="0.8"/>`).join("");
+          return `<svg viewBox="0 0 ${W_} ${H_}" xmlns="http://www.w3.org/2000/svg">${undersideRects}${puffRects}${highlightRects}</svg>`;
+        }
+
         function randomCloud() {
           const c = document.createElement("div");
           c.className = "cloud";
-
-          // Generate a random pixel-cluster cloud via box-shadows
-          // Two tiers: light top, dark bottom
-          const cells = 5 + Math.floor(Math.random() * 5);
-          const shadows = [];
-          let x = 0;
-          let prevY = 0;
-          const tops = [];
-          for (let i = 0; i < cells; i++) {
-            const dy = -3 + Math.round((Math.random() - 0.5) * 8);
-            const y = Math.max(-10, Math.min(6, prevY + dy));
-            tops.push({ x, y });
-            x += 10 + Math.floor(Math.random() * 6);
-            prevY = y;
-          }
-          for (const t of tops) shadows.push(`${t.x}px ${t.y}px 0 0 var(--cloud-light)`);
-          // dark underside (sparser, slightly below)
-          for (let i = 0; i < tops.length; i++) {
-            if (i % 2 === 0) shadows.push(`${tops[i].x}px ${tops[i].y + 10}px 0 0 var(--cloud-dark)`);
-          }
-          c.style.boxShadow = shadows.join(", ");
-          // Anchor — random vertical position in upper third of viewport
-          const top = 4 + Math.random() * 22; // %
-          c.style.top = top + "%";
-          const scale = 0.7 + Math.random() * 0.7;
-
-          // Drift the cloud manually via CSS transition for smoother control
-          const fromLeft = Math.random() > 0.5;
-          const startX = fromLeft ? -120 : (W() + 40);
-          const endX = fromLeft ? (W() + 120) : -120;
-          c.style.left = startX + "px";
+          c.innerHTML = cloudSVG();
+          c.style.top = (4 + Math.random() * 22) + "%";
+          const scale = 0.7 + Math.random() * 0.9;
           c.style.transform = `scale(${scale})`;
+          const fromLeft = Math.random() > 0.5;
+          const startX = fromLeft ? -100 : (W() + 30);
+          const endX = fromLeft ? (W() + 100) : -100;
+          c.style.left = startX + "px";
           cloudsLayer.appendChild(c);
-
-          const speed = 8 + Math.random() * 18; // px/s — slow, dreamy
+          const speed = 8 + Math.random() * 18;
           const dist = Math.abs(endX - startX);
           const dur = dist / speed;
           requestAnimationFrame(() => {
@@ -979,21 +1012,31 @@
           setTimeout(() => c.remove(), dur * 1000 + 500);
         }
 
-        // Seed clouds across the sky so it's not empty on load
         function seedClouds(n) {
           for (let i = 0; i < n; i++) {
             setTimeout(() => {
-              // create a cloud at random horizontal position
               randomCloud();
               const lastCloud = cloudsLayer.lastElementChild;
               if (!lastCloud) return;
-              // place it somewhere mid-screen by adjusting --rand
-              const x = Math.random() * W();
-              lastCloud.style.left = x + "px";
+              lastCloud.style.left = (Math.random() * W()) + "px";
             }, i * 30);
           }
         }
-        if (!reduced) seedClouds(4);
+        if (!reduced) seedClouds(5);
+
+        /* ============= PARTICLES ============= */
+        function spawnParticle(x, y, kind = "chip") {
+          const p = document.createElement("div");
+          p.className = "particle " + kind;
+          p.style.left = x + "px";
+          p.style.bottom = y + "px";
+          const vx = (kind === "dust" ? (Math.random() - 0.5) * 14 : (Math.random() - 0.5) * 36);
+          const vy = (kind === "dust" ? -(8 + Math.random() * 10) : -(14 + Math.random() * 20));
+          p.style.setProperty("--vx", vx + "px");
+          p.style.setProperty("--vy", vy + "px");
+          peopleLayer.appendChild(p);
+          setTimeout(() => p.remove(), 1000);
+        }
 
         /* ============= PEOPLE ============= */
         const personTypes = ["", "warrior", "mage"];
@@ -1674,6 +1717,10 @@
 
           setTimeout(() => {
             lj.classList.add("working");
+            // emit dust puffs every ~250ms while building
+            const dustTimer = setInterval(() => {
+              spawnParticle(targetX + (Math.random() - 0.5) * 12, 48 + Math.random() * 16, "dust");
+            }, 240);
             const breakground = {
               house: "A builder breaks ground for a house.",
               tower: "A builder begins a watchtower.",
@@ -1718,6 +1765,7 @@
               h.querySelectorAll(".hs-roof").forEach((el) => el.setAttribute("opacity", 1));
               logEvent(log.done, "good");
               lj.classList.remove("working");
+              clearInterval(dustTimer);
               const exitX = fromLeft ? W() + 20 : -20;
               const exitDur = Math.abs(exitX - stopX) / 50;
               lj.style.transition = `left ${exitDur}s linear`;
@@ -1764,7 +1812,12 @@
               return;
             }
             lj.classList.add("chopping");
+            // emit wood chips every ~200ms during the chop
+            const chipTimer = setInterval(() => {
+              spawnParticle(tx + (Math.random() - 0.5) * 6, 48 + Math.random() * 8, "chip");
+            }, 180);
             setTimeout(() => {
+              clearInterval(chipTimer);
               target.el.classList.add("falling");
               removeTree(target);
               setTimeout(() => target.el.remove(), 1500);
@@ -1782,13 +1835,90 @@
           }, walkTime * 1000 + 100);
         }
 
+        /* ============= DRAGON SVG ============= */
+        const DRAGON_PALETTES = [
+          { name: "ember",   body: "#7a2818", bodyL: "#a83828", bodyD: "#3a1010", eye: "#f0c440", horn: "#1a0808", belly: "#c84a35" },
+          { name: "forest",  body: "#2a5a30", bodyL: "#3a7a40", bodyD: "#142818", eye: "#ffc080", horn: "#1a0a06", belly: "#4a8a50" },
+          { name: "shadow",  body: "#2a2238", bodyL: "#4a3858", bodyD: "#0a0814", eye: "#c84a35", horn: "#0a0814", belly: "#4a4060" },
+          { name: "ice",     body: "#3a6878", bodyL: "#5a8a9a", bodyD: "#1a2a36", eye: "#fff080", horn: "#0a1218", belly: "#7aa0b0" },
+        ];
+
+        function dragonSVG(p) {
+          // viewBox 56 x 26, facing right
+          return `<svg viewBox="0 0 56 26" xmlns="http://www.w3.org/2000/svg">
+            <!-- tail (segmented) -->
+            <rect x="2" y="13" width="3" height="2" fill="${p.body}"/>
+            <rect x="5" y="12" width="4" height="3" fill="${p.body}"/>
+            <rect x="5" y="12" width="4" height="1" fill="${p.bodyL}"/>
+            <rect x="0" y="13" width="2" height="1" fill="${p.bodyD}"/>
+            <!-- spike on tail tip -->
+            <rect x="0" y="11" width="2" height="2" fill="${p.bodyD}"/>
+
+            <!-- main body -->
+            <rect x="9" y="10" width="20" height="6" fill="${p.body}"/>
+            <rect x="9" y="10" width="20" height="1" fill="${p.bodyL}"/>
+            <rect x="11" y="15" width="16" height="1" fill="${p.bodyD}"/>
+            <!-- belly stripe -->
+            <rect x="13" y="14" width="12" height="2" fill="${p.belly}" opacity="0.7"/>
+
+            <!-- back spikes -->
+            <rect x="11" y="8" width="2" height="2" fill="${p.bodyD}"/>
+            <rect x="15" y="7" width="2" height="3" fill="${p.bodyD}"/>
+            <rect x="19" y="7" width="2" height="3" fill="${p.bodyD}"/>
+            <rect x="23" y="8" width="2" height="2" fill="${p.bodyD}"/>
+
+            <!-- legs -->
+            <rect x="12" y="16" width="3" height="4" fill="${p.body}"/>
+            <rect x="12" y="19" width="3" height="1" fill="${p.bodyD}"/>
+            <rect x="22" y="16" width="3" height="4" fill="${p.body}"/>
+            <rect x="22" y="19" width="3" height="1" fill="${p.bodyD}"/>
+
+            <!-- neck -->
+            <rect x="29" y="9" width="4" height="4" fill="${p.body}"/>
+            <rect x="29" y="9" width="4" height="1" fill="${p.bodyL}"/>
+            <!-- head -->
+            <rect x="33" y="7" width="8" height="6" fill="${p.body}"/>
+            <rect x="33" y="7" width="8" height="1" fill="${p.bodyL}"/>
+            <rect x="41" y="9" width="2" height="3" fill="${p.body}"/>
+            <!-- jaw -->
+            <rect x="36" y="12" width="6" height="2" fill="${p.bodyD}"/>
+            <rect x="40" y="11" width="1" height="1" fill="#fff"/>
+            <rect x="42" y="11" width="1" height="1" fill="#fff"/>
+            <!-- eye -->
+            <rect x="36" y="9" width="2" height="2" fill="${p.eye}"/>
+            <rect x="37" y="10" width="1" height="1" fill="#000"/>
+            <!-- horns -->
+            <rect x="35" y="5" width="1" height="2" fill="${p.horn}"/>
+            <rect x="34" y="3" width="1" height="2" fill="${p.horn}"/>
+            <rect x="39" y="5" width="1" height="2" fill="${p.horn}"/>
+            <rect x="38" y="3" width="1" height="2" fill="${p.horn}"/>
+
+            <!-- wings: upper -->
+            <g class="dr-wing-up">
+              <polygon points="13,9 24,9 28,-2 23,4 18,-2 14,4" fill="${p.bodyD}"/>
+              <polygon points="15,9 24,9 26,1 22,5 18,1 16,5" fill="${p.body}"/>
+            </g>
+            <!-- wings: lower (further back) -->
+            <g class="dr-wing-dn">
+              <polygon points="14,12 22,12 24,22 20,16 17,22 14,16" fill="${p.bodyD}" opacity="0.5"/>
+            </g>
+          </svg>`;
+        }
+
+        function makeDragon(palette) {
+          const d = document.createElement("div");
+          d.className = "dragon";
+          d.innerHTML = dragonSVG(palette || pick(DRAGON_PALETTES));
+          return d;
+        }
+
         /* ============= DRAGON FLY-BY ============= */
         function spawnDragon() {
           if (document.hidden || reduced) return;
-          const d = document.createElement("div");
-          d.className = "dragon flyby";
+          const d = makeDragon();
+          d.classList.add("flyby");
           const dur = 14 + Math.random() * 10;
-          d.style.animationDuration = dur + "s, 0.3s";
+          d.style.animationDuration = dur + "s";
           d.style.top = (40 + Math.random() * (H() * 0.3)) + "px";
           dragonsLayer.appendChild(d);
           setTimeout(() => d.remove(), dur * 1000 + 500);
@@ -1797,10 +1927,9 @@
         /* ============= DRAGON ATTACK ============= */
         function dragonAttack(target) {
           if (!target || !target.el.isConnected || reduced) return;
-          const d = document.createElement("div");
-          d.className = "dragon"; // no flyby animation, manual control
+          const d = makeDragon(DRAGON_PALETTES[0]); // ember dragon for attacks
           d.style.top = "60px";
-          d.style.left = "-50px";
+          d.style.left = "-60px";
           dragonsLayer.appendChild(d);
           logEvent("A dragon descends upon a house!", "bad");
 
