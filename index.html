@@ -1702,12 +1702,11 @@
             const weighted = ["house", "house", "house", "tower", "tower", "well", "signpost", "campfire", "campfire"];
             kind = weighted[Math.floor(Math.random() * weighted.length)];
           }
-          const lj = makePerson("builder", targetX > W() / 2 ? "right" : "left", { bottom: 4 });
+          const lj = makePerson("builder", targetX > W() / 2 ? "right" : "left", { bottom: 40 });
           const fromLeft = targetX > W() / 2;
           const startX = fromLeft ? -20 : W() + 20;
-          const stopX = targetX + (fromLeft ? -6 : 18);
+          const stopX = targetX + (fromLeft ? -8 : 42);
           lj.style.left = startX + "px";
-          peopleLayer.appendChild(lj);
           const walkDist = Math.abs(stopX - startX);
           const walkTime = walkDist / 50;
           requestAnimationFrame(() => {
@@ -1793,8 +1792,8 @@
           const tx = target.x;
           const fromLeft = tx > W() / 2;
           const startX = fromLeft ? -20 : W() + 20;
-          const stopX = tx + (fromLeft ? -6 : 18);
-          const lj = makePerson("lumberjack", fromLeft ? "right" : "left", { bottom: 4 });
+          const stopX = tx + (fromLeft ? 2 : 8);
+          const lj = makePerson("lumberjack", fromLeft ? "right" : "left", { bottom: 40 });
           lj.style.left = startX + "px";
           const walkDist = Math.abs(stopX - startX);
           const walkTime = walkDist / 50;
