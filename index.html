@@ -383,6 +383,20 @@
       .sheep { position: absolute; width: 14px; height: 10px; bottom: 4px; }
       .sheep svg { width: 100%; height: 100%; display: block; }
       .sheep { animation: walk-bob 0.5s steps(2) infinite; }
+      .sheep.lamb { width: 10px; height: 7px; }
+      .sheep.hopping {
+        animation: sheep-hop 0.75s ease-in-out infinite;
+      }
+      .sheep.hopping.lamb {
+        animation: sheep-hop 0.55s ease-in-out infinite;
+      }
+      @keyframes sheep-hop {
+        0%,100% { translate: 0 0; }
+        35%     { translate: 0 -8px; }
+        50%     { translate: 0 0; }
+        65%     { translate: 0 -5px; }
+        80%     { translate: 0 -1px; }
+      }
 
       /* DOGS */
       .dog { position: absolute; width: 12px; height: 8px; bottom: 4px; }
@@ -1443,6 +1457,83 @@
             <rect x="8" y="6" width="1" height="2" fill="#3a2410"/>
             <rect x="9" y="0" width="1" height="2" fill="#5a3818"/>
           </svg>`;
+        }
+
+        function shepherdSVG() {
+          return `<svg viewBox="0 0 12 22" xmlns="http://www.w3.org/2000/svg">
+            <rect x="4" y="3" width="4" height="4" fill="#d4a888"/>
+            <rect x="4" y="6" width="1" height="1" fill="#1a0a0a"/>
+            <rect x="7" y="6" width="1" height="1" fill="#1a0a0a"/>
+            <rect x="4" y="2" width="4" height="2" fill="#5a3818"/>
+            <rect x="3" y="2" width="1" height="3" fill="#5a3818"/>
+            <rect x="8" y="2" width="1" height="3" fill="#5a3818"/>
+            <!-- straw hat with wide brim -->
+            <rect x="2" y="2" width="8" height="1" fill="#a08010"/>
+            <rect x="4" y="0" width="4" height="2" fill="#d4a017"/>
+            <rect x="4" y="0" width="4" height="1" fill="#f0c440"/>
+            <!-- earthy tunic -->
+            <rect x="3" y="8" width="6" height="5" fill="#7a5028"/>
+            <rect x="3" y="8" width="6" height="1" fill="#9a6838"/>
+            <rect x="2" y="9" width="1" height="4" fill="#7a5028"/>
+            <rect x="9" y="9" width="1" height="4" fill="#7a5028"/>
+            <rect x="2" y="12" width="1" height="1" fill="#d4a888"/>
+            <rect x="9" y="12" width="1" height="1" fill="#d4a888"/>
+            <rect x="3" y="13" width="6" height="1" fill="#2a1f15"/>
+            <rect x="3" y="14" width="2" height="7" fill="#2a1f15"/>
+            <rect x="7" y="14" width="2" height="7" fill="#2a1f15"/>
+            <!-- shepherd's crook (long curved staff) -->
+            <g class="p-tool">
+              <rect x="10" y="-2" width="1" height="16" fill="#5a3818"/>
+              <rect x="9" y="-2" width="1" height="1" fill="#5a3818"/>
+              <rect x="8" y="-1" width="1" height="2" fill="#5a3818"/>
+              <rect x="9" y="0" width="1" height="1" fill="#5a3818"/>
+            </g>
+          </svg>`;
+        }
+
+        function spawnShepherdFlock() {
+          if (document.hidden || reduced) return;
+          const dir = Math.random() > 0.5 ? "left" : "right";
+          const isRainy = weather === "rain" || weather === "storm";
+          const dur = isRainy ? (14 + Math.random() * 4) : (55 + Math.random() * 25);
+
+          // Shepherd
+          const sh = makePerson("shepherd", dir, { bottom: 6, silent: true });
+          sh.innerHTML = shepherdSVG();
+          const startX = dir === "left" ? (W() + 20) : -20;
+          const endX = dir === "left" ? -20 : (W() + 20);
+          sh.style.left = startX + "px";
+          requestAnimationFrame(() => {
+            sh.style.transition = `left ${dur}s linear`;
+            sh.style.left = endX + "px";
+          });
+          setTimeout(() => sh.remove(), dur * 1000 + 500);
+
+          logEvent("A shepherd guides their hopping flock through the meadow.", "good");
+
+          // Sheep flock (3-6 sheep, mixed adults and lambs)
+          const flockSize = 3 + Math.floor(Math.random() * 4);
+          const sign = dir === "left" ? 1 : -1;
+          for (let i = 0; i < flockSize; i++) {
+            setTimeout(() => {
+              const s = document.createElement("div");
+              const isLamb = Math.random() < 0.35;
+              s.className = "sheep hopping" + (isLamb ? " lamb" : "");
+              s.innerHTML = sheepSVG();
+              if (dir === "left") s.style.transform = "scaleX(-1)";
+              const offset = sign * (28 + i * 14 + (Math.random() - 0.5) * 6);
+              s.style.left = (startX + offset) + "px";
+              s.style.bottom = (3 + Math.random() * 8) + "px";
+              s.style.animationDelay = (Math.random() * 0.6) + "s";
+              peopleLayer.appendChild(s);
+              const sheepDur = dur + (Math.random() - 0.5) * 3;
+              requestAnimationFrame(() => {
+                s.style.transition = `left ${sheepDur}s linear`;
+                s.style.left = (endX + offset) + "px";
+              });
+              setTimeout(() => s.remove(), sheepDur * 1000 + 500);
+            }, i * 250);
+          }
         }
 
         function spawnSheep() {
@@ -3902,6 +3993,7 @@
           setTimeout(() => loop(spawnFlyingCastle, 200000, 360000), 70000);
           setTimeout(() => loop(spawnAdventurerCamp, 110000, 220000), 45000);
           setTimeout(() => loop(maybeSolarHalo, 260000, 480000), 95000);
+          setTimeout(() => loop(spawnShepherdFlock, 110000, 200000), 38000);
         }
       })();
     </script>
