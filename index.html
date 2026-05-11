@@ -161,10 +161,10 @@
         100% { opacity: 0; }
       }
 
-      /* HILLS — SVG silhouette */
+      /* HILLS — rolling rounded silhouette */
       .hills {
         position: absolute; bottom: 56px; left: 0;
-        width: 100%; height: 140px;
+        width: 100%; height: 130px;
         z-index: 5;
         filter: brightness(var(--world-brightness, 1));
       }
@@ -172,8 +172,8 @@
         position: absolute; left: 0; right: 0;
         width: 100%; pointer-events: none;
       }
-      .hills .hills-far  { bottom: 30px; height: 120px; opacity: 0.7; }
-      .hills .hills-near { bottom: 0;    height: 90px;  opacity: 0.95; }
+      .hills .hills-far  { bottom: 30px; height: 100px; opacity: 0.75; }
+      .hills .hills-near { bottom: 0;    height: 80px;  opacity: 0.95; }
       .hills svg { width: 100%; height: 100%; display: block; }
 
       /* TREES */
@@ -551,11 +551,11 @@
       <div class="weather-veil"></div>
       <div class="dragons-layer"></div>
       <div class="hills">
-        <svg class="hills-far" viewBox="0 0 1200 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M0,120 L0,80 L40,80 L40,68 L80,68 L80,56 L120,56 L120,48 L160,48 L160,56 L200,56 L200,72 L240,72 L240,60 L280,60 L280,52 L320,52 L320,44 L360,44 L360,52 L400,52 L400,60 L440,60 L440,72 L480,72 L480,64 L520,64 L520,52 L560,52 L560,44 L600,44 L600,52 L640,52 L640,40 L680,40 L680,52 L720,52 L720,64 L760,64 L760,76 L800,76 L800,68 L840,68 L840,56 L880,56 L880,48 L920,48 L920,40 L960,40 L960,48 L1000,48 L1000,60 L1040,60 L1040,72 L1080,72 L1080,64 L1120,64 L1120,56 L1160,56 L1160,68 L1200,68 L1200,120 Z" fill="#1a1208"/>
+        <svg class="hills-far" viewBox="0 0 1200 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M0,100 L0,60 Q70,30 140,55 Q210,80 280,50 Q350,25 420,55 Q490,80 560,55 Q630,30 700,55 Q770,80 840,55 Q910,30 980,55 Q1050,80 1120,55 Q1170,40 1200,60 L1200,100 Z" fill="#1a1208"/>
         </svg>
-        <svg class="hills-near" viewBox="0 0 1200 90" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M0,90 L0,72 L24,72 L24,60 L48,60 L48,48 L72,48 L72,36 L96,36 L96,28 L132,28 L132,40 L168,40 L168,52 L204,52 L204,64 L240,64 L240,56 L276,56 L276,44 L312,44 L312,36 L348,36 L348,48 L384,48 L384,60 L420,60 L420,72 L456,72 L456,60 L492,60 L492,48 L528,48 L528,40 L564,40 L564,32 L600,32 L600,40 L636,40 L636,52 L672,52 L672,64 L708,64 L708,56 L744,56 L744,44 L780,44 L780,36 L816,36 L816,28 L852,28 L852,40 L888,40 L888,52 L924,52 L924,64 L960,64 L960,56 L996,56 L996,44 L1032,44 L1032,36 L1068,36 L1068,48 L1104,48 L1104,60 L1140,60 L1140,72 L1176,72 L1176,64 L1200,64 L1200,90 Z" fill="#2a2018"/>
+        <svg class="hills-near" viewBox="0 0 1200 80" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M0,80 L0,40 Q100,5 200,35 Q310,60 410,30 Q510,5 600,30 Q700,60 810,30 Q920,5 1020,35 Q1110,60 1200,40 L1200,80 Z" fill="#2a2018"/>
         </svg>
       </div>
       <div class="grass"></div>
