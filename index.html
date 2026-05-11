@@ -192,7 +192,7 @@
         100% { transform: scale(var(--g, 1)) rotate(86deg); opacity: 0.4; }
       }
 
-      /* HOUSES */
+      /* STRUCTURES (houses, towers, wells, signposts, campfires) */
       .house {
         position: absolute;
         bottom: 48px;
@@ -200,8 +200,17 @@
         height: 42px;
         transform-origin: bottom center;
       }
+      .house[data-kind="tower"]    { width: 32px; height: 64px; }
+      .house[data-kind="well"]     { width: 26px; height: 28px; bottom: 50px; }
+      .house[data-kind="signpost"] { width: 18px; height: 30px; bottom: 50px; }
+      .house[data-kind="campfire"] { width: 30px; height: 22px; bottom: 50px; }
       .house svg { width: 100%; height: 100%; display: block; overflow: visible; }
       .house .hs-walls, .house .hs-roof { transition: opacity 0.6s ease; }
+      .house[data-kind="campfire"] .hs-roof { animation: flame-flicker 0.3s steps(2) infinite; transform-origin: center bottom; }
+      @keyframes flame-flicker {
+        0%,100% { transform: scaleY(1) scaleX(1); }
+        50%     { transform: scaleY(1.1) scaleX(0.9); }
+      }
       .house.crumbling { animation: crumble 1.6s ease-in forwards; }
       @keyframes crumble {
         0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
@@ -210,49 +219,27 @@
         100% { transform: translateY(22px) rotate(-10deg) skewX(-4deg); opacity: 0; }
       }
 
-      /* PEOPLE */
+      /* PEOPLE — SVG sprites */
       .people-layer { position: absolute; inset: 0; z-index: 7; pointer-events: none; }
       .person {
         position: absolute;
-        width: 8px; height: 14px;
-        background: linear-gradient(180deg, transparent 0 2px, #6b4a30 2px 8px, transparent 8px 10px, #3a2a1a 10px 14px);
+        width: 12px; height: 22px;
       }
-      .person::before {
-        content: ""; position: absolute; top: -1px; left: 1px;
-        width: 6px; height: 4px; background: #2a1f15;
-      }
-      .person.warrior::after {
-        content: ""; position: absolute; right: -3px; top: 4px;
-        width: 5px; height: 1px; background: #d4a017;
-        box-shadow: 0 1px 0 #d4a017;
-      }
-      .person.mage { background: linear-gradient(180deg, transparent 0 2px, #6b3a8a 2px 10px, #3a2a1a 10px 14px); }
-      .person.mage::after {
-        content: ""; position: absolute; left: -2px; top: 6px;
-        width: 1px; height: 6px; background: #d4a017;
-      }
-      .person.lumberjack {
-        background: linear-gradient(180deg, transparent 0 2px, #8a4a2a 2px 8px, #1a1410 8px 10px, #3a2a1a 10px 14px);
-      }
-      .person.lumberjack::after {
-        content: ""; position: absolute; right: -4px; top: 3px;
-        width: 6px; height: 2px; background: #c8c0b0;
-        box-shadow: -1px 1px 0 #8a6840, 0 1px 0 #c8c0b0, -1px 2px 0 #8a6840;
-        transform-origin: -2px 1px;
-      }
-      .person.lumberjack.chopping::after { animation: chop 0.45s steps(2) infinite; }
+      .person svg { width: 100%; height: 100%; display: block; overflow: visible; }
+      .person .p-tool { transform-origin: 9px 8px; }
+      .person.lumberjack.chopping .p-tool { animation: chop 0.45s steps(2) infinite; }
+      .person.builder.working .p-tool { animation: chop 0.5s steps(2) infinite; }
       @keyframes chop {
-        0%,100% { transform: rotate(-40deg); } 50% { transform: rotate(20deg); }
+        0%,100% { transform: rotate(-50deg); }
+        50%     { transform: rotate(25deg); }
       }
-      .person.builder {
-        background: linear-gradient(180deg, transparent 0 2px, #2a6a8a 2px 8px, #1a1410 8px 10px, #3a2a1a 10px 14px);
+      /* tiny bob while walking */
+      .person { animation: walk-bob 0.4s steps(2) infinite; }
+      .person.lumberjack.chopping, .person.builder.working { animation: none; }
+      @keyframes walk-bob {
+        0%,100% { translate: 0 0; }
+        50%     { translate: 0 -1px; }
       }
-      .person.builder::after {
-        content: ""; position: absolute; right: -3px; top: 4px;
-        width: 4px; height: 2px; background: #c8a060;
-        box-shadow: 0 1px 0 #8a6840;
-      }
-      .person.builder.working::after { animation: chop 0.5s steps(2) infinite; }
 
       /* HORSEMAN / HORSE / CART / SOLDIER / KING */
       .horseman { position: absolute; bottom: 4px; width: 28px; height: 26px; }
@@ -271,26 +258,12 @@
       .king svg { width: 100%; height: 100%; display: block; }
 
       /* DUEL */
-      .person.fighting::before {
-        animation: bob 0.15s steps(2) infinite;
-      }
-      @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-1px); } }
-      .person.fighting.warrior::after {
-        animation: slash 0.3s steps(2) infinite; transform-origin: 0 50%;
-      }
-      .person.fighting.mage::after {
-        animation: zap 0.4s steps(2) infinite; transform-origin: 0 50%;
-      }
-      @keyframes zap {
-        0%,100% { box-shadow: 1px 0 0 #d4a017; }
-        50% { box-shadow: 1px 0 0 #ffd060, -1px 0 0 #ffd060; }
-      }
-      .person.defeated {
-        animation: defeat 1s ease-out forwards;
-      }
+      .person.fighting { animation: walk-bob 0.18s steps(2) infinite; }
+      .person.fighting .p-tool { animation: chop 0.3s steps(2) infinite; }
+      .person.defeated { animation: defeat 1s ease-out forwards; }
       @keyframes defeat {
-        0% { transform: rotate(0deg); opacity: 1; }
-        40% { transform: rotate(-30deg) translateY(-2px); }
+        0%   { transform: rotate(0deg); opacity: 1; }
+        40%  { transform: rotate(-30deg) translateY(-2px); }
         100% { transform: rotate(-90deg) translateY(6px); opacity: 0; }
       }
 
@@ -1030,13 +1003,122 @@
           mage: ["A mage drifts by, robes trailing.", "A mage murmurs an incantation."],
         };
 
+        // Skin tones — randomized per sprite so the realm isn't all the same person
+        const SKIN = ["#d4a888", "#c89878", "#a87858", "#8a5838", "#e8c8a0", "#7a4828"];
+        const HAIR = ["#3a2410", "#1a0a04", "#7a3818", "#c89858", "#a8a8a8", "#d4a017"];
+        const TUNIC = ["#6b4a30", "#3a6a48", "#8a4828", "#4a587a", "#7a4a6a", "#5a5a3a"];
+
+        function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+        function personSVG(type) {
+          const skin = pick(SKIN);
+          const hair = pick(HAIR);
+          const tunic = type === "warrior" ? "#7a8090"
+                      : type === "mage"    ? "#6a3a8a"
+                      : type === "lumberjack" ? "#a83828"
+                      : type === "builder" ? "#3878a8"
+                      : pick(TUNIC);
+          const tunicLight = type === "warrior" ? "#a8b0c0"
+                      : type === "mage"    ? "#8a4aa0"
+                      : type === "lumberjack" ? "#c84a35"
+                      : type === "builder" ? "#58a0c8"
+                      : tunic;
+          // Common body parts
+          const head = `
+            <rect x="4" y="2" width="4" height="4" fill="${skin}"/>
+            <rect x="4" y="5" width="1" height="1" fill="#1a0a0a"/>
+            <rect x="7" y="5" width="1" height="1" fill="#1a0a0a"/>
+            <rect x="4" y="1" width="4" height="2" fill="${hair}"/>
+            <rect x="3" y="1" width="1" height="3" fill="${hair}"/>
+            <rect x="8" y="1" width="1" height="3" fill="${hair}"/>
+          `;
+          const torso = `
+            <rect x="3" y="7" width="6" height="5" fill="${tunic}"/>
+            <rect x="3" y="7" width="6" height="1" fill="${tunicLight}"/>
+            <rect x="2" y="8" width="1" height="4" fill="${tunic}"/>
+            <rect x="9" y="8" width="1" height="4" fill="${tunic}"/>
+            <rect x="2" y="11" width="1" height="1" fill="${skin}"/>
+            <rect x="9" y="11" width="1" height="1" fill="${skin}"/>
+          `;
+          const belt = `<rect x="3" y="12" width="6" height="1" fill="#2a1f15"/>`;
+          const legs = `
+            <rect x="3" y="13" width="2" height="8" fill="#2a1f15"/>
+            <rect x="7" y="13" width="2" height="8" fill="#2a1f15"/>
+            <rect x="3" y="20" width="2" height="1" fill="#1a0a0a"/>
+            <rect x="7" y="20" width="2" height="1" fill="#1a0a0a"/>
+          `;
+
+          let extras = "";
+          if (type === "warrior") {
+            extras = `
+              <!-- helmet -->
+              <rect x="3" y="0" width="6" height="3" fill="#8890a0"/>
+              <rect x="3" y="0" width="6" height="1" fill="#b8c0d0"/>
+              <rect x="3" y="3" width="6" height="1" fill="#222"/>
+              <!-- sword -->
+              <g class="p-tool">
+                <rect x="9" y="2" width="1" height="9" fill="#d4d8e0"/>
+                <rect x="8" y="11" width="3" height="1" fill="#6a4828"/>
+              </g>
+              <!-- plume -->
+              <rect x="5" y="-1" width="2" height="1" fill="#c84a35"/>
+            `;
+          } else if (type === "mage") {
+            extras = `
+              <!-- pointy hat -->
+              <polygon points="3,2 9,2 6,-2" fill="#3a2848"/>
+              <rect x="2" y="2" width="8" height="1" fill="#1a0c20"/>
+              <rect x="5" y="0" width="1" height="1" fill="#d4a017"/>
+              <!-- beard -->
+              <rect x="3" y="6" width="6" height="2" fill="#d8d4c0"/>
+              <!-- staff -->
+              <g class="p-tool">
+                <rect x="9" y="2" width="1" height="12" fill="#5a3818"/>
+                <rect x="8" y="0" width="3" height="3" fill="#d4a017"/>
+                <rect x="9" y="1" width="1" height="1" fill="#ffe080"/>
+              </g>
+            `;
+          } else if (type === "lumberjack") {
+            extras = `
+              <!-- beard -->
+              <rect x="4" y="6" width="4" height="1" fill="${hair}"/>
+              <!-- shirt plaid stripe -->
+              <rect x="5" y="7" width="1" height="5" fill="#7a1818"/>
+              <!-- axe -->
+              <g class="p-tool">
+                <rect x="9" y="4" width="1" height="8" fill="#6a4828"/>
+                <rect x="8" y="3" width="3" height="3" fill="#c0c4cc"/>
+                <rect x="8" y="3" width="3" height="1" fill="#e0e4ec"/>
+              </g>
+            `;
+          } else if (type === "builder") {
+            extras = `
+              <!-- straw hat brim -->
+              <rect x="2" y="2" width="8" height="1" fill="#a08010"/>
+              <rect x="4" y="0" width="4" height="2" fill="#d4a017"/>
+              <!-- overall straps -->
+              <rect x="4" y="7" width="1" height="4" fill="#2858a0"/>
+              <rect x="7" y="7" width="1" height="4" fill="#2858a0"/>
+              <!-- hammer -->
+              <g class="p-tool">
+                <rect x="9" y="5" width="1" height="7" fill="#6a4828"/>
+                <rect x="8" y="4" width="3" height="2" fill="#6a6a72"/>
+                <rect x="8" y="4" width="3" height="1" fill="#9a9aa2"/>
+              </g>
+            `;
+          }
+          return `<svg viewBox="0 0 12 22" xmlns="http://www.w3.org/2000/svg">${head}${torso}${belt}${legs}${extras}</svg>`;
+        }
+
         function makePerson(type, dir, opts = {}) {
           const p = document.createElement("div");
           p.className = "person " + type + (opts.extra ? " " + opts.extra : "");
           p.dataset.dir = dir;
+          p.dataset.type = type;
           p.style.bottom = (opts.bottom != null ? opts.bottom : (2 + Math.random() * 14)) + "px";
           const startX = opts.startX != null ? opts.startX : (dir === "left" ? W() + 20 : -20);
           p.style.left = startX + "px";
+          p.innerHTML = personSVG(type);
           if (dir === "left") p.style.transform = "scaleX(-1)";
           peopleLayer.appendChild(p);
           return p;
@@ -1055,8 +1137,8 @@
           const dir = opts.dir || (Math.random() > 0.5 ? "left" : "right");
           const type = opts.type || personTypes[Math.floor(Math.random() * personTypes.length)];
           const isRainy = weather === "rain" || weather === "storm";
-          // Slower base walk (30-55s normal, 9-15s when fleeing rain)
-          const baseDur = isRainy ? (9 + Math.random() * 6) : (30 + Math.random() * 25);
+          // Slower base walk (48-80s normal, 12-20s when fleeing rain)
+          const baseDur = isRainy ? (12 + Math.random() * 8) : (48 + Math.random() * 32);
           const dur = opts.duration || baseDur;
           const startOffset = opts.offset || 0;
           const startX = (dir === "left" ? W() + 20 : -20) + startOffset;
@@ -1076,7 +1158,7 @@
           if (document.hidden || reduced) return;
           const dir = Math.random() > 0.5 ? "left" : "right";
           const size = 2 + Math.floor(Math.random() * 3); // 2-4
-          const baseDur = 32 + Math.random() * 20;
+          const baseDur = 55 + Math.random() * 28;
           for (let i = 0; i < size; i++) {
             const type = personTypes[Math.floor(Math.random() * personTypes.length)];
             const offset = (dir === "left" ? 1 : -1) * i * (14 + Math.random() * 10);
@@ -1122,8 +1204,15 @@
           if (document.hidden || reduced) return;
           const dir = Math.random() > 0.5 ? "left" : "right";
           const withRider = Math.random() > 0.4;
+          // Pick a pace: fast / steady / slow
+          const paceRoll = Math.random();
+          let pace, dur, paceLabel;
+          if (paceRoll < 0.25) { pace = "fast";   dur = 14 + Math.random() * 6;  paceLabel = "gallops"; }
+          else if (paceRoll < 0.7) { pace = "steady"; dur = 26 + Math.random() * 10; paceLabel = "canters"; }
+          else { pace = "slow"; dur = 44 + Math.random() * 18; paceLabel = "ambles"; }
+
           const h = document.createElement("div");
-          h.className = "horseman peaceful";
+          h.className = "horseman peaceful pace-" + pace;
           h.innerHTML = horseSVG(withRider);
           if (dir === "left") h.style.transform = "scaleX(-1)";
           const startX = dir === "left" ? W() + 30 : -30;
@@ -1131,14 +1220,20 @@
           h.style.left = startX + "px";
           h.style.bottom = "4px";
           peopleLayer.appendChild(h);
+
           const isRainy = weather === "rain" || weather === "storm";
-          const dur = isRainy ? (10 + Math.random() * 4) : (20 + Math.random() * 12);
+          const finalDur = isRainy ? Math.min(dur, 14) : dur;
           requestAnimationFrame(() => {
-            h.style.transition = `left ${dur}s linear`;
+            h.style.transition = `left ${finalDur}s linear`;
             h.style.left = endX + "px";
           });
-          setTimeout(() => h.remove(), dur * 1000 + 500);
-          logEvent(withRider ? "A rider canters through on horseback." : "A loose horse trots across the meadow.");
+          setTimeout(() => h.remove(), finalDur * 1000 + 500);
+
+          if (withRider) {
+            logEvent(`A rider ${paceLabel} through on horseback.`);
+          } else {
+            logEvent(`A loose horse ${paceLabel} across the meadow.`);
+          }
         }
 
         /* ============= CARAVAN ============= */
@@ -1434,91 +1529,202 @@
           if (i >= 0) trees.splice(i, 1);
         }
 
-        /* ============= HOUSES ============= */
+        /* ============= STRUCTURES (houses, towers, wells, signposts, campfires) ============= */
         const houses = [];
-        function houseSVG() {
-          return `<svg viewBox="0 0 36 32" xmlns="http://www.w3.org/2000/svg">
-            <!-- foundation -->
-            <rect x="0" y="26" width="36" height="6" fill="#5a4030"/>
-            <rect x="0" y="26" width="36" height="2" fill="#7a5840"/>
-            <rect x="2" y="30" width="32" height="2" fill="#3a2818"/>
-            <!-- walls (stage 1+) -->
-            <g class="hs-walls" opacity="0">
-              <rect x="4" y="12" width="28" height="14" fill="#a87858"/>
-              <rect x="4" y="12" width="28" height="2" fill="#c89878"/>
-              <rect x="4" y="24" width="28" height="2" fill="#80583a"/>
-              <rect x="6" y="14" width="2" height="10" fill="#6a4828"/>
-              <rect x="28" y="14" width="2" height="10" fill="#6a4828"/>
-              <!-- door -->
-              <rect x="16" y="18" width="4" height="8" fill="#3a2410"/>
-              <rect x="19" y="22" width="1" height="1" fill="#d4a017"/>
-              <!-- window -->
-              <rect x="8" y="16" width="4" height="4" fill="#5a4830"/>
-              <rect x="9" y="17" width="1" height="2" fill="#f0d890"/>
-              <rect x="11" y="17" width="1" height="2" fill="#f0d890"/>
-              <rect x="24" y="16" width="4" height="4" fill="#5a4830"/>
-              <rect x="25" y="17" width="1" height="2" fill="#f0d890"/>
-              <rect x="27" y="17" width="1" height="2" fill="#f0d890"/>
-            </g>
-            <!-- roof (stage 2+) -->
-            <g class="hs-roof" opacity="0">
-              <polygon points="0,12 18,2 36,12" fill="#8a3a25"/>
-              <polygon points="2,11 18,4 34,11" fill="#a8442a"/>
-              <rect x="0" y="11" width="36" height="2" fill="#6a2818"/>
-              <rect x="22" y="-2" width="3" height="8" fill="#3a2410"/>
-              <rect x="22" y="-2" width="3" height="2" fill="#5a3820"/>
-            </g>
-          </svg>`;
+        const STRUCTURE_KINDS = ["house", "tower", "well", "signpost", "campfire"];
+        const STRUCTURE_BUILD_LOG = {
+          house:    { mid: "Walls rise from the foundation.",    done: "A house stands complete!" },
+          tower:    { mid: "The watchtower shaft climbs higher.", done: "A watchtower keeps vigil!" },
+          well:     { mid: "Stones are stacked for the well.",   done: "A well brings water to the village." },
+          signpost: { mid: null, done: "A signpost is planted at the crossroads." },
+          campfire: { mid: "Logs are stacked for the fire.",     done: "A campfire crackles to life." },
+        };
+
+        function structureSVG(kind) {
+          switch (kind) {
+            case "house": return `<svg viewBox="0 0 36 32" xmlns="http://www.w3.org/2000/svg">
+              <rect x="0" y="26" width="36" height="6" fill="#5a4030"/>
+              <rect x="0" y="26" width="36" height="2" fill="#7a5840"/>
+              <rect x="2" y="30" width="32" height="2" fill="#3a2818"/>
+              <g class="hs-walls" opacity="0">
+                <rect x="4" y="12" width="28" height="14" fill="#a87858"/>
+                <rect x="4" y="12" width="28" height="2" fill="#c89878"/>
+                <rect x="4" y="24" width="28" height="2" fill="#80583a"/>
+                <rect x="6" y="14" width="2" height="10" fill="#6a4828"/>
+                <rect x="28" y="14" width="2" height="10" fill="#6a4828"/>
+                <rect x="16" y="18" width="4" height="8" fill="#3a2410"/>
+                <rect x="19" y="22" width="1" height="1" fill="#d4a017"/>
+                <rect x="8" y="16" width="4" height="4" fill="#5a4830"/>
+                <rect x="9" y="17" width="1" height="2" fill="#f0d890"/>
+                <rect x="11" y="17" width="1" height="2" fill="#f0d890"/>
+                <rect x="24" y="16" width="4" height="4" fill="#5a4830"/>
+                <rect x="25" y="17" width="1" height="2" fill="#f0d890"/>
+                <rect x="27" y="17" width="1" height="2" fill="#f0d890"/>
+              </g>
+              <g class="hs-roof" opacity="0">
+                <polygon points="0,12 18,2 36,12" fill="#8a3a25"/>
+                <polygon points="2,11 18,4 34,11" fill="#a8442a"/>
+                <rect x="0" y="11" width="36" height="2" fill="#6a2818"/>
+                <rect x="22" y="-2" width="3" height="8" fill="#3a2410"/>
+                <rect x="22" y="-2" width="3" height="2" fill="#5a3820"/>
+              </g>
+            </svg>`;
+
+            case "tower": return `<svg viewBox="0 0 32 64" xmlns="http://www.w3.org/2000/svg">
+              <rect x="2" y="58" width="28" height="6" fill="#5a4030"/>
+              <rect x="2" y="58" width="28" height="2" fill="#7a5840"/>
+              <g class="hs-walls" opacity="0">
+                <rect x="6" y="16" width="20" height="42" fill="#a8a098"/>
+                <rect x="6" y="16" width="20" height="2" fill="#c8c0b0"/>
+                <rect x="6" y="56" width="20" height="2" fill="#80786a"/>
+                <rect x="9" y="26" width="2" height="6" fill="#1a1208"/>
+                <rect x="21" y="26" width="2" height="6" fill="#1a1208"/>
+                <rect x="15" y="38" width="2" height="8" fill="#1a1208"/>
+                <rect x="14" y="48" width="4" height="10" fill="#3a2410"/>
+              </g>
+              <g class="hs-roof" opacity="0">
+                <rect x="4" y="14" width="24" height="4" fill="#80786a"/>
+                <rect x="4" y="10" width="3" height="4" fill="#80786a"/>
+                <rect x="9" y="10" width="3" height="4" fill="#80786a"/>
+                <rect x="14" y="10" width="4" height="4" fill="#80786a"/>
+                <rect x="20" y="10" width="3" height="4" fill="#80786a"/>
+                <rect x="25" y="10" width="3" height="4" fill="#80786a"/>
+                <rect x="15" y="0" width="1" height="14" fill="#5a3818"/>
+                <rect x="16" y="2" width="6" height="4" fill="#c84a35"/>
+                <rect x="16" y="2" width="6" height="1" fill="#e06a45"/>
+              </g>
+            </svg>`;
+
+            case "well": return `<svg viewBox="0 0 26 28" xmlns="http://www.w3.org/2000/svg">
+              <rect x="2" y="14" width="22" height="14" fill="#7a7068"/>
+              <rect x="2" y="14" width="22" height="2" fill="#9a9088"/>
+              <rect x="6" y="16" width="2" height="2" fill="#5a504a"/>
+              <rect x="12" y="16" width="2" height="2" fill="#5a504a"/>
+              <rect x="18" y="16" width="2" height="2" fill="#5a504a"/>
+              <rect x="4" y="20" width="2" height="2" fill="#5a504a"/>
+              <rect x="10" y="20" width="2" height="2" fill="#5a504a"/>
+              <rect x="16" y="20" width="2" height="2" fill="#5a504a"/>
+              <rect x="20" y="20" width="2" height="2" fill="#5a504a"/>
+              <rect x="4" y="16" width="18" height="2" fill="#3a5878"/>
+              <g class="hs-roof" opacity="0">
+                <rect x="3" y="4" width="2" height="10" fill="#5a3818"/>
+                <rect x="21" y="4" width="2" height="10" fill="#5a3818"/>
+                <polygon points="0,4 13,-2 26,4" fill="#8a3a25"/>
+                <polygon points="2,3 13,-1 24,3" fill="#a8442a"/>
+                <rect x="11" y="4" width="1" height="6" fill="#d4a888"/>
+                <rect x="9" y="9" width="6" height="2" fill="#6a4828"/>
+              </g>
+            </svg>`;
+
+            case "signpost": return `<svg viewBox="0 0 18 30" xmlns="http://www.w3.org/2000/svg">
+              <rect x="8" y="8" width="2" height="22" fill="#5a3818"/>
+              <rect x="8" y="8" width="1" height="22" fill="#7a4828"/>
+              <g class="hs-walls" opacity="1">
+                <rect x="0" y="4" width="18" height="9" fill="#a87858"/>
+                <rect x="0" y="4" width="18" height="1" fill="#c89878"/>
+                <rect x="0" y="12" width="18" height="1" fill="#80583a"/>
+                <rect x="3" y="7" width="3" height="1" fill="#3a2410"/>
+                <rect x="7" y="7" width="4" height="1" fill="#3a2410"/>
+                <rect x="12" y="7" width="3" height="1" fill="#3a2410"/>
+                <rect x="3" y="9" width="3" height="1" fill="#3a2410"/>
+                <rect x="7" y="9" width="2" height="1" fill="#3a2410"/>
+                <rect x="11" y="9" width="2" height="1" fill="#3a2410"/>
+              </g>
+            </svg>`;
+
+            case "campfire": return `<svg viewBox="0 0 30 22" xmlns="http://www.w3.org/2000/svg">
+              <rect x="2" y="16" width="26" height="3" fill="#3a2410"/>
+              <rect x="4" y="15" width="6" height="2" fill="#6a4828"/>
+              <rect x="20" y="15" width="6" height="2" fill="#6a4828"/>
+              <rect x="11" y="14" width="8" height="3" fill="#6a4828"/>
+              <rect x="11" y="14" width="8" height="1" fill="#8a6840"/>
+              <rect x="0" y="18" width="3" height="3" fill="#7a7068"/>
+              <rect x="27" y="18" width="3" height="3" fill="#7a7068"/>
+              <rect x="14" y="19" width="3" height="2" fill="#7a7068"/>
+              <g class="hs-roof" opacity="0">
+                <polygon points="10,14 15,2 20,14" fill="#f08850"/>
+                <polygon points="11,13 15,5 19,13" fill="#f0c440"/>
+                <polygon points="12,12 15,8 18,12" fill="#fff4a0"/>
+                <rect x="14" y="0" width="1" height="3" fill="#fff4a0"/>
+              </g>
+            </svg>`;
+          }
+          return "";
         }
 
-        function spawnBuilder(targetX, onDone) {
+        function spawnBuilder(targetX, kind, onDone) {
           if (reduced) { if (onDone) onDone(); return; }
-          const lj = document.createElement("div");
-          lj.className = "person builder";
+          // Pick a kind if not provided. Houses & towers more common than wells/signs/campfires.
+          if (!kind) {
+            const weighted = ["house", "house", "house", "tower", "tower", "well", "signpost", "campfire", "campfire"];
+            kind = weighted[Math.floor(Math.random() * weighted.length)];
+          }
+          const lj = makePerson("builder", targetX > W() / 2 ? "right" : "left", { bottom: 4 });
           const fromLeft = targetX > W() / 2;
           const startX = fromLeft ? -20 : W() + 20;
           const stopX = targetX + (fromLeft ? -6 : 18);
-          if (!fromLeft) lj.style.transform = "scaleX(-1)";
-          lj.style.bottom = "4px"; lj.style.left = startX + "px";
+          lj.style.left = startX + "px";
           peopleLayer.appendChild(lj);
           const walkDist = Math.abs(stopX - startX);
-          const walkTime = walkDist / 60;
+          const walkTime = walkDist / 50;
           requestAnimationFrame(() => {
             lj.style.transition = `left ${walkTime}s linear`;
             lj.style.left = stopX + "px";
           });
+
           setTimeout(() => {
             lj.classList.add("working");
-            logEvent("A builder breaks ground.", "good");
-            // Spawn the house and grow it
+            const breakground = {
+              house: "A builder breaks ground for a house.",
+              tower: "A builder begins a watchtower.",
+              well: "A builder digs a well.",
+              signpost: "A builder plants a signpost.",
+              campfire: "A traveler arranges logs for a fire.",
+            };
+            logEvent(breakground[kind] || "A builder breaks ground.", "good");
+
             const h = document.createElement("div");
             h.className = "house";
-            h.innerHTML = houseSVG();
+            h.dataset.kind = kind;
+            h.innerHTML = structureSVG(kind);
             h.style.left = targetX + "px";
             treesLayer.appendChild(h);
-            const rec = { el: h, x: targetX, stage: 0 };
+            const rec = { el: h, x: targetX, kind, stage: 0 };
             houses.push(rec);
-            // stage 1: walls
-            setTimeout(() => {
-              if (!h.isConnected) return;
-              rec.stage = 1;
-              h.querySelectorAll(".hs-walls").forEach((el) => el.setAttribute("opacity", 1));
-              logEvent("Walls rise from the foundation.");
-            }, 4500);
-            // stage 2: roof + done
+
+            const midDelay = kind === "signpost" ? 0
+                           : kind === "campfire" ? 2500
+                           : kind === "well" ? 3500
+                           : 4500;
+            const doneDelay = kind === "signpost" ? 2500
+                            : kind === "campfire" ? 5000
+                            : kind === "well" ? 7000
+                            : kind === "tower" ? 12000
+                            : 10000;
+            const log = STRUCTURE_BUILD_LOG[kind] || STRUCTURE_BUILD_LOG.house;
+
+            if (midDelay > 0) {
+              setTimeout(() => {
+                if (!h.isConnected) return;
+                rec.stage = 1;
+                h.querySelectorAll(".hs-walls").forEach((el) => el.setAttribute("opacity", 1));
+                if (log.mid) logEvent(log.mid);
+              }, midDelay);
+            }
             setTimeout(() => {
               if (!h.isConnected) return;
               rec.stage = 2;
+              h.querySelectorAll(".hs-walls").forEach((el) => el.setAttribute("opacity", 1));
               h.querySelectorAll(".hs-roof").forEach((el) => el.setAttribute("opacity", 1));
-              logEvent("A house was built!", "good");
+              logEvent(log.done, "good");
               lj.classList.remove("working");
               const exitX = fromLeft ? W() + 20 : -20;
-              const exitDur = Math.abs(exitX - stopX) / 60;
+              const exitDur = Math.abs(exitX - stopX) / 50;
               lj.style.transition = `left ${exitDur}s linear`;
               lj.style.left = exitX + "px";
               setTimeout(() => lj.remove(), exitDur * 1000 + 500);
               if (onDone) onDone(rec);
-            }, 10000);
+            }, doneDelay);
           }, walkTime * 1000 + 100);
         }
 
@@ -1540,13 +1746,10 @@
           const fromLeft = tx > W() / 2;
           const startX = fromLeft ? -20 : W() + 20;
           const stopX = tx + (fromLeft ? -6 : 18);
-          const lj = document.createElement("div");
-          lj.className = "person lumberjack";
-          if (!fromLeft) lj.style.transform = "scaleX(-1)";
-          lj.style.bottom = "4px"; lj.style.left = startX + "px";
-          peopleLayer.appendChild(lj);
+          const lj = makePerson("lumberjack", fromLeft ? "right" : "left", { bottom: 4 });
+          lj.style.left = startX + "px";
           const walkDist = Math.abs(stopX - startX);
-          const walkTime = walkDist / 60;
+          const walkTime = walkDist / 50;
           logEvent("A lumberjack spies a fine tree.");
           requestAnimationFrame(() => {
             lj.style.transition = `left ${walkTime}s linear`;
@@ -1569,7 +1772,7 @@
               logEvent("A lumberjack felled a tree.", "good");
               const exitX = fromLeft ? W() + 20 : -20;
               const exitDist = Math.abs(exitX - stopX);
-              const exitTime = exitDist / 60;
+              const exitTime = exitDist / 50;
               lj.style.transition = `left ${exitTime}s linear`;
               lj.style.left = exitX + "px";
               setTimeout(() => lj.remove(), exitTime * 1000 + 500);
@@ -1710,10 +1913,28 @@
         }
 
         function attackRandomHouse() {
-          if (houses.length === 0) return;
-          const target = houses[Math.floor(Math.random() * houses.length)];
-          if (target.stage < 2) return; // only attack finished houses
+          // Only attack worthwhile buildings — houses & towers
+          const attackable = houses.filter((h) => h.stage >= 2 && (h.kind === "house" || h.kind === "tower"));
+          if (attackable.length === 0) return;
+          const target = attackable[Math.floor(Math.random() * attackable.length)];
           (Math.random() < 0.5 ? dragonAttack : horsemanAttack)(target);
+        }
+
+        // Find any free spot on the grass that isn't near an existing tree/structure
+        function findOpenSpot() {
+          for (let i = 0; i < 30; i++) {
+            const x = 60 + Math.random() * (W() - 120);
+            const free = !trees.some((t) => Math.abs(t.x - x) < 80)
+                      && !houses.some((h) => Math.abs(h.x - x) < 80);
+            if (free) return x;
+          }
+          return null;
+        }
+        function spawnLoneBuilder() {
+          if (document.hidden || reduced) return;
+          const x = findOpenSpot();
+          if (x == null) return;
+          spawnBuilder(x);
         }
 
         /* ============= SPAWN LOOPS ============= */
@@ -1739,7 +1960,7 @@
             else spawnPerson();
           }
 
-          setTimeout(() => loop(spawnRandomTraveler, 6000, 12000), 800);
+          setTimeout(() => loop(spawnRandomTraveler, 10000, 18000), 800);
           setTimeout(() => loop(spawnHorse, 25000, 55000), 11000);
           setTimeout(() => loop(spawnCaravan, 80000, 150000), 40000);
           setTimeout(() => loop(spawnDuel, 45000, 95000), 30000);
@@ -1747,6 +1968,7 @@
           setTimeout(() => loop(spawnDragon, 35000, 80000), 8000);
           setTimeout(() => loop(() => plantTree(false), 14000, 28000), 4000);
           setTimeout(() => loop(spawnLumberjack, 28000, 60000), 18000);
+          setTimeout(() => loop(spawnLoneBuilder, 60000, 130000), 35000);
           setTimeout(() => loop(attackRandomHouse, 50000, 110000), 60000);
           setTimeout(() => loop(randomCloud, 9000, 18000), 1000);
         }
