@@ -510,12 +510,12 @@
         100% { transform: translate(var(--vx, 6px), -52px) scale(1.6); opacity: 0; }
       }
 
-      /* RAINBOW — anchored at mountain line, hidden behind hills (z-index 5) */
+      /* RAINBOW — anchored at ground, hidden behind hills (z-index 5) */
       .rainbow {
         position: absolute;
         left: 0; right: 0;
-        bottom: 90px;
-        height: 65%;
+        bottom: 30px;
+        height: 75%;
         z-index: 3;
         pointer-events: none;
         opacity: 0;
@@ -1197,10 +1197,10 @@
               logEvent("The campfires sputter back to life.", "good");
             }
           }
-          // Seed extra clouds when going overcast
-          if ((w === "cloudy" || w === "rain" || w === "storm") && old === "clear") {
-            const count = w === "storm" ? 12 : w === "rain" ? 9 : 6;
-            for (let i = 0; i < count; i++) setTimeout(() => randomCloud(), i * 40);
+          // Seed extra clouds when going overcast — 2x for cloudy/rain, 4x for storm
+          if ((w === "cloudy" || w === "rain" || w === "storm") && (old === "clear" || (old === "cloudy" && (w === "rain" || w === "storm")))) {
+            const count = w === "storm" ? 28 : w === "rain" ? 16 : 12;
+            for (let i = 0; i < count; i++) setTimeout(() => randomCloud(), i * 35);
           }
           // Rainbow when transitioning from wet to dry — but only when not night
           if ((old === "rain" || old === "storm") && (w === "clear" || w === "cloudy")) {
@@ -2370,19 +2370,12 @@
 
               setTimeout(() => {
                 wiz.remove();
-                // Spawn perched wizard on top of tower
-                const perched = document.createElement("div");
-                perched.className = "tower-wizard";
-                perched.innerHTML = personSVG("mage");
-                perched.style.left = (x + 11) + "px";
-                perched.style.bottom = "144px"; // tower body top, below conical roof
-                peopleLayer.appendChild(perched);
-                // Sparkle entrance
-                for (let i = 0; i < 8; i++) {
+                // No visible wizard on the tower — only the magical light from inside.
+                // Sparkle entrance at the top window so it feels like the wizard moved up there.
+                for (let i = 0; i < 10; i++) {
                   setTimeout(() => spawnSparkle(x + 17, 150, "#c080e0"), i * 80);
                 }
-                logEvent("The wizard emerges atop the tower, staff raised!", "bad");
-                rec.perchedWizard = perched;
+                logEvent("Eerie purple light blooms at the tower's peak!", "bad");
                 startWizardOffensive(rec);
               }, 3000);
             }, 5500);
@@ -2417,14 +2410,9 @@
             } else {
               setTimeout(() => {
                 logEvent("The wizard's tower falls dim and silent.");
-                // Perched wizard teleports away with sparkles
-                if (towerRec.perchedWizard && towerRec.perchedWizard.isConnected) {
-                  for (let i = 0; i < 14; i++) {
-                    setTimeout(() => spawnSparkle(towerRec.x + 18, 150, "#c080e0"), i * 90);
-                  }
-                  towerRec.perchedWizard.style.transition = "opacity 1s ease-out";
-                  towerRec.perchedWizard.style.opacity = "0";
-                  setTimeout(() => towerRec.perchedWizard.remove(), 1100);
+                // Fade-out sparkle storm at the top window
+                for (let i = 0; i < 14; i++) {
+                  setTimeout(() => spawnSparkle(towerRec.x + 18, 150, "#c080e0"), i * 90);
                 }
               }, 2000);
             }
@@ -4091,13 +4079,13 @@
           setTimeout(() => loop(spawnLumberjack, 28000, 60000), 18000);
           setTimeout(() => loop(spawnLoneBuilder, 60000, 130000), 35000);
           setTimeout(() => loop(attackRandomHouse, 50000, 110000), 60000);
-          // Weather-aware cloud spawning — denser when overcast/raining/storming
+          // Weather-aware cloud spawning — 2x for cloudy/rain, 4x for storm
           function cloudLoop() {
             if (!document.hidden) randomCloud();
             let min = 5000, max = 10000;
-            if (weather === "cloudy") { min = 1800; max = 3500; }
-            else if (weather === "rain") { min = 1200; max = 2400; }
-            else if (weather === "storm") { min = 800; max = 1800; }
+            if (weather === "cloudy") { min = 900;  max = 1800; }  // 2x
+            else if (weather === "rain")  { min = 600;  max = 1200; }  // 2x
+            else if (weather === "storm") { min = 200;  max = 450;  }  // 4x
             setTimeout(cloudLoop, min + Math.random() * (max - min));
           }
           setTimeout(cloudLoop, 1000);
