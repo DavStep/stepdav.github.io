@@ -90,6 +90,7 @@
         box-shadow: 0 0 22px 6px var(--sun-glow, rgba(240, 208, 96, 0.45));
         opacity: var(--sun-opacity, 0);
         transform: translate(-50%, -50%); z-index: 1;
+        transition: left 0.55s linear, top 0.55s linear;
       }
 
       .moon {
@@ -100,6 +101,7 @@
         box-shadow: 0 0 16px 3px rgba(224, 212, 168, 0.35), inset -6px -3px 0 -2px #b4a684;
         opacity: var(--moon-opacity, 0);
         transform: translate(-50%, -50%); z-index: 1;
+        transition: left 0.55s linear, top 0.55s linear;
       }
 
       /* CLOUDS — SVG puffs */
@@ -787,6 +789,7 @@
     <div class="hud">
       <span id="hud-time" title="Click to change time">DAY</span>
       <span id="hud-weather" title="Click to change weather">CLEAR</span>
+      <span id="hud-speed" title="Click to speed up time">1×</span>
     </div>
 
     <div class="log" id="log">
@@ -964,9 +967,26 @@
                    sunO:0, moonO:0.95, starsO:0.95, bright:0.45 },
         };
 
-        const DAY_LENGTH_MS = 120000;
-        let dayStart = performance.now() - 0.25 * DAY_LENGTH_MS; // start at "day"
+        const BASE_DAY_LENGTH_MS = 120000;
+        let dayLengthMs = BASE_DAY_LENGTH_MS;
+        let dayStart = performance.now() - 0.25 * dayLengthMs; // start at "day"
         let manualOverride = null; // { startTime, fromT, toT, duration }
+
+        // Time speed multiplier
+        const SPEED_OPTIONS = [1, 2, 4, 8];
+        let speedIdx = 0;
+        const hudSpeed = document.getElementById("hud-speed");
+        function cycleSpeed() {
+          // Preserve current t when changing speed
+          const currentT = computeT();
+          speedIdx = (speedIdx + 1) % SPEED_OPTIONS.length;
+          const newSpeed = SPEED_OPTIONS[speedIdx];
+          dayLengthMs = BASE_DAY_LENGTH_MS / newSpeed;
+          dayStart = performance.now() - currentT * dayLengthMs;
+          hudSpeed.textContent = newSpeed + "×";
+          logEvent("Time flows at " + newSpeed + "× speed.", "time");
+        }
+        hudSpeed.addEventListener("click", cycleSpeed);
 
         const hexRgb = (h) => { const v = parseInt(h.slice(1),16); return [(v>>16)&255,(v>>8)&255,v&255]; };
         const rgbStr = (c) => `rgb(${c[0]|0}, ${c[1]|0}, ${c[2]|0})`;
@@ -1008,7 +1028,7 @@
             const elapsed = performance.now() - manualOverride.startTime;
             if (elapsed >= manualOverride.duration) {
               const finalT = manualOverride.toT;
-              dayStart = performance.now() - finalT * DAY_LENGTH_MS;
+              dayStart = performance.now() - finalT * dayLengthMs;
               manualOverride = null;
               return finalT;
             }
@@ -1020,7 +1040,7 @@
             else if (delta < -0.5) delta += 1;
             return ((manualOverride.fromT + delta * ep) % 1 + 1) % 1;
           }
-          return ((performance.now() - dayStart) % DAY_LENGTH_MS) / DAY_LENGTH_MS;
+          return ((performance.now() - dayStart) % dayLengthMs) / dayLengthMs;
         }
 
         function updateDay() {
@@ -1097,6 +1117,11 @@
           if (w === "storm") scheduleLightning();
           if ((w === "rain" || w === "storm") && !(old === "rain" || old === "storm")) {
             fleeFromWeather();
+          }
+          // Seed extra clouds when going overcast
+          if ((w === "cloudy" || w === "rain" || w === "storm") && old === "clear") {
+            const count = w === "storm" ? 12 : w === "rain" ? 9 : 6;
+            for (let i = 0; i < count; i++) setTimeout(() => randomCloud(), i * 40);
           }
           // Rainbow when transitioning from wet to dry
           if ((old === "rain" || old === "storm") && (w === "clear" || w === "cloudy")) {
@@ -2288,6 +2313,94 @@
           }, 950);
         }
 
+        /* ============= ADVENTURER CAMP ============= */
+        function spawnAdventurerCamp() {
+          if (document.hidden || reduced) return;
+          const x = findOpenSpot();
+          if (x == null) return;
+
+          const dir = x > W() / 2 ? "right" : "left";
+          const fromLeft = dir === "right";
+          const sign = fromLeft ? 1 : -1;
+          const startBase = fromLeft ? -30 : (W() + 30);
+
+          logEvent("An adventuring party arrives, looking for a place to rest.", "good");
+
+          // Composition: 5 mixed types
+          const composition = ["warrior", "mage", "", "warrior", ""];
+          const partyMembers = [];
+
+          for (let i = 0; i < composition.length; i++) {
+            const type = composition[i];
+            const m = makePerson(type, dir, { bottom: 40 });
+            const startX = startBase - sign * i * 18;
+            m.style.left = startX + "px";
+            partyMembers.push({ el: m, type });
+          }
+
+          const distToCamp = Math.abs(startBase - x);
+          const walkTime = distToCamp / 45;
+          partyMembers.forEach((p, i) => {
+            const seatOffset = (i - 2) * 18;
+            const targetX = x + seatOffset;
+            requestAnimationFrame(() => {
+              p.el.style.transition = `left ${walkTime}s linear`;
+              p.el.style.left = targetX + "px";
+            });
+          });
+
+          // After arrival, light a campfire & rest
+          setTimeout(() => {
+            const camp = document.createElement("div");
+            camp.className = "house";
+            camp.dataset.kind = "campfire";
+            camp.style.left = x + "px";
+            camp.innerHTML = structureSVG("campfire");
+            camp.querySelectorAll(".hs-roof").forEach((el) => el.setAttribute("opacity", 1));
+            treesLayer.appendChild(camp);
+            const rec = { el: camp, x, kind: "campfire", stage: 2 };
+            houses.push(rec);
+            logEvent("The party kindles a campfire and rests.", "good");
+
+            // Stay 30-55s
+            const stayDur = 30000 + Math.random() * 25000;
+
+            // Occasional log entries during the rest
+            const restLogs = [
+              "The warriors swap battle tales by the fire.",
+              "The mage practices a small enchantment.",
+              "Someone shares rations from a pack.",
+              "A hush falls over the camp.",
+              "The party laughs at an old joke.",
+            ];
+            const chatTimer = setInterval(() => {
+              if (Math.random() < 0.6) logEvent(restLogs[Math.floor(Math.random() * restLogs.length)]);
+            }, 7000 + Math.random() * 4000);
+
+            setTimeout(() => {
+              clearInterval(chatTimer);
+              logEvent("The adventurers pack up and journey onward.", "good");
+              // Exit in same or opposite direction
+              const exitDir = Math.random() > 0.4 ? dir : (dir === "right" ? "left" : "right");
+              const exitX = exitDir === "right" ? (W() + 30) : -30;
+              partyMembers.forEach((p, i) => {
+                const memberX = parseFloat(getComputedStyle(p.el).left);
+                const dist = Math.abs(exitX - memberX);
+                const exitTime = dist / 45;
+                if (exitDir !== dir) {
+                  // Flip facing
+                  p.el.style.transform = p.el.style.transform.indexOf("scaleX(-1)") >= 0 ? "" : "scaleX(-1)";
+                  p.el.dataset.dir = exitDir === "right" ? "right" : "left";
+                }
+                p.el.style.transition = `left ${exitTime}s linear`;
+                p.el.style.left = (exitX + (exitDir === "right" ? i * 18 : -i * 18)) + "px";
+                setTimeout(() => p.el.remove(), exitTime * 1000 + 500);
+              });
+              // Campfire stays (smoke continues automatically)
+            }, stayDur);
+          }, walkTime * 1000 + 100);
+        }
+
         /* ============= ROYAL CASTLE CONSTRUCTION ============= */
         function spawnRoyalCastle() {
           if (document.hidden || reduced) return;
@@ -2416,6 +2529,9 @@
           horse.style.left = hx + "px";
           cart.style.transition = "none";
           cart.style.left = cx + "px";
+          const horseEnd = parseFloat(horse.dataset.endX);
+          const cartEnd  = parseFloat(cart.dataset.endX);
+
           // Spawn farmer next to the cart
           const farmer = makePerson("", "right", { bottom: 6 });
           const fx = cx - 14;
@@ -2425,15 +2541,14 @@
             setTimeout(() => spawnCoin(cx + 4, 16), i * 280);
           }
           setTimeout(() => {
-            // Resume caravan
-            const dir = horse.style.transform === "scaleX(-1)" ? "left" : "right";
-            const endX = dir === "left" ? -30 : W() + 30;
-            const remainingDist = Math.abs(endX - hx);
+            // Resume caravan — horse and cart both finish at their endpoints, same duration
             const speed = 14;
-            horse.style.transition = `left ${remainingDist / speed}s linear`;
-            horse.style.left = endX + "px";
-            cart.style.transition = `left ${Math.abs(endX - cx) / speed}s linear`;
-            cart.style.left = endX + "px";
+            const horseRemaining = Math.abs(horseEnd - hx);
+            const dur = horseRemaining / speed;
+            horse.style.transition = `left ${dur}s linear`;
+            horse.style.left = horseEnd + "px";
+            cart.style.transition = `left ${dur}s linear`;
+            cart.style.left = cartEnd + "px";
             // Farmer leaves
             farmer.style.transition = "left 12s linear";
             farmer.style.left = "-20px";
@@ -2729,31 +2844,38 @@
           // We'll spawn the cart first, then horse just ahead, then guards behind.
           const lead = dir === "right" ? 1 : -1;
 
-          // Horse (in front of cart in walking direction)
+          // Cart trails horse by constant offset so they stay synced
+          const sign = dir === "right" ? 1 : -1;
+          const cartOffset = 32; // px the cart trails behind the horse in walking direction
+
+          // Horse (front of caravan)
           const hp = document.createElement("div");
           hp.className = "horseman peaceful caravan-horse";
           hp.innerHTML = horseSVG(false);
           if (dir === "left") hp.style.transform = "scaleX(-1)";
           hp.style.bottom = "4px";
           const horseStart = dir === "left" ? (W() + 30) : -30;
+          const horseEnd   = dir === "left" ? -30 : (W() + 30);
           hp.style.left = horseStart + "px";
+          hp.dataset.endX = horseEnd;
           peopleLayer.appendChild(hp);
           requestAnimationFrame(() => {
             hp.style.transition = `left ${dur}s linear`;
-            hp.style.left = (dir === "left" ? -30 : W() + 30) + "px";
+            hp.style.left = horseEnd + "px";
           });
           setTimeout(() => hp.remove(), dur * 1000 + 500);
 
-          // Cart (behind the horse)
+          // Cart trails horse with constant offset, same speed
           const cart = document.createElement("div");
           cart.className = "cart";
           cart.innerHTML = cartSVG();
           if (dir === "left") cart.style.transform = "scaleX(-1)";
           cart.style.bottom = "2px";
-          const cartStart = horseStart + (dir === "left" ? 32 : -32);
+          const cartStart = horseStart - sign * cartOffset;
+          const cartEnd   = horseEnd   - sign * cartOffset;
           cart.style.left = cartStart + "px";
+          cart.dataset.endX = cartEnd;
           peopleLayer.appendChild(cart);
-          const cartEnd = dir === "left" ? -60 : W() + 60;
           requestAnimationFrame(() => {
             cart.style.transition = `left ${dur}s linear`;
             cart.style.left = cartEnd + "px";
@@ -3710,7 +3832,16 @@
           setTimeout(() => loop(spawnLumberjack, 28000, 60000), 18000);
           setTimeout(() => loop(spawnLoneBuilder, 60000, 130000), 35000);
           setTimeout(() => loop(attackRandomHouse, 50000, 110000), 60000);
-          setTimeout(() => loop(randomCloud, 5000, 10000), 1000);
+          // Weather-aware cloud spawning — denser when overcast/raining/storming
+          function cloudLoop() {
+            if (!document.hidden) randomCloud();
+            let min = 5000, max = 10000;
+            if (weather === "cloudy") { min = 1800; max = 3500; }
+            else if (weather === "rain") { min = 1200; max = 2400; }
+            else if (weather === "storm") { min = 800; max = 1800; }
+            setTimeout(cloudLoop, min + Math.random() * (max - min));
+          }
+          setTimeout(cloudLoop, 1000);
           // New loops
           setTimeout(() => loop(spawnSheep, 35000, 75000), 14000);
           setTimeout(() => loop(spawnDog, 60000, 120000), 22000);
@@ -3721,6 +3852,7 @@
           setTimeout(() => loop(spawnWizardTower, 220000, 360000), 95000);
           setTimeout(() => loop(spawnSkyWizard, 60000, 130000), 25000);
           setTimeout(() => loop(spawnFlyingCastle, 200000, 360000), 70000);
+          setTimeout(() => loop(spawnAdventurerCamp, 110000, 220000), 45000);
         }
       })();
     </script>
