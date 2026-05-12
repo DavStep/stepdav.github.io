@@ -232,8 +232,8 @@
       .world[data-time="dawn"]  .house[data-kind="lamppost"] .hs-windows-lit { opacity: 1; }
       .house[data-kind="lamppost"] .hs-windows-lit { filter: drop-shadow(0 0 4px #f0c440); }
       .house[data-kind="mill"] .mill-blades {
-        animation: mill-spin 7s linear infinite;
-        transform-origin: 17px 12px;
+        animation: mill-spin 6s linear infinite;
+        transform-origin: 22px 12px;
       }
       @keyframes mill-spin { to { transform: rotate(360deg); } }
       .world[data-time="night"] .house[data-kind="tavern"] .hs-windows-lit,
@@ -250,12 +250,20 @@
       .world[data-time="dusk"]  .house[data-kind="wizardtower"] .hs-windows-lit { opacity: 1; }
       .world[data-time="dawn"]  .house[data-kind="wizardtower"] .hs-windows-lit { opacity: 1; }
 
-      /* UPGRADE LEVELS — each level scales up + brightens */
+      /* UPGRADE LEVELS — gentle scale + brightness, plus per-level decoration groups */
       .house[data-upgrade] { transition: transform 1s cubic-bezier(.34, 1.2, .64, 1), filter 1s ease; }
-      .house[data-upgrade="1"] { transform: scale(1.06); filter: brightness(1.05) saturate(1.05); }
-      .house[data-upgrade="2"] { transform: scale(1.12); filter: brightness(1.1) saturate(1.1); }
-      .house[data-upgrade="3"] { transform: scale(1.18); filter: brightness(1.15) saturate(1.15); }
-      .house[data-upgrade="4"] { transform: scale(1.3);  filter: brightness(1.2)  saturate(1.2); }
+      .house[data-upgrade="1"] { transform: scale(1.04); filter: brightness(1.04) saturate(1.06); }
+      .house[data-upgrade="2"] { transform: scale(1.08); filter: brightness(1.08) saturate(1.1); }
+      .house[data-upgrade="3"] { transform: scale(1.12); filter: brightness(1.12) saturate(1.14); }
+      .house[data-upgrade="4"] { transform: scale(1.2);  filter: brightness(1.16) saturate(1.18); }
+      /* Per-level decoration groups — additive: L3 shows up-1, up-2, up-3 */
+      .house [class^="up-"] { opacity: 0; transition: opacity 1s ease; }
+      .house[data-upgrade="1"] .up-1,
+      .house[data-upgrade="2"] .up-1, .house[data-upgrade="2"] .up-2,
+      .house[data-upgrade="3"] .up-1, .house[data-upgrade="3"] .up-2, .house[data-upgrade="3"] .up-3,
+      .house[data-upgrade="4"] .up-1, .house[data-upgrade="4"] .up-2, .house[data-upgrade="4"] .up-3, .house[data-upgrade="4"] .up-4 {
+        opacity: 1;
+      }
       /* Castle L4 is HUGE and golden */
       .house[data-kind="castle"][data-upgrade="4"] {
         transform: scale(1.6);
@@ -3522,7 +3530,7 @@
 
         function structureSVG(kind) {
           switch (kind) {
-            case "house": return `<svg viewBox="0 0 36 32" xmlns="http://www.w3.org/2000/svg">
+            case "house": return `<svg viewBox="0 0 36 32" xmlns="http://www.w3.org/2000/svg" overflow="visible">
               <rect x="0" y="26" width="36" height="6" fill="#5a4030"/>
               <rect x="0" y="26" width="36" height="2" fill="#7a5840"/>
               <rect x="2" y="30" width="32" height="2" fill="#3a2818"/>
@@ -3553,6 +3561,58 @@
                 <rect x="0" y="11" width="36" height="2" fill="#6a2818"/>
                 <rect x="22" y="-2" width="3" height="8" fill="#3a2410"/>
                 <rect x="22" y="-2" width="3" height="2" fill="#5a3820"/>
+              </g>
+
+              <!-- UPGRADE 1: little garden + fence at the base -->
+              <g class="up-1">
+                <rect x="-4" y="29" width="6" height="3" fill="#8a6840"/>
+                <rect x="0" y="27" width="1" height="5" fill="#5a3818"/>
+                <rect x="34" y="29" width="6" height="3" fill="#8a6840"/>
+                <rect x="35" y="27" width="1" height="5" fill="#5a3818"/>
+                <rect x="3" y="29" width="3" height="3" fill="#3a5a28"/>
+                <rect x="3" y="28" width="1" height="1" fill="#e04060"/>
+                <rect x="5" y="28" width="1" height="1" fill="#f0c440"/>
+              </g>
+
+              <!-- UPGRADE 2: planter boxes under windows + door awning -->
+              <g class="up-2">
+                <rect x="7" y="20" width="6" height="2" fill="#6a4828"/>
+                <rect x="7" y="19" width="6" height="1" fill="#9a6838"/>
+                <rect x="8" y="18" width="1" height="1" fill="#e04060"/>
+                <rect x="10" y="18" width="1" height="1" fill="#f0c440"/>
+                <rect x="11" y="18" width="1" height="1" fill="#8040b0"/>
+                <rect x="23" y="20" width="6" height="2" fill="#6a4828"/>
+                <rect x="23" y="19" width="6" height="1" fill="#9a6838"/>
+                <rect x="24" y="18" width="1" height="1" fill="#4080d0"/>
+                <rect x="26" y="18" width="1" height="1" fill="#e04060"/>
+                <rect x="27" y="18" width="1" height="1" fill="#f0c440"/>
+                <rect x="14" y="17" width="8" height="1" fill="#8a3a25"/>
+                <rect x="14" y="17" width="8" height="0.5" fill="#a8442a"/>
+              </g>
+
+              <!-- UPGRADE 3: dormer window with its own little roof -->
+              <g class="up-3">
+                <polygon points="12,8 18,2 24,8" fill="#6a2818"/>
+                <polygon points="13,8 18,4 23,8" fill="#8a3a25"/>
+                <rect x="14" y="8" width="8" height="4" fill="#a87858"/>
+                <rect x="14" y="8" width="8" height="1" fill="#c89878"/>
+                <rect x="15" y="9" width="2" height="3" fill="#5a4830"/>
+                <rect x="15" y="9" width="1" height="3" fill="#f0d890"/>
+                <rect x="19" y="9" width="2" height="3" fill="#5a4830"/>
+                <rect x="19" y="9" width="1" height="3" fill="#f0d890"/>
+              </g>
+
+              <!-- UPGRADE 4: gold roof trim + weathervane rooster -->
+              <g class="up-4">
+                <rect x="0" y="11" width="36" height="1" fill="#d4a017"/>
+                <rect x="22" y="-2" width="3" height="1" fill="#d4a017"/>
+                <rect x="22" y="-3" width="3" height="1" fill="#f0c440"/>
+                <rect x="9" y="-3" width="1" height="6" fill="#3a2410"/>
+                <rect x="6" y="-6" width="1" height="3" fill="#3a2410"/>
+                <rect x="12" y="-6" width="1" height="3" fill="#3a2410"/>
+                <rect x="7" y="-3" width="6" height="1" fill="#3a2410"/>
+                <rect x="9" y="-7" width="2" height="1" fill="#d4a017"/>
+                <rect x="9" y="-8" width="1" height="1" fill="#d4a017"/>
               </g>
             </svg>`;
 
