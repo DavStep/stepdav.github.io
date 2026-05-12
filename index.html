@@ -212,6 +212,25 @@
       .house[data-kind="tavern"]   { width: 56px; height: 50px; }
       .house[data-kind="guildhall"]{ width: 54px; height: 48px; }
       .house[data-kind="mill"]     { width: 44px; height: 60px; }
+      .house[data-kind="road"]     { width: 60px; height: 10px; bottom: 52px; }
+      .house[data-kind="lamppost"] { width: 14px; height: 34px; bottom: 50px; }
+      .house[data-kind="garden"]   { width: 26px; height: 14px; bottom: 50px; }
+      .house[data-kind="statue"]   { width: 18px; height: 34px; bottom: 50px; }
+
+      /* Roads use opacity stages — no scaling */
+      .house[data-kind="road"][data-upgrade] { transform: none !important; filter: none !important; }
+      .house[data-kind="road"] [class*="rd-"] { opacity: 0; transition: opacity 1s ease; }
+      .house[data-kind="road"][data-upgrade="0"] .rd-dirt   { opacity: 1; }
+      .house[data-kind="road"][data-upgrade="1"] .rd-gravel { opacity: 1; }
+      .house[data-kind="road"][data-upgrade="2"] .rd-stone  { opacity: 1; }
+      .house[data-kind="road"][data-upgrade="3"] .rd-cobble { opacity: 1; }
+      .house[data-kind="road"][data-upgrade="4"] .rd-paved  { opacity: 1; }
+
+      /* Lamppost glow at night */
+      .world[data-time="night"] .house[data-kind="lamppost"] .hs-windows-lit,
+      .world[data-time="dusk"]  .house[data-kind="lamppost"] .hs-windows-lit,
+      .world[data-time="dawn"]  .house[data-kind="lamppost"] .hs-windows-lit { opacity: 1; }
+      .house[data-kind="lamppost"] .hs-windows-lit { filter: drop-shadow(0 0 4px #f0c440); }
       .house[data-kind="mill"] .mill-blades {
         animation: mill-spin 7s linear infinite;
         transform-origin: 17px 12px;
@@ -3483,7 +3502,7 @@
 
         /* ============= STRUCTURES (houses, towers, wells, signposts, campfires) ============= */
         const houses = [];
-        const STRUCTURE_KINDS = ["house", "tower", "well", "signpost", "campfire", "castle", "wizardtower", "tavern", "guildhall", "mill"];
+        const STRUCTURE_KINDS = ["house", "tower", "well", "signpost", "campfire", "castle", "wizardtower", "tavern", "guildhall", "mill", "road", "lamppost", "garden", "statue"];
         const STRUCTURE_BUILD_LOG = {
           house:    { mid: "Walls rise from the foundation.",    done: "A house stands complete!" },
           tower:    { mid: "The watchtower shaft climbs higher.", done: "A watchtower keeps vigil!" },
@@ -3495,6 +3514,10 @@
           tavern:   { mid: "Timber framing goes up around the tavern.", done: "The tavern opens its doors — first round on the house!" },
           guildhall:{ mid: "Stone masons set the guildhall walls.",     done: "The guildhall stands proud, banner flying." },
           mill:     { mid: "The mill's stone base is laid.",            done: "The mill's sails begin to turn!" },
+          road:     { mid: null, done: "A dirt road is packed flat." },
+          lamppost: { mid: null, done: "A lamppost is raised — light for the night." },
+          garden:   { mid: null, done: "Wildflowers brighten a fresh garden bed." },
+          statue:   { mid: "Stone is shaped into a heroic likeness.", done: "A statue commemorates a forgotten hero." },
         };
 
         function structureSVG(kind) {
@@ -3707,6 +3730,142 @@
               </g>
             </svg>`;
 
+            case "road": return `<svg viewBox="0 0 60 10" xmlns="http://www.w3.org/2000/svg">
+              <g class="rd-dirt">
+                <rect x="0" y="0" width="60" height="10" fill="#7a5028"/>
+                <rect x="0" y="0" width="60" height="2" fill="#9a6838"/>
+                <rect x="6" y="5" width="3" height="1" fill="#5a3818"/>
+                <rect x="22" y="6" width="3" height="1" fill="#5a3818"/>
+                <rect x="40" y="4" width="3" height="1" fill="#5a3818"/>
+                <rect x="50" y="7" width="3" height="1" fill="#5a3818"/>
+              </g>
+              <g class="rd-gravel">
+                <rect x="0" y="0" width="60" height="10" fill="#80786a"/>
+                <rect x="0" y="0" width="60" height="2" fill="#9a9088"/>
+                <rect x="3" y="4" width="2" height="2" fill="#5a504a"/>
+                <rect x="8" y="6" width="2" height="2" fill="#5a504a"/>
+                <rect x="14" y="3" width="2" height="2" fill="#5a504a"/>
+                <rect x="22" y="5" width="2" height="2" fill="#5a504a"/>
+                <rect x="30" y="6" width="2" height="2" fill="#5a504a"/>
+                <rect x="38" y="4" width="2" height="2" fill="#5a504a"/>
+                <rect x="46" y="6" width="2" height="2" fill="#5a504a"/>
+                <rect x="52" y="3" width="2" height="2" fill="#5a504a"/>
+              </g>
+              <g class="rd-stone">
+                <rect x="0" y="0" width="60" height="10" fill="#9a9088"/>
+                <rect x="0" y="0" width="60" height="2" fill="#b8b0a8"/>
+                <rect x="0" y="0" width="2" height="10" fill="#6a6258"/>
+                <rect x="58" y="0" width="2" height="10" fill="#6a6258"/>
+                <rect x="10" y="0" width="2" height="10" fill="#6a6258"/>
+                <rect x="22" y="0" width="2" height="10" fill="#6a6258"/>
+                <rect x="34" y="0" width="2" height="10" fill="#6a6258"/>
+                <rect x="46" y="0" width="2" height="10" fill="#6a6258"/>
+              </g>
+              <g class="rd-cobble">
+                <rect x="0" y="0" width="60" height="10" fill="#7a7068"/>
+                <rect x="0" y="0" width="60" height="2" fill="#9a9088"/>
+                <circle cx="6" cy="5" r="2" fill="#5a504a"/>
+                <circle cx="14" cy="6" r="2" fill="#5a504a"/>
+                <circle cx="22" cy="5" r="2" fill="#5a504a"/>
+                <circle cx="30" cy="6" r="2" fill="#5a504a"/>
+                <circle cx="38" cy="5" r="2" fill="#5a504a"/>
+                <circle cx="46" cy="6" r="2" fill="#5a504a"/>
+                <circle cx="54" cy="5" r="2" fill="#5a504a"/>
+              </g>
+              <g class="rd-paved">
+                <rect x="0" y="0" width="60" height="10" fill="#5a544e"/>
+                <rect x="0" y="0" width="60" height="2" fill="#80786a"/>
+                <rect x="0" y="4" width="60" height="1" fill="#3a3530"/>
+                <rect x="2" y="6" width="6" height="1" fill="#f0d060" opacity="0.4"/>
+                <rect x="14" y="6" width="6" height="1" fill="#f0d060" opacity="0.4"/>
+                <rect x="26" y="6" width="6" height="1" fill="#f0d060" opacity="0.4"/>
+                <rect x="38" y="6" width="6" height="1" fill="#f0d060" opacity="0.4"/>
+                <rect x="50" y="6" width="6" height="1" fill="#f0d060" opacity="0.4"/>
+              </g>
+            </svg>`;
+
+            case "lamppost": return `<svg viewBox="0 0 14 34" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+              <!-- base -->
+              <rect x="3" y="30" width="8" height="4" fill="#1a1208"/>
+              <rect x="2" y="32" width="10" height="2" fill="#1a1208"/>
+              <!-- post -->
+              <rect x="6" y="10" width="2" height="22" fill="#3a3530"/>
+              <rect x="6" y="10" width="1" height="22" fill="#5a544e"/>
+              <!-- arm -->
+              <rect x="4" y="8" width="6" height="2" fill="#3a3530"/>
+              <!-- lamp housing -->
+              <rect x="2" y="2" width="10" height="8" fill="#3a3530"/>
+              <rect x="2" y="2" width="10" height="2" fill="#5a544e"/>
+              <rect x="3" y="4" width="8" height="4" fill="#1a1208"/>
+              <!-- top ornament -->
+              <rect x="5" y="0" width="4" height="2" fill="#3a3530"/>
+              <rect x="6" y="-2" width="2" height="2" fill="#3a3530"/>
+              <!-- lit flame -->
+              <g class="hs-windows-lit">
+                <rect x="4" y="4" width="6" height="4" fill="#f0c440"/>
+                <rect x="5" y="4" width="4" height="2" fill="#ffe080"/>
+                <rect x="6" y="5" width="2" height="1" fill="#ffffff"/>
+              </g>
+            </svg>`;
+
+            case "garden": return `<svg viewBox="0 0 26 14" xmlns="http://www.w3.org/2000/svg">
+              <!-- soil bed -->
+              <rect x="0" y="10" width="26" height="4" fill="#4a3018"/>
+              <rect x="0" y="10" width="26" height="1" fill="#6a4828"/>
+              <!-- grass tufts in front -->
+              <rect x="1" y="11" width="2" height="2" fill="#4a6a30"/>
+              <rect x="23" y="11" width="2" height="2" fill="#4a6a30"/>
+              <!-- flowers (stems) -->
+              <rect x="3" y="6" width="1" height="5" fill="#3a5a28"/>
+              <rect x="8" y="5" width="1" height="6" fill="#3a5a28"/>
+              <rect x="13" y="6" width="1" height="5" fill="#3a5a28"/>
+              <rect x="18" y="5" width="1" height="6" fill="#3a5a28"/>
+              <rect x="22" y="6" width="1" height="5" fill="#3a5a28"/>
+              <!-- flower heads (varied) -->
+              <rect x="2" y="4" width="3" height="3" fill="#e04060"/>
+              <rect x="3" y="4" width="1" height="1" fill="#ff8090"/>
+              <rect x="7" y="3" width="3" height="3" fill="#f0c440"/>
+              <rect x="8" y="3" width="1" height="1" fill="#ffe080"/>
+              <rect x="12" y="4" width="3" height="3" fill="#8040b0"/>
+              <rect x="13" y="4" width="1" height="1" fill="#b070d0"/>
+              <rect x="17" y="3" width="3" height="3" fill="#4080d0"/>
+              <rect x="18" y="3" width="1" height="1" fill="#70b0f0"/>
+              <rect x="21" y="4" width="3" height="3" fill="#e04060"/>
+              <!-- leaves -->
+              <rect x="5" y="8" width="2" height="1" fill="#5a7a36"/>
+              <rect x="10" y="7" width="2" height="1" fill="#5a7a36"/>
+              <rect x="15" y="8" width="2" height="1" fill="#5a7a36"/>
+              <rect x="20" y="7" width="2" height="1" fill="#5a7a36"/>
+            </svg>`;
+
+            case "statue": return `<svg viewBox="0 0 18 34" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+              <!-- pedestal -->
+              <rect x="2" y="28" width="14" height="6" fill="#6a6258"/>
+              <rect x="2" y="28" width="14" height="2" fill="#8a8580"/>
+              <rect x="1" y="32" width="16" height="2" fill="#4a4438"/>
+              <g class="hs-walls" opacity="0">
+                <!-- robed body -->
+                <rect x="5" y="14" width="8" height="14" fill="#a8a098"/>
+                <rect x="5" y="14" width="8" height="2" fill="#c8c0b0"/>
+                <rect x="3" y="16" width="2" height="8" fill="#a8a098"/>
+                <rect x="13" y="16" width="2" height="8" fill="#a8a098"/>
+              </g>
+              <g class="hs-roof" opacity="0">
+                <!-- head -->
+                <rect x="6" y="8" width="6" height="6" fill="#a8a098"/>
+                <rect x="6" y="8" width="6" height="2" fill="#c8c0b0"/>
+                <!-- helmet/crown -->
+                <rect x="5" y="4" width="8" height="4" fill="#d4a017"/>
+                <rect x="5" y="4" width="8" height="1" fill="#f0c440"/>
+                <rect x="6" y="2" width="2" height="2" fill="#d4a017"/>
+                <rect x="9" y="0" width="2" height="2" fill="#d4a017"/>
+                <rect x="11" y="2" width="2" height="2" fill="#d4a017"/>
+                <!-- raised sword -->
+                <rect x="14" y="0" width="1" height="14" fill="#e0e4ec"/>
+                <rect x="13" y="14" width="3" height="1" fill="#6a4828"/>
+              </g>
+            </svg>`;
+
             case "campfire": return `<svg viewBox="0 0 30 22" xmlns="http://www.w3.org/2000/svg">
               <rect x="2" y="16" width="26" height="3" fill="#3a2410"/>
               <rect x="4" y="15" width="6" height="2" fill="#6a4828"/>
@@ -3887,10 +4046,14 @@
               "house", "house", "house", "house", "house",
               "tower", "tower",
               "well", "well",
-              "signpost",
+              "signpost", "signpost",
               "tavern", "tavern",
               "guildhall",
               "mill",
+              "road", "road", "road",
+              "lamppost", "lamppost",
+              "garden", "garden",
+              "statue",
             ];
             kind = weighted[Math.floor(Math.random() * weighted.length)];
           }
@@ -3931,21 +4094,26 @@
             h.dataset.upgrade = "0";
             houses.push(rec);
 
-            const midDelay = kind === "signpost" ? 0
+            const midDelay = kind === "signpost" || kind === "road" || kind === "lamppost" || kind === "garden" ? 0
                            : kind === "campfire" ? 2500
                            : kind === "well" ? 3500
-                           : kind === "castle" ? 9000
-                           : kind === "tavern" || kind === "guildhall" ? 5500
-                           : kind === "mill" ? 5000
-                           : 4500;
-            const doneDelay = kind === "signpost" ? 2500
-                            : kind === "campfire" ? 5000
-                            : kind === "well" ? 7000
-                            : kind === "tower" ? 12000
-                            : kind === "castle" ? 20000
-                            : kind === "tavern" || kind === "guildhall" ? 13000
-                            : kind === "mill" ? 11000
-                            : 10000;
+                           : kind === "castle" ? 7000
+                           : kind === "tavern" || kind === "guildhall" ? 4500
+                           : kind === "mill" ? 4000
+                           : kind === "statue" ? 3500
+                           : 3500;
+            const doneDelay = kind === "signpost" ? 2000
+                            : kind === "road" ? 2500
+                            : kind === "lamppost" ? 2200
+                            : kind === "garden" ? 1800
+                            : kind === "campfire" ? 4000
+                            : kind === "well" ? 5500
+                            : kind === "tower" ? 9000
+                            : kind === "castle" ? 14000
+                            : kind === "tavern" || kind === "guildhall" ? 10000
+                            : kind === "mill" ? 8000
+                            : kind === "statue" ? 6500
+                            : 8000;
             const log = STRUCTURE_BUILD_LOG[kind] || STRUCTURE_BUILD_LOG.house;
 
             if (midDelay > 0) {
@@ -4295,7 +4463,8 @@
             h.stage >= 2
             && (h.upgrade || 0) < 4
             && (h.kind === "house" || h.kind === "tower" || h.kind === "castle"
-                || h.kind === "tavern" || h.kind === "guildhall" || h.kind === "mill")
+                || h.kind === "tavern" || h.kind === "guildhall" || h.kind === "mill"
+                || h.kind === "road")
           );
           if (upgradeable.length === 0) return;
           const target = upgradeable[Math.floor(Math.random() * upgradeable.length)];
@@ -4320,6 +4489,7 @@
             tavern: ["adds a hearth to the tavern", "extends the tavern's common room", "builds an inn alongside the tavern", "makes the tavern the realm's grandest"],
             guildhall: ["reinforces the guildhall", "adds a guildmaster's wing", "raises a guildhall tower", "makes the guildhall renowned across the land"],
             mill: ["reinforces the mill's frame", "adds a second pair of sails", "builds a granary by the mill", "makes the mill the realm's busiest"],
+            road: ["packs the dirt road into smooth gravel", "lays stone slabs along the road", "sets fine cobblestones", "paves the road for the King's procession"],
           };
           const label = (labels[target.kind] || ["upgrades the structure"])[nextLevel - 1] || "improves the building";
           logEvent(`A master builder arrives to ${label}.`, "good");
@@ -4582,12 +4752,39 @@
           setTimeout(() => loop(fn, min, max), min + Math.random() * (max - min));
         }
 
-        // Seed: trees so a lumberjack has something to chop quickly
+        // Seed: trees + a starter cluster of structures so the world isn't empty
         setTimeout(() => {
           plantTree(true);
           setTimeout(() => plantTree(true), 60);
           setTimeout(() => plantTree(true), 120);
         }, 200);
+
+        // Instant-place a starter cluster of buildings (already complete)
+        function seedStructure(kind, x, upgrade = 0) {
+          const h = document.createElement("div");
+          h.className = "house";
+          h.dataset.kind = kind;
+          h.dataset.upgrade = String(upgrade);
+          h.innerHTML = structureSVG(kind);
+          h.style.left = x + "px";
+          h.querySelectorAll(".hs-walls").forEach((el) => el.setAttribute("opacity", 1));
+          h.querySelectorAll(".hs-roof").forEach((el) => el.setAttribute("opacity", 1));
+          treesLayer.appendChild(h);
+          houses.push({ el: h, x, kind, stage: 2, upgrade });
+        }
+        setTimeout(() => {
+          if (reduced) return;
+          const seeds = [
+            { kind: "house",    pos: 0.15, up: 1 },
+            { kind: "road",     pos: 0.25, up: 0 },
+            { kind: "tavern",   pos: 0.35, up: 0 },
+            { kind: "well",     pos: 0.50, up: 0 },
+            { kind: "house",    pos: 0.62, up: 0 },
+            { kind: "garden",   pos: 0.72, up: 0 },
+            { kind: "signpost", pos: 0.82, up: 0 },
+          ];
+          seeds.forEach((s, i) => setTimeout(() => seedStructure(s.kind, s.pos * W(), s.up), 200 + i * 40));
+        }, 600);
 
         if (!reduced) {
           setTimeout(() => logEvent("Adventurer enters the realm.", "good"), 500);
@@ -4605,9 +4802,9 @@
           setTimeout(() => loop(spawnDuel, 45000, 95000), 30000);
           setTimeout(() => loop(spawnArmy, 180000, 320000), 120000);
           setTimeout(() => loop(spawnDragon, 35000, 80000), 8000);
-          setTimeout(() => loop(() => plantTree(false), 14000, 28000), 4000);
+          setTimeout(() => loop(() => plantTree(false), 7000, 14000), 2000);
           setTimeout(() => loop(spawnLumberjack, 28000, 60000), 18000);
-          setTimeout(() => loop(spawnLoneBuilder, 22000, 50000), 8000);
+          setTimeout(() => loop(spawnLoneBuilder, 9000, 22000), 3500);
           setTimeout(() => loop(attackRandomHouse, 50000, 110000), 60000);
           // Weather-aware cloud spawning — 2x for cloudy/rain, 4x for storm
           function cloudLoop() {
@@ -4632,7 +4829,7 @@
           setTimeout(() => loop(spawnAdventurerCamp, 70000, 140000), 20000);
           setTimeout(() => loop(maybeSolarHalo, 260000, 480000), 95000);
           setTimeout(() => loop(spawnShepherdFlock, 110000, 200000), 38000);
-          setTimeout(() => loop(spawnUpgrader, 32000, 75000), 15000);
+          setTimeout(() => loop(spawnUpgrader, 14000, 32000), 7000);
           setTimeout(() => loop(checkDevelopment, 5000, 5000), 30000);
           setTimeout(() => loop(maybeHugeDragon, 240000, 420000), 180000);
         }
