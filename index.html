@@ -209,6 +209,23 @@
       .house[data-kind="signpost"] { width: 18px; height: 30px; bottom: 50px; }
       .house[data-kind="campfire"] { width: 30px; height: 22px; bottom: 50px; }
       .house[data-kind="castle"]   { width: 96px; height: 72px; }
+      .house[data-kind="tavern"]   { width: 56px; height: 50px; }
+      .house[data-kind="guildhall"]{ width: 54px; height: 48px; }
+      .house[data-kind="mill"]     { width: 44px; height: 60px; }
+      .house[data-kind="mill"] .mill-blades {
+        animation: mill-spin 7s linear infinite;
+        transform-origin: 17px 12px;
+      }
+      @keyframes mill-spin { to { transform: rotate(360deg); } }
+      .world[data-time="night"] .house[data-kind="tavern"] .hs-windows-lit,
+      .world[data-time="dusk"]  .house[data-kind="tavern"] .hs-windows-lit,
+      .world[data-time="dawn"]  .house[data-kind="tavern"] .hs-windows-lit,
+      .world[data-time="night"] .house[data-kind="guildhall"] .hs-windows-lit,
+      .world[data-time="dusk"]  .house[data-kind="guildhall"] .hs-windows-lit,
+      .world[data-time="dawn"]  .house[data-kind="guildhall"] .hs-windows-lit,
+      .world[data-time="night"] .house[data-kind="mill"] .hs-windows-lit,
+      .world[data-time="dusk"]  .house[data-kind="mill"] .hs-windows-lit,
+      .world[data-time="dawn"]  .house[data-kind="mill"] .hs-windows-lit { opacity: 1; }
       .house[data-kind="wizardtower"] { width: 36px; height: 110px; }
       .world[data-time="night"] .house[data-kind="wizardtower"] .hs-windows-lit { opacity: 1; }
       .world[data-time="dusk"]  .house[data-kind="wizardtower"] .hs-windows-lit { opacity: 1; }
@@ -3461,7 +3478,7 @@
 
         /* ============= STRUCTURES (houses, towers, wells, signposts, campfires) ============= */
         const houses = [];
-        const STRUCTURE_KINDS = ["house", "tower", "well", "signpost", "campfire", "castle", "wizardtower"];
+        const STRUCTURE_KINDS = ["house", "tower", "well", "signpost", "campfire", "castle", "wizardtower", "tavern", "guildhall", "mill"];
         const STRUCTURE_BUILD_LOG = {
           house:    { mid: "Walls rise from the foundation.",    done: "A house stands complete!" },
           tower:    { mid: "The watchtower shaft climbs higher.", done: "A watchtower keeps vigil!" },
@@ -3470,6 +3487,9 @@
           campfire: { mid: "Logs are stacked for the fire.",     done: "A campfire crackles to life." },
           castle:   { mid: "The castle walls rise, stone by stone.", done: "The castle stands — long live the realm!" },
           wizardtower: { mid: "The tower's walls shimmer into being.", done: "A wizard's tower pierces the sky!" },
+          tavern:   { mid: "Timber framing goes up around the tavern.", done: "The tavern opens its doors — first round on the house!" },
+          guildhall:{ mid: "Stone masons set the guildhall walls.",     done: "The guildhall stands proud, banner flying." },
+          mill:     { mid: "The mill's stone base is laid.",            done: "The mill's sails begin to turn!" },
         };
 
         function structureSVG(kind) {
@@ -3572,6 +3592,113 @@
                 <rect x="3" y="9" width="3" height="1" fill="#3a2410"/>
                 <rect x="7" y="9" width="2" height="1" fill="#3a2410"/>
                 <rect x="11" y="9" width="2" height="1" fill="#3a2410"/>
+              </g>
+            </svg>`;
+
+            case "tavern": return `<svg viewBox="0 0 44 38" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+              <rect x="0" y="32" width="44" height="6" fill="#5a4030"/>
+              <rect x="0" y="32" width="44" height="2" fill="#7a5840"/>
+              <g class="hs-walls" opacity="0">
+                <rect x="2" y="12" width="40" height="22" fill="#a8855a"/>
+                <rect x="2" y="12" width="40" height="2" fill="#c89878"/>
+                <rect x="2" y="32" width="40" height="2" fill="#80583a"/>
+                <rect x="2" y="14" width="2" height="18" fill="#5a3818"/>
+                <rect x="22" y="14" width="2" height="18" fill="#5a3818"/>
+                <rect x="40" y="14" width="2" height="18" fill="#5a3818"/>
+                <rect x="2" y="22" width="40" height="2" fill="#5a3818"/>
+                <rect x="18" y="22" width="8" height="10" fill="#3a2410"/>
+                <rect x="22" y="26" width="1" height="1" fill="#d4a017"/>
+                <rect x="6" y="16" width="6" height="4" fill="#5a4830"/>
+                <rect x="7" y="17" width="2" height="2" fill="#f0d890"/>
+                <rect x="10" y="17" width="1" height="2" fill="#f0d890"/>
+                <rect x="32" y="16" width="6" height="4" fill="#5a4830"/>
+                <rect x="33" y="17" width="2" height="2" fill="#f0d890"/>
+                <rect x="36" y="17" width="1" height="2" fill="#f0d890"/>
+                <!-- hanging sign with mug -->
+                <rect x="14" y="11" width="1" height="3" fill="#5a3818"/>
+                <rect x="10" y="14" width="9" height="4" fill="#6a4828"/>
+                <rect x="10" y="14" width="9" height="1" fill="#8a6840"/>
+                <rect x="13" y="15" width="3" height="2" fill="#f0c440"/>
+              </g>
+              <g class="hs-roof" opacity="0">
+                <polygon points="0,12 22,2 44,12" fill="#6a2818"/>
+                <polygon points="2,11 22,4 42,11" fill="#8a3a25"/>
+                <rect x="0" y="11" width="44" height="2" fill="#4a1808"/>
+                <rect x="32" y="-2" width="3" height="8" fill="#3a2410"/>
+                <rect x="32" y="-2" width="3" height="2" fill="#5a3820"/>
+              </g>
+              <g class="hs-windows-lit">
+                <rect x="6" y="16" width="6" height="4" fill="#f0c440"/>
+                <rect x="6" y="16" width="6" height="1" fill="#ffe080"/>
+                <rect x="32" y="16" width="6" height="4" fill="#f0c440"/>
+                <rect x="32" y="16" width="6" height="1" fill="#ffe080"/>
+                <rect x="18" y="22" width="8" height="10" fill="#3a2410"/>
+                <rect x="20" y="26" width="4" height="4" fill="#f0c440"/>
+              </g>
+            </svg>`;
+
+            case "guildhall": return `<svg viewBox="0 0 42 36" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+              <rect x="0" y="30" width="42" height="6" fill="#4a4438"/>
+              <rect x="0" y="30" width="42" height="2" fill="#6a6258"/>
+              <g class="hs-walls" opacity="0">
+                <rect x="2" y="10" width="38" height="20" fill="#8a8580"/>
+                <rect x="2" y="10" width="38" height="2" fill="#a8a098"/>
+                <rect x="6" y="14" width="3" height="2" fill="#6a6258"/>
+                <rect x="12" y="14" width="3" height="2" fill="#6a6258"/>
+                <rect x="18" y="14" width="3" height="2" fill="#6a6258"/>
+                <rect x="24" y="14" width="3" height="2" fill="#6a6258"/>
+                <rect x="30" y="14" width="3" height="2" fill="#6a6258"/>
+                <rect x="9" y="20" width="3" height="2" fill="#6a6258"/>
+                <rect x="15" y="20" width="3" height="2" fill="#6a6258"/>
+                <rect x="21" y="20" width="3" height="2" fill="#6a6258"/>
+                <rect x="27" y="20" width="3" height="2" fill="#6a6258"/>
+                <rect x="17" y="18" width="8" height="12" fill="#3a2410"/>
+                <rect x="18" y="18" width="6" height="3" fill="#2a1a08"/>
+                <rect x="21" y="22" width="1" height="1" fill="#d4a017"/>
+                <rect x="6" y="14" width="3" height="4" fill="#5a4830"/>
+                <rect x="33" y="14" width="3" height="4" fill="#5a4830"/>
+              </g>
+              <g class="hs-roof" opacity="0">
+                <rect x="0" y="8" width="42" height="2" fill="#4a4438"/>
+                <polygon points="0,10 21,0 42,10" fill="#3a3530"/>
+                <polygon points="2,9 21,2 40,9" fill="#5a544e"/>
+                <rect x="20" y="-10" width="1" height="12" fill="#3a2410"/>
+                <rect x="21" y="-9" width="8" height="8" fill="#3a5a8a"/>
+                <rect x="21" y="-9" width="8" height="1" fill="#5a7aa8"/>
+                <rect x="24" y="-6" width="3" height="2" fill="#d4a017"/>
+              </g>
+              <g class="hs-windows-lit">
+                <rect x="6" y="14" width="3" height="4" fill="#f0c440"/>
+                <rect x="33" y="14" width="3" height="4" fill="#f0c440"/>
+              </g>
+            </svg>`;
+
+            case "mill": return `<svg viewBox="0 0 44 60" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+              <rect x="6" y="54" width="32" height="6" fill="#5a4030"/>
+              <rect x="6" y="54" width="32" height="2" fill="#7a5840"/>
+              <g class="hs-walls" opacity="0">
+                <rect x="10" y="22" width="24" height="32" fill="#a87858"/>
+                <rect x="10" y="22" width="24" height="2" fill="#c89878"/>
+                <rect x="10" y="52" width="24" height="2" fill="#80583a"/>
+                <rect x="18" y="42" width="8" height="12" fill="#3a2410"/>
+                <rect x="22" y="48" width="1" height="1" fill="#d4a017"/>
+                <rect x="13" y="30" width="4" height="4" fill="#5a4830"/>
+                <rect x="27" y="30" width="4" height="4" fill="#5a4830"/>
+              </g>
+              <g class="hs-roof" opacity="0">
+                <polygon points="6,22 38,22 22,8" fill="#6a2818"/>
+                <polygon points="8,21 36,21 22,10" fill="#8a3a25"/>
+                <rect x="20" y="10" width="4" height="4" fill="#3a2410"/>
+                <g class="mill-blades">
+                  <rect x="-10" y="11" width="64" height="3" fill="#8a6840"/>
+                  <rect x="-10" y="11" width="64" height="1" fill="#a87838"/>
+                  <rect x="20.5" y="-18" width="3" height="60" fill="#8a6840"/>
+                  <rect x="20.5" y="-18" width="1" height="60" fill="#a87838"/>
+                </g>
+              </g>
+              <g class="hs-windows-lit">
+                <rect x="13" y="30" width="4" height="4" fill="#f0c440"/>
+                <rect x="27" y="30" width="4" height="4" fill="#f0c440"/>
               </g>
             </svg>`;
 
@@ -3749,9 +3876,17 @@
           if (reduced) { if (onDone) onDone(); return; }
           // Pick a kind if not provided. Houses & towers more common than wells/signs/campfires.
           if (!kind) {
-            // Note: no "campfire" here — those belong to adventurer camps only,
-            // a lone fire with nobody around feels weird.
-            const weighted = ["house", "house", "house", "house", "tower", "tower", "well", "well", "signpost"];
+            // No "campfire" — adventurer-camp only. Wide variety so the realm
+            // grows into a proper medieval village.
+            const weighted = [
+              "house", "house", "house", "house", "house",
+              "tower", "tower",
+              "well", "well",
+              "signpost",
+              "tavern", "tavern",
+              "guildhall",
+              "mill",
+            ];
             kind = weighted[Math.floor(Math.random() * weighted.length)];
           }
           const lj = makePerson("builder", targetX > W() / 2 ? "right" : "left", { bottom: 40 });
@@ -3795,12 +3930,16 @@
                            : kind === "campfire" ? 2500
                            : kind === "well" ? 3500
                            : kind === "castle" ? 9000
+                           : kind === "tavern" || kind === "guildhall" ? 5500
+                           : kind === "mill" ? 5000
                            : 4500;
             const doneDelay = kind === "signpost" ? 2500
                             : kind === "campfire" ? 5000
                             : kind === "well" ? 7000
                             : kind === "tower" ? 12000
                             : kind === "castle" ? 20000
+                            : kind === "tavern" || kind === "guildhall" ? 13000
+                            : kind === "mill" ? 11000
                             : 10000;
             const log = STRUCTURE_BUILD_LOG[kind] || STRUCTURE_BUILD_LOG.house;
 
@@ -4150,7 +4289,8 @@
           const upgradeable = houses.filter((h) =>
             h.stage >= 2
             && (h.upgrade || 0) < 4
-            && (h.kind === "house" || h.kind === "tower" || h.kind === "castle")
+            && (h.kind === "house" || h.kind === "tower" || h.kind === "castle"
+                || h.kind === "tavern" || h.kind === "guildhall" || h.kind === "mill")
           );
           if (upgradeable.length === 0) return;
           const target = upgradeable[Math.floor(Math.random() * upgradeable.length)];
@@ -4172,6 +4312,9 @@
             house: ["expands the cottage", "adds a second story to the cottage", "fortifies the cottage with stone", "transforms the cottage into a manor"],
             tower: ["reinforces the watchtower", "raises the watchtower higher", "fortifies the tower with iron", "crowns the tower with a grand spire"],
             castle: ["fortifies the castle walls", "raises new castle towers", "crowns the castle with banners", "transforms the castle into a mighty bastion"],
+            tavern: ["adds a hearth to the tavern", "extends the tavern's common room", "builds an inn alongside the tavern", "makes the tavern the realm's grandest"],
+            guildhall: ["reinforces the guildhall", "adds a guildmaster's wing", "raises a guildhall tower", "makes the guildhall renowned across the land"],
+            mill: ["reinforces the mill's frame", "adds a second pair of sails", "builds a granary by the mill", "makes the mill the realm's busiest"],
           };
           const label = (labels[target.kind] || ["upgrades the structure"])[nextLevel - 1] || "improves the building";
           logEvent(`A master builder arrives to ${label}.`, "good");
@@ -4328,6 +4471,106 @@
           setTimeout(() => world.classList.remove("has-halo"), 25000 + Math.random() * 12000);
         }
 
+        /* ============= APOCALYPSE CYCLE ============= */
+        let developedSince = null;
+        let apocalypseTriggered = false;
+
+        function isFullyDeveloped() {
+          const buildings = houses.filter((h) => h.stage >= 2 && h.kind !== "campfire" && h.kind !== "signpost");
+          if (buildings.length < 8) return false;
+          const avgUpgrade = buildings.reduce((s, h) => s + (h.upgrade || 0), 0) / buildings.length;
+          return avgUpgrade >= 2.4 || buildings.length >= 14;
+        }
+
+        function checkDevelopment() {
+          if (apocalypseTriggered) return;
+          if (isFullyDeveloped()) {
+            if (developedSince === null) {
+              developedSince = performance.now();
+              logEvent("The realm flourishes! A great medieval city stands tall.", "good");
+            } else if ((performance.now() - developedSince) > 24000) {
+              apocalypse();
+            }
+          } else {
+            developedSince = null;
+          }
+        }
+
+        function apocalypse() {
+          apocalypseTriggered = true;
+          logEvent("The sky darkens... a terrible roar echoes!", "bad");
+          setTimeout(() => logEvent("Doom is upon the realm!", "bad"), 2500);
+
+          const sweepDur = 12; // seconds for full screen sweep
+          const d = document.createElement("div");
+          d.className = "dragon huge apocalypse-dragon";
+          d.innerHTML = hugeDragonSVG();
+          d.style.top = (H() * 0.35) + "px";
+          d.style.left = "-150px";
+          dragonsLayer.appendChild(d);
+          requestAnimationFrame(() => {
+            d.style.transition = `left ${sweepDur}s linear, top ${sweepDur}s ease-in-out`;
+            d.style.left = (W() + 150) + "px";
+            d.style.top = (H() * 0.45) + "px";
+          });
+
+          const buildings = houses.filter((h) => h.stage >= 2);
+          buildings.forEach((target) => {
+            const passTime = (target.x / W()) * sweepDur * 1000 + 800;
+            setTimeout(() => {
+              if (!target.el.isConnected) return;
+              for (let j = 0; j < 6; j++) {
+                setTimeout(() => {
+                  const fire = document.createElement("div");
+                  fire.className = "fire-breath";
+                  fire.style.width = "40px";
+                  fire.style.height = "36px";
+                  fire.style.left = (target.x + 10 + (Math.random() - 0.5) * 32) + "px";
+                  fire.style.bottom = (60 + Math.random() * 50) + "px";
+                  dragonsLayer.appendChild(fire);
+                  setTimeout(() => fire.remove(), 1600);
+                }, j * 110);
+              }
+              target.el.classList.add("crumbling");
+              const i = houses.indexOf(target);
+              if (i >= 0) houses.splice(i, 1);
+              setTimeout(() => target.el.remove(), 1500);
+            }, passTime);
+          });
+
+          // Also burn trees in the path
+          trees.slice().forEach((tree) => {
+            const passTime = (tree.x / W()) * sweepDur * 1000 + 800;
+            setTimeout(() => {
+              if (!tree.el.isConnected) return;
+              tree.el.classList.add("falling");
+              removeTree(tree);
+              setTimeout(() => tree.el.remove(), 1500);
+            }, passTime);
+          });
+
+          // Flee all walkers off-screen
+          peopleLayer.querySelectorAll(".person, .sheep, .horseman, .dog, .cart").forEach((el) => {
+            const cur = parseFloat(getComputedStyle(el).left);
+            const target = cur < W() / 2 ? -50 : (W() + 50);
+            const dist = Math.abs(target - cur);
+            el.style.transition = `left ${dist / 200}s linear`;
+            el.style.left = target + "px";
+            setTimeout(() => { if (el.isConnected) el.remove(); }, (dist / 200) * 1000 + 200);
+          });
+
+          // Cleanup + rebirth
+          setTimeout(() => {
+            d.remove();
+            logEvent("The realm lies in ashes... but life endures. Let it rise again.", "weather");
+            apocalypseTriggered = false;
+            developedSince = null;
+            // Seed a couple fresh trees so future builders have something to chop
+            setTimeout(() => plantTree(true), 1500);
+            setTimeout(() => plantTree(true), 2500);
+          }, (sweepDur + 2) * 1000);
+        }
+
         /* ============= SPAWN LOOPS ============= */
         function loop(fn, min, max) {
           fn();
@@ -4359,7 +4602,7 @@
           setTimeout(() => loop(spawnDragon, 35000, 80000), 8000);
           setTimeout(() => loop(() => plantTree(false), 14000, 28000), 4000);
           setTimeout(() => loop(spawnLumberjack, 28000, 60000), 18000);
-          setTimeout(() => loop(spawnLoneBuilder, 60000, 130000), 35000);
+          setTimeout(() => loop(spawnLoneBuilder, 22000, 50000), 8000);
           setTimeout(() => loop(attackRandomHouse, 50000, 110000), 60000);
           // Weather-aware cloud spawning — 2x for cloudy/rain, 4x for storm
           function cloudLoop() {
@@ -4384,7 +4627,8 @@
           setTimeout(() => loop(spawnAdventurerCamp, 70000, 140000), 20000);
           setTimeout(() => loop(maybeSolarHalo, 260000, 480000), 95000);
           setTimeout(() => loop(spawnShepherdFlock, 110000, 200000), 38000);
-          setTimeout(() => loop(spawnUpgrader, 80000, 160000), 30000);
+          setTimeout(() => loop(spawnUpgrader, 32000, 75000), 15000);
+          setTimeout(() => loop(checkDevelopment, 5000, 5000), 30000);
           setTimeout(() => loop(maybeHugeDragon, 240000, 420000), 180000);
         }
       })();
