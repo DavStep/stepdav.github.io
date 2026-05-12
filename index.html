@@ -921,16 +921,17 @@
         <div class="kicker"><span class="ico">▸</span>adventurer has entered the realm</div>
         <h1>Game dev forging crunchy loops &amp; deep economies.</h1>
         <p class="lead">
-          Systems designer working in the dungeons of progression, balance,
-          and economy. Currently crafting Idle Outpost; previously shipped
-          Sandship and Battle Cards.
+          Six years building game systems at Rockbite. Currently raising
+          Idle Outpost from zero. Previously shipped Sandship (joined
+          mid-voyage) and Battle Cards (started as a game jam, grew into a
+          real release).
         </p>
         <div class="sheet">
           <div class="stat long">CLASS<b>Lead Code Wizard</b></div>
-          <div class="stat">LVL<b>23</b></div>
+          <div class="stat">LVL<b id="player-level">24</b></div>
           <div class="stat">HP<b>87/100</b></div>
           <div class="stat">MP<b>∞</b></div>
-          <div class="stat">XP<b>68%</b></div>
+          <div class="stat">XP<b id="player-xp">0%</b></div>
         </div>
       </header>
 
@@ -940,7 +941,7 @@
           <a class="card" href="https://rockbitegames.com/games/idleoutpost" target="_blank" rel="noopener">
             <div class="card-head"><span>main quest</span><span class="reward">+3200 G</span></div>
             <h3>Idle Outpost</h3>
-            <p>Long-form idle with city-scale growth and layered upgrades. Forging the loop, balance, and pacing.</p>
+            <p>Long-form idle with city-scale growth and layered upgrades. Building it from day zero — the loop, the economy, the moment-to-moment crunch.</p>
             <div class="tags">
               <span class="tag legendary">idle</span>
               <span class="tag epic">economy</span>
@@ -950,7 +951,7 @@
           <a class="card" href="https://rockbitegames.com/games/sandship" target="_blank" rel="noopener">
             <div class="card-head"><span>completed quest</span><span class="reward">+2100 G</span></div>
             <h3>Sandship</h3>
-            <p>Shipped features on a deep crafting automation game. Focused on clarity, player goals, and satisfying payoffs.</p>
+            <p>A deep crafting automation game. Jumped on board mid-voyage and shipped features focused on clarity, player goals, and the satisfaction of a click that lands.</p>
             <div class="tags">
               <span class="tag epic">automation</span>
               <span class="tag rare">crafting</span>
@@ -960,7 +961,7 @@
           <a class="card" href="https://rockbitegames.com/games" target="_blank" rel="noopener">
             <div class="card-head"><span>completed quest</span><span class="reward">+1800 G</span></div>
             <h3>Battle Cards</h3>
-            <p>Card-based strategy with deep deck building. Worked on progression flow and unlock cadence.</p>
+            <p>Card-based strategy with deep deck building. Started as a Rockbite game-jam prototype, grew into a real game — took it from idea to ship from day zero.</p>
             <div class="tags">
               <span class="tag epic">strategy</span>
               <span class="tag rare">deck-building</span>
@@ -1008,7 +1009,7 @@
 
       <section id="tavern">
         <h2><span class="ico">✦</span>The Tavern</h2>
-        <p class="lead">Pull up a chair. Open to chats about systems design, progression, or a fast prototype run.</p>
+        <p class="lead">Pull up a chair. Game systems, anime recs, board games — all fair game.</p>
         <div class="actions">
           <a class="btn gold" href="mailto:davitstepanyan99@gmail.com"><span class="ico">✦</span>send a raven</a>
           <a class="btn" href="https://github.com/DavStep" target="_blank" rel="noopener"><span class="ico">◆</span>guild hall</a>
@@ -4631,6 +4632,25 @@
           setTimeout(() => loop(checkDevelopment, 5000, 5000), 30000);
           setTimeout(() => loop(maybeHugeDragon, 240000, 420000), 180000);
         }
+      })();
+
+      // Dynamic LVL = age in years; XP = % of the way to the next birthday.
+      // Birth: 2002-05-12. Today, the level updates itself.
+      (function () {
+        const birth = new Date(2002, 4, 12); // Month is 0-indexed: 4 = May
+        const now = new Date();
+        const bdayThisYear = new Date(now.getFullYear(), birth.getMonth(), birth.getDate());
+        let age = now.getFullYear() - birth.getFullYear();
+        if (now < bdayThisYear) age--;
+        const lastBday = now >= bdayThisYear
+          ? bdayThisYear
+          : new Date(now.getFullYear() - 1, birth.getMonth(), birth.getDate());
+        const nextBday = new Date(lastBday.getFullYear() + 1, birth.getMonth(), birth.getDate());
+        const xp = Math.round(((now - lastBday) / (nextBday - lastBday)) * 100);
+        const lvlEl = document.getElementById("player-level");
+        const xpEl  = document.getElementById("player-xp");
+        if (lvlEl) lvlEl.textContent = age;
+        if (xpEl)  xpEl.textContent  = xp + "%";
       })();
     </script>
   </body>
