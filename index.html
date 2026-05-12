@@ -782,6 +782,7 @@
       }
       .btn:active { transform: translate(2px, 2px); box-shadow: inset 0 0 0 2px #000, 0 0 0 #000; }
       .btn.gold { color: var(--gold); border-color: var(--gold); }
+      button.btn { font-family: inherit; font-size: 0.55rem; outline: none; }
 
       footer {
         padding: 40px 0 90px;
@@ -1013,6 +1014,9 @@
         <div class="actions">
           <a class="btn gold" href="mailto:davitstepanyan99@gmail.com"><span class="ico">✦</span>send a raven</a>
           <a class="btn" href="https://github.com/DavStep" target="_blank" rel="noopener"><span class="ico">◆</span>guild hall</a>
+          <a class="btn" href="https://anilist.co/user/stepdev" target="_blank" rel="noopener"><span class="ico">✦</span>anime tomes</a>
+          <button class="btn" id="discord-btn" type="button"><span class="ico">◆</span>discord: step_dev</button>
+          <a class="btn" href="https://steamcommunity.com/id/stepdev/" target="_blank" rel="noopener"><span class="ico">✦</span>steam armory</a>
         </div>
       </section>
 
@@ -4632,6 +4636,18 @@
           setTimeout(() => loop(checkDevelopment, 5000, 5000), 30000);
           setTimeout(() => loop(maybeHugeDragon, 240000, 420000), 180000);
         }
+      })();
+
+      // Discord copy-to-clipboard
+      (function () {
+        const btn = document.getElementById("discord-btn");
+        if (!btn) return;
+        const orig = btn.innerHTML;
+        btn.addEventListener("click", () => {
+          navigator.clipboard && navigator.clipboard.writeText("step_dev");
+          btn.innerHTML = '<span class="ico">✦</span>copied!';
+          setTimeout(() => { btn.innerHTML = orig; }, 1500);
+        });
       })();
 
       // Dynamic LVL = age in years; XP = % of the way to the next birthday.
