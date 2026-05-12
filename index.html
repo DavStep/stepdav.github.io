@@ -1764,45 +1764,32 @@
         }
 
         function spawnSheep() {
-          if (document.hidden || reduced) return;
-          const s = document.createElement("div");
-          s.className = "sheep";
-          s.innerHTML = sheepSVG();
-          const dir = Math.random() > 0.5 ? "left" : "right";
-          if (dir === "left") s.style.transform = "scaleX(-1)";
-          const startX = dir === "left" ? W() + 20 : -20;
-          const endX = dir === "left" ? -20 : W() + 20;
-          s.style.left = startX + "px";
-          s.style.bottom = (3 + Math.random() * 10) + "px";
-          peopleLayer.appendChild(s);
-          const dur = 60 + Math.random() * 40; // slow grazing
-          requestAnimationFrame(() => {
-            s.style.transition = `left ${dur}s linear`;
-            s.style.left = endX + "px";
+          return spawnCrosser({
+            cls: "sheep",
+            sprite: sheepSVG(),
+            y: 3 + Math.random() * 10,
+            dur: 60 + Math.random() * 40,
+            speed: null, // let dur drive it
+            log: Math.random() < 0.4 ? "A sheep grazes the meadow." : null,
           });
-          setTimeout(() => s.remove(), dur * 1000 + 500);
-          if (Math.random() < 0.4) logEvent("A sheep grazes the meadow.");
         }
 
         function spawnDog(buddyX, buddyDir) {
           if (document.hidden || reduced) return;
-          const d = document.createElement("div");
-          d.className = "dog";
-          d.innerHTML = dogSVG();
-          const dir = buddyDir || (Math.random() > 0.5 ? "left" : "right");
-          if (dir === "left") d.style.transform = "scaleX(-1)";
-          const startOffset = buddyX != null ? (dir === "left" ? 24 : -24) : 0;
-          const startX = (dir === "left" ? W() + 20 : -20) + (buddyX != null ? 0 : 0);
-          const endX = dir === "left" ? -20 : W() + 20;
-          d.style.left = (buddyX != null ? buddyX + startOffset : startX) + "px";
-          d.style.bottom = (2 + Math.random() * 6) + "px";
-          peopleLayer.appendChild(d);
-          const dur = buddyX != null ? (32 + Math.random() * 18) : (24 + Math.random() * 14);
-          requestAnimationFrame(() => {
-            d.style.transition = `left ${dur}s linear`;
-            d.style.left = endX + "px";
+          const dir = buddyDir || pickDir();
+          const startX = buddyX != null
+            ? buddyX + (dir === "left" ? 24 : -24)
+            : entranceX(dir);
+          const dog = makeEntity({
+            cls: "dog",
+            sprite: dogSVG(),
+            x: startX,
+            y: 2 + Math.random() * 6,
+            dir,
           });
-          setTimeout(() => d.remove(), dur * 1000 + 500);
+          const dur = buddyX != null ? (32 + Math.random() * 18) : (24 + Math.random() * 14);
+          const speed = Math.abs(exitX(dir) - startX) / dur;
+          dog.walkTo(exitX(dir), { speed, onArrive: () => dog.despawn() });
           if (!buddyX && Math.random() < 0.5) logEvent("A scrappy dog trots through.");
         }
 
@@ -2374,30 +2361,34 @@
 
         function spawnSkyWizard() {
           if (document.hidden || reduced) return;
-          const w = document.createElement("div");
-          w.className = "sky-wizard";
-          w.innerHTML = skyWizardSVG();
-          const dir = Math.random() > 0.5 ? "left" : "right";
-          if (dir === "left") w.style.transform = "scaleX(-1)";
-          const startX = dir === "left" ? W() + 60 : -60;
-          const endX = dir === "left" ? -60 : W() + 60;
-          w.style.left = startX + "px";
-          w.style.top = (4 + Math.random() * 14) + "%";
-          cloudsLayer.appendChild(w);
-          const dur = 30 + Math.random() * 20;
-          requestAnimationFrame(() => {
-            w.style.transition = `left ${dur}s linear`;
-            w.style.left = endX + "px";
+          const dir = pickDir();
+          const startX = dir === "left" ? (W() + 60) : -60;
+          const wiz = makeEntity({
+            cls: "sky-wizard",
+            sprite: skyWizardSVG(),
+            layer: cloudsLayer,
+            x: startX,
+            dir,
+            // top-anchored entity — set via style after creation
+            y: 0,
           });
-          // Sparkle trail
+          wiz.el.style.bottom = "";
+          wiz.el.style.top = (4 + Math.random() * 14) + "%";
+
+          const dur = 30 + Math.random() * 20;
+          const ex = dir === "left" ? -60 : (W() + 60);
+          const speed = Math.abs(ex - startX) / dur;
+          wiz.walkTo(ex, { speed, onArrive: () => wiz.despawn() });
+
+          // Sparkle trail behind the broom
           const trailTimer = setInterval(() => {
-            if (!w.isConnected) { clearInterval(trailTimer); return; }
-            const cs = getComputedStyle(w);
-            const x = parseFloat(cs.left) + (dir === "left" ? 24 : 0);
-            const yPercent = parseFloat(w.style.top) / 100 * H();
+            if (!wiz.el.isConnected) { clearInterval(trailTimer); return; }
+            const x = wiz.getX() + (dir === "left" ? 24 : 0);
+            const yPercent = parseFloat(wiz.el.style.top) / 100 * H();
             spawnSparkle(x, H() - yPercent - 6, "#c080e0");
           }, 320);
-          setTimeout(() => { clearInterval(trailTimer); w.remove(); }, dur * 1000 + 500);
+          wiz.wait(dur * 1000 + 200, () => clearInterval(trailTimer));
+
           logEvent("A wizard streaks across the sky on a broomstick!", "good");
         }
 
@@ -2480,22 +2471,21 @@
 
         function spawnFlyingCastle() {
           if (document.hidden || reduced) return;
-          const fc = document.createElement("div");
-          fc.className = "flying-castle";
-          fc.innerHTML = flyingCastleSVG();
-          const dir = Math.random() > 0.5 ? "left" : "right";
-          if (dir === "left") fc.style.transform = "scaleX(-1)";
-          fc.style.top = (3 + Math.random() * 10) + "%";
-          const startX = dir === "left" ? W() + 250 : -250;
-          const endX = dir === "left" ? -250 : W() + 250;
-          fc.style.left = startX + "px";
-          cloudsLayer.appendChild(fc);
-          const dur = 90 + Math.random() * 50;
-          requestAnimationFrame(() => {
-            fc.style.transition = `left ${dur}s linear`;
-            fc.style.left = endX + "px";
+          const dir = pickDir();
+          const startX = dir === "left" ? (W() + 250) : -250;
+          const fc = makeEntity({
+            cls: "flying-castle",
+            sprite: flyingCastleSVG(),
+            layer: cloudsLayer,
+            x: startX,
+            dir,
+            y: 0,
           });
-          setTimeout(() => fc.remove(), dur * 1000 + 500);
+          fc.el.style.bottom = "";
+          fc.el.style.top = (3 + Math.random() * 10) + "%";
+          const dur = 90 + Math.random() * 50;
+          const ex = dir === "left" ? -250 : (W() + 250);
+          fc.walkTo(ex, { speed: Math.abs(ex - startX) / dur, onArrive: () => fc.despawn() });
           logEvent("A flying castle drifts majestically through the clouds!", "good");
         }
 
@@ -3136,18 +3126,131 @@
           return `<svg viewBox="0 0 12 22" xmlns="http://www.w3.org/2000/svg">${head}${torso}${belt}${legs}${extras}</svg>`;
         }
 
+        // === Entity primitives =======================================
+        // Direction helpers
+        const entranceX = (dir) => dir === "left" ? (W() + 20) : -20;
+        const exitX     = (dir) => dir === "left" ? -20 : (W() + 20);
+        const flipDir   = (dir) => dir === "left" ? "right" : "left";
+        const dirSign   = (dir) => dir === "left" ? -1 : 1;
+        function pickDir(towardsX) {
+          if (towardsX != null) return towardsX > W() / 2 ? "right" : "left";
+          return Math.random() > 0.5 ? "left" : "right";
+        }
+
+        /**
+         * Make a moving entity. Returns a small chainable API:
+         *   .el, .getX(), .setDir(d), .walkTo(x, {speed, onArrive}),
+         *   .walkOff({speed}), .state(cls, on?), .wait(ms, fn),
+         *   .fade(ms), .despawn()
+         */
+        function makeEntity({
+          cls = "person",
+          kind = "",
+          extra = "",
+          sprite = "",
+          layer = peopleLayer,
+          x = 0,
+          y = 4,
+          dir = "right",
+        }) {
+          const el = document.createElement("div");
+          el.className = cls + (kind ? " " + kind : "") + (extra ? " " + extra : "");
+          el.dataset.dir = dir;
+          if (kind) el.dataset.type = kind;
+          el.style.left = x + "px";
+          el.style.bottom = y + "px";
+          if (dir === "left") el.style.transform = "scaleX(-1)";
+          if (sprite) el.innerHTML = sprite;
+          layer.appendChild(el);
+
+          const api = {
+            el,
+            getX() { return parseFloat(getComputedStyle(el).left) || 0; },
+            setDir(d) {
+              el.dataset.dir = d;
+              el.style.transform = d === "left" ? "scaleX(-1)" : "";
+              return api;
+            },
+            walkTo(targetX, opts = {}) {
+              const speed = opts.speed != null ? opts.speed : 50;
+              const cur = api.getX();
+              const dist = Math.abs(targetX - cur);
+              const dur = Math.max(0.05, dist / speed);
+              el.style.transition = `left ${dur}s linear`;
+              requestAnimationFrame(() => { el.style.left = targetX + "px"; });
+              if (opts.onArrive) setTimeout(() => opts.onArrive(api), dur * 1000 + 50);
+              return api;
+            },
+            walkOff(opts = {}) {
+              return api.walkTo(exitX(el.dataset.dir), {
+                speed: opts.speed != null ? opts.speed : 50,
+                onArrive: () => api.despawn(),
+              });
+            },
+            state(c, on) {
+              if (on == null) el.classList.toggle(c);
+              else el.classList.toggle(c, on);
+              return api;
+            },
+            wait(ms, fn) {
+              setTimeout(() => fn && fn(api), ms);
+              return api;
+            },
+            fade(ms = 1000) {
+              el.style.transition = `opacity ${ms / 1000}s ease`;
+              el.style.opacity = "0";
+              setTimeout(() => api.despawn(), ms + 100);
+              return api;
+            },
+            despawn() {
+              if (el.isConnected) el.remove();
+              return api;
+            },
+          };
+          return api;
+        }
+
+        /**
+         * Spawn a sprite that crosses the screen end-to-end, then despawns.
+         * The simple "walks across" pattern most entities follow.
+         */
+        function spawnCrosser({
+          cls = "person", kind = "", extra = "",
+          sprite = "",
+          layer = peopleLayer,
+          dir,                              // optional override
+          y,                                // bottom px (random if omitted)
+          speed = 50,
+          dur,                              // override duration (s); ignored if speed given as undefined
+          onMid,                            // (api, fraction) => void — optional mid-walk callback
+          log,                              // optional log message
+          logKind,                          // optional log kind
+        }) {
+          if (document.hidden || reduced) return null;
+          const d = dir || pickDir();
+          const sx = entranceX(d);
+          const ex = exitX(d);
+          const yPos = y != null ? y : (2 + Math.random() * 14);
+          const entity = makeEntity({ cls, kind, extra, sprite, layer, x: sx, y: yPos, dir: d });
+          const actualSpeed = speed != null ? speed : (dur ? Math.abs(ex - sx) / dur : 50);
+          entity.walkTo(ex, { speed: actualSpeed, onArrive: () => entity.despawn() });
+          if (log) logEvent(log, logKind);
+          return entity;
+        }
+
+        // Backward-compat shim: a few legacy spawners still call makePerson.
+        // It now wraps makeEntity and returns the raw element for compatibility.
         function makePerson(type, dir, opts = {}) {
-          const p = document.createElement("div");
-          p.className = "person " + type + (opts.extra ? " " + opts.extra : "");
-          p.dataset.dir = dir;
-          p.dataset.type = type;
-          p.style.bottom = (opts.bottom != null ? opts.bottom : (2 + Math.random() * 14)) + "px";
-          const startX = opts.startX != null ? opts.startX : (dir === "left" ? W() + 20 : -20);
-          p.style.left = startX + "px";
-          p.innerHTML = personSVG(type);
-          if (dir === "left") p.style.transform = "scaleX(-1)";
-          peopleLayer.appendChild(p);
-          return p;
+          const e = makeEntity({
+            cls: "person",
+            kind: type,
+            extra: opts.extra || "",
+            sprite: personSVG(type),
+            x: opts.startX != null ? opts.startX : entranceX(dir),
+            y: opts.bottom != null ? opts.bottom : (2 + Math.random() * 14),
+            dir,
+          });
+          return e.el;
         }
 
         function walkPerson(p, dur, endX) {
@@ -3160,17 +3263,25 @@
 
         function spawnPerson(opts = {}) {
           if (document.hidden || reduced) return;
-          const dir = opts.dir || (Math.random() > 0.5 ? "left" : "right");
+          const dir = opts.dir || pickDir();
           const type = opts.type || personTypes[Math.floor(Math.random() * personTypes.length)];
           const isRainy = weather === "rain" || weather === "storm";
-          // Slower base walk (48-80s normal, 12-20s when fleeing rain)
           const baseDur = isRainy ? (12 + Math.random() * 8) : (48 + Math.random() * 32);
           const dur = opts.duration || baseDur;
-          const startOffset = opts.offset || 0;
-          const startX = (dir === "left" ? W() + 20 : -20) + startOffset;
-          const endX = dir === "left" ? -20 : W() + 20;
-          const p = makePerson(type, dir, { startX, bottom: opts.bottom });
-          walkPerson(p, dur, endX);
+          const offset = opts.offset || 0;
+          const startX = entranceX(dir) + offset;
+          const ex = exitX(dir);
+
+          const entity = makeEntity({
+            cls: "person",
+            kind: type,
+            sprite: personSVG(type),
+            x: startX,
+            y: opts.bottom != null ? opts.bottom : (2 + Math.random() * 14),
+            dir,
+          });
+          entity.walkTo(ex, { speed: Math.abs(ex - startX) / dur, onArrive: () => entity.despawn() });
+          const p = entity.el;
 
           if (!opts.silent && Math.random() < 0.3) {
             const ops = personLogs[type];
@@ -3179,22 +3290,12 @@
 
           // Mid-walk side interactions for peasants (not warriors/mages/special roles)
           if (type === "" && !opts.silent) {
-            // Tavern visit ~12%
-            if (Math.random() < 0.12) {
-              setTimeout(() => maybeVisitTavern(p), (dur * 0.3 + Math.random() * dur * 0.3) * 1000);
-            }
-            // Well watering ~14%
-            if (Math.random() < 0.14) {
-              setTimeout(() => maybeWaterAtWell(p), (dur * 0.3 + Math.random() * dur * 0.3) * 1000);
-            }
-            // Sometimes a dog runs with them ~8%
-            if (Math.random() < 0.08) {
-              setTimeout(() => spawnDog(startX, dir), 200);
-            }
+            if (Math.random() < 0.12) entity.wait((dur * 0.3 + Math.random() * dur * 0.3) * 1000, () => maybeVisitTavern(p));
+            if (Math.random() < 0.14) entity.wait((dur * 0.3 + Math.random() * dur * 0.3) * 1000, () => maybeWaterAtWell(p));
+            if (Math.random() < 0.08) entity.wait(200, () => spawnDog(startX, dir));
           }
-          // Mage casts a spell ~25% of the time
           if (type === "mage" && !opts.silent && Math.random() < 0.25) {
-            setTimeout(() => castMageSpell(p), (dur * 0.3 + Math.random() * dur * 0.3) * 1000);
+            entity.wait((dur * 0.3 + Math.random() * dur * 0.3) * 1000, () => castMageSpell(p));
           }
           return p;
         }
@@ -4388,6 +4489,7 @@
           d.style.animationDuration = dur + "s";
           d.style.top = (40 + Math.random() * (H() * 0.3)) + "px";
           dragonsLayer.appendChild(d);
+          // Keyframe-driven; just clean up after the animation
           setTimeout(() => d.remove(), dur * 1000 + 500);
         }
 
