@@ -212,19 +212,95 @@
       .house[data-kind="tavern"]   { width: 56px; height: 50px; }
       .house[data-kind="guildhall"]{ width: 54px; height: 48px; }
       .house[data-kind="mill"]     { width: 44px; height: 60px; }
-      .house[data-kind="road"]     { width: 60px; height: 10px; bottom: 52px; }
+      /* Per-tile "road" structure removed in favor of the continuous road strip below */
       .house[data-kind="lamppost"] { width: 14px; height: 34px; bottom: 50px; }
       .house[data-kind="garden"]   { width: 26px; height: 14px; bottom: 50px; }
       .house[data-kind="statue"]   { width: 18px; height: 34px; bottom: 50px; }
 
-      /* Roads use opacity stages — no scaling */
-      .house[data-kind="road"][data-upgrade] { transform: none !important; filter: none !important; }
-      .house[data-kind="road"] [class*="rd-"] { opacity: 0; transition: opacity 1s ease; }
-      .house[data-kind="road"][data-upgrade="0"] .rd-dirt   { opacity: 1; }
-      .house[data-kind="road"][data-upgrade="1"] .rd-gravel { opacity: 1; }
-      .house[data-kind="road"][data-upgrade="2"] .rd-stone  { opacity: 1; }
-      .house[data-kind="road"][data-upgrade="3"] .rd-cobble { opacity: 1; }
-      .house[data-kind="road"][data-upgrade="4"] .rd-paved  { opacity: 1; }
+      /* CONTINUOUS ROAD STRIP — the end-to-end path people walk on */
+      .road-strip {
+        position: absolute;
+        left: 0; right: 0;
+        bottom: 50px;
+        height: 8px;
+        z-index: 4;
+        pointer-events: none;
+      }
+      .road-tier {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        transition: opacity 2s ease;
+      }
+      .world[data-road="0"] .road-tier.t-dirt     { opacity: 1; }
+      .world[data-road="1"] .road-tier.t-packed   { opacity: 1; }
+      .world[data-road="2"] .road-tier.t-stone    { opacity: 1; }
+      .world[data-road="3"] .road-tier.t-cobble   { opacity: 1; }
+      .world[data-road="4"] .road-tier.t-flagstone{ opacity: 1; }
+      /* dirt — uneven brown */
+      .road-tier.t-dirt {
+        background: #7a4e22;
+        background-image:
+          radial-gradient(circle 2px at 5% 30%, #5a3818 30%, transparent 40%),
+          radial-gradient(circle 1px at 12% 70%, #5a3818 30%, transparent 40%),
+          radial-gradient(circle 2px at 22% 40%, #5a3818 30%, transparent 40%),
+          radial-gradient(circle 1px at 30% 80%, #5a3818 30%, transparent 40%),
+          radial-gradient(circle 2px at 42% 20%, #5a3818 30%, transparent 40%),
+          radial-gradient(circle 1px at 55% 70%, #5a3818 30%, transparent 40%),
+          radial-gradient(circle 2px at 67% 30%, #5a3818 30%, transparent 40%),
+          radial-gradient(circle 1px at 78% 65%, #5a3818 30%, transparent 40%),
+          radial-gradient(circle 2px at 90% 40%, #5a3818 30%, transparent 40%),
+          linear-gradient(180deg, #8a5828 0%, #6a4218 100%);
+      }
+      /* packed dirt — smoother, slightly lighter */
+      .road-tier.t-packed {
+        background: linear-gradient(180deg, #a07850 0%, #80583a 50%, #5a3818 100%);
+        background-image: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.18) 100%), linear-gradient(180deg, #a07850, #80583a);
+      }
+      /* dressed stone — repeating slabs */
+      .road-tier.t-stone {
+        background-color: #8a8580;
+        background-image:
+          repeating-linear-gradient(90deg, transparent 0 23px, #4a4438 23px 25px),
+          linear-gradient(180deg, #9a9088 0%, #6a6258 100%);
+      }
+      /* cobblestone — repeating rounded bumps */
+      .road-tier.t-cobble {
+        background-color: #6a625a;
+        background-image:
+          radial-gradient(circle 3px at 7px 4px, #8a8580 60%, #3a3530 75%, transparent 76%),
+          radial-gradient(circle 3px at 21px 4px, #8a8580 60%, #3a3530 75%, transparent 76%),
+          radial-gradient(circle 3px at 14px 4px, #7a7268 60%, #3a3530 75%, transparent 76%);
+        background-size: 28px 8px, 28px 8px, 14px 8px;
+        background-repeat: repeat-x;
+        box-shadow: inset 0 1px 0 #80786a, inset 0 -1px 0 #3a3530;
+      }
+      /* flagstone — large rectangular tiles (medieval, NOT modern paint stripes) */
+      .road-tier.t-flagstone {
+        background-color: #6a625a;
+        background-image:
+          repeating-linear-gradient(90deg,
+            #80786a 0px,
+            #80786a 28px,
+            #3a3530 28px,
+            #3a3530 30px,
+            #6a625a 30px,
+            #6a625a 58px,
+            #3a3530 58px,
+            #3a3530 60px
+          ),
+          linear-gradient(180deg, #80786a 0%, #5a544e 100%);
+        box-shadow: inset 0 1px 0 #9a9088, inset 0 -1px 0 #3a3530;
+      }
+
+      /* CAMEL */
+      .camel {
+        position: absolute;
+        width: 32px; height: 22px;
+        bottom: 4px;
+        animation: walk-bob 0.65s steps(2) infinite;
+      }
+      .camel svg { width: 100%; height: 100%; display: block; }
 
       /* Lamppost glow at night */
       .world[data-time="night"] .house[data-kind="lamppost"] .hs-windows-lit,
@@ -879,7 +955,7 @@
     </style>
   </head>
   <body>
-    <div class="world" data-weather="clear" data-time="day" aria-hidden="true">
+    <div class="world" data-weather="clear" data-time="day" data-road="0" aria-hidden="true">
       <div class="sky"></div>
       <div class="stars"></div>
       <div class="sun"></div>
@@ -887,6 +963,13 @@
       <div class="clouds-layer"></div>
       <div class="weather-veil"></div>
       <div class="dragons-layer"></div>
+      <div class="road-strip">
+        <div class="road-tier t-dirt"></div>
+        <div class="road-tier t-packed"></div>
+        <div class="road-tier t-stone"></div>
+        <div class="road-tier t-cobble"></div>
+        <div class="road-tier t-flagstone"></div>
+      </div>
       <div class="hills">
         <svg class="hills-far" viewBox="0 0 1200 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M0,100 L0,60 Q70,30 140,55 Q210,80 280,50 Q350,25 420,55 Q490,80 560,55 Q630,30 700,55 Q770,80 840,55 Q910,30 980,55 Q1050,80 1120,55 Q1170,40 1200,60 L1200,100 Z" fill="#1a1208"/>
@@ -3510,7 +3593,7 @@
 
         /* ============= STRUCTURES (houses, towers, wells, signposts, campfires) ============= */
         const houses = [];
-        const STRUCTURE_KINDS = ["house", "tower", "well", "signpost", "campfire", "castle", "wizardtower", "tavern", "guildhall", "mill", "road", "lamppost", "garden", "statue"];
+        const STRUCTURE_KINDS = ["house", "tower", "well", "signpost", "campfire", "castle", "wizardtower", "tavern", "guildhall", "mill", "lamppost", "garden", "statue"];
         const STRUCTURE_BUILD_LOG = {
           house:    { mid: "Walls rise from the foundation.",    done: "A house stands complete!" },
           tower:    { mid: "The watchtower shaft climbs higher.", done: "A watchtower keeps vigil!" },
@@ -3522,7 +3605,6 @@
           tavern:   { mid: "Timber framing goes up around the tavern.", done: "The tavern opens its doors — first round on the house!" },
           guildhall:{ mid: "Stone masons set the guildhall walls.",     done: "The guildhall stands proud, banner flying." },
           mill:     { mid: "The mill's stone base is laid.",            done: "The mill's sails begin to turn!" },
-          road:     { mid: null, done: "A dirt road is packed flat." },
           lamppost: { mid: null, done: "A lamppost is raised — light for the night." },
           garden:   { mid: null, done: "Wildflowers brighten a fresh garden bed." },
           statue:   { mid: "Stone is shaped into a heroic likeness.", done: "A statue commemorates a forgotten hero." },
@@ -3790,60 +3872,6 @@
               </g>
             </svg>`;
 
-            case "road": return `<svg viewBox="0 0 60 10" xmlns="http://www.w3.org/2000/svg">
-              <g class="rd-dirt">
-                <rect x="0" y="0" width="60" height="10" fill="#7a5028"/>
-                <rect x="0" y="0" width="60" height="2" fill="#9a6838"/>
-                <rect x="6" y="5" width="3" height="1" fill="#5a3818"/>
-                <rect x="22" y="6" width="3" height="1" fill="#5a3818"/>
-                <rect x="40" y="4" width="3" height="1" fill="#5a3818"/>
-                <rect x="50" y="7" width="3" height="1" fill="#5a3818"/>
-              </g>
-              <g class="rd-gravel">
-                <rect x="0" y="0" width="60" height="10" fill="#80786a"/>
-                <rect x="0" y="0" width="60" height="2" fill="#9a9088"/>
-                <rect x="3" y="4" width="2" height="2" fill="#5a504a"/>
-                <rect x="8" y="6" width="2" height="2" fill="#5a504a"/>
-                <rect x="14" y="3" width="2" height="2" fill="#5a504a"/>
-                <rect x="22" y="5" width="2" height="2" fill="#5a504a"/>
-                <rect x="30" y="6" width="2" height="2" fill="#5a504a"/>
-                <rect x="38" y="4" width="2" height="2" fill="#5a504a"/>
-                <rect x="46" y="6" width="2" height="2" fill="#5a504a"/>
-                <rect x="52" y="3" width="2" height="2" fill="#5a504a"/>
-              </g>
-              <g class="rd-stone">
-                <rect x="0" y="0" width="60" height="10" fill="#9a9088"/>
-                <rect x="0" y="0" width="60" height="2" fill="#b8b0a8"/>
-                <rect x="0" y="0" width="2" height="10" fill="#6a6258"/>
-                <rect x="58" y="0" width="2" height="10" fill="#6a6258"/>
-                <rect x="10" y="0" width="2" height="10" fill="#6a6258"/>
-                <rect x="22" y="0" width="2" height="10" fill="#6a6258"/>
-                <rect x="34" y="0" width="2" height="10" fill="#6a6258"/>
-                <rect x="46" y="0" width="2" height="10" fill="#6a6258"/>
-              </g>
-              <g class="rd-cobble">
-                <rect x="0" y="0" width="60" height="10" fill="#7a7068"/>
-                <rect x="0" y="0" width="60" height="2" fill="#9a9088"/>
-                <circle cx="6" cy="5" r="2" fill="#5a504a"/>
-                <circle cx="14" cy="6" r="2" fill="#5a504a"/>
-                <circle cx="22" cy="5" r="2" fill="#5a504a"/>
-                <circle cx="30" cy="6" r="2" fill="#5a504a"/>
-                <circle cx="38" cy="5" r="2" fill="#5a504a"/>
-                <circle cx="46" cy="6" r="2" fill="#5a504a"/>
-                <circle cx="54" cy="5" r="2" fill="#5a504a"/>
-              </g>
-              <g class="rd-paved">
-                <rect x="0" y="0" width="60" height="10" fill="#5a544e"/>
-                <rect x="0" y="0" width="60" height="2" fill="#80786a"/>
-                <rect x="0" y="4" width="60" height="1" fill="#3a3530"/>
-                <rect x="2" y="6" width="6" height="1" fill="#f0d060" opacity="0.4"/>
-                <rect x="14" y="6" width="6" height="1" fill="#f0d060" opacity="0.4"/>
-                <rect x="26" y="6" width="6" height="1" fill="#f0d060" opacity="0.4"/>
-                <rect x="38" y="6" width="6" height="1" fill="#f0d060" opacity="0.4"/>
-                <rect x="50" y="6" width="6" height="1" fill="#f0d060" opacity="0.4"/>
-              </g>
-            </svg>`;
-
             case "lamppost": return `<svg viewBox="0 0 14 34" xmlns="http://www.w3.org/2000/svg" overflow="visible">
               <!-- base -->
               <rect x="3" y="30" width="8" height="4" fill="#1a1208"/>
@@ -4103,14 +4131,14 @@
             // No "campfire" — adventurer-camp only. Wide variety so the realm
             // grows into a proper medieval village.
             const weighted = [
-              "house", "house", "house", "house", "house",
-              "tower", "tower",
+              "house", "house", "house", "house", "house", "house",
+              "tower", "tower", "tower",
+              "castle", "castle",
               "well", "well",
-              "signpost", "signpost",
+              "signpost",
               "tavern", "tavern",
-              "guildhall",
+              "guildhall", "guildhall",
               "mill",
-              "road", "road", "road",
               "lamppost", "lamppost",
               "garden", "garden",
               "statue",
@@ -4154,7 +4182,7 @@
             h.dataset.upgrade = "0";
             houses.push(rec);
 
-            const midDelay = kind === "signpost" || kind === "road" || kind === "lamppost" || kind === "garden" ? 0
+            const midDelay = kind === "signpost" || kind === "lamppost" || kind === "garden" ? 0
                            : kind === "campfire" ? 2500
                            : kind === "well" ? 3500
                            : kind === "castle" ? 7000
@@ -4163,7 +4191,6 @@
                            : kind === "statue" ? 3500
                            : 3500;
             const doneDelay = kind === "signpost" ? 2000
-                            : kind === "road" ? 2500
                             : kind === "lamppost" ? 2200
                             : kind === "garden" ? 1800
                             : kind === "campfire" ? 4000
@@ -4523,8 +4550,7 @@
             h.stage >= 2
             && (h.upgrade || 0) < 4
             && (h.kind === "house" || h.kind === "tower" || h.kind === "castle"
-                || h.kind === "tavern" || h.kind === "guildhall" || h.kind === "mill"
-                || h.kind === "road")
+                || h.kind === "tavern" || h.kind === "guildhall" || h.kind === "mill")
           );
           if (upgradeable.length === 0) return;
           const target = upgradeable[Math.floor(Math.random() * upgradeable.length)];
@@ -4549,7 +4575,6 @@
             tavern: ["adds a hearth to the tavern", "extends the tavern's common room", "builds an inn alongside the tavern", "makes the tavern the realm's grandest"],
             guildhall: ["reinforces the guildhall", "adds a guildmaster's wing", "raises a guildhall tower", "makes the guildhall renowned across the land"],
             mill: ["reinforces the mill's frame", "adds a second pair of sails", "builds a granary by the mill", "makes the mill the realm's busiest"],
-            road: ["packs the dirt road into smooth gravel", "lays stone slabs along the road", "sets fine cobblestones", "paves the road for the King's procession"],
           };
           const label = (labels[target.kind] || ["upgrades the structure"])[nextLevel - 1] || "improves the building";
           logEvent(`A master builder arrives to ${label}.`, "good");
@@ -4706,6 +4731,147 @@
           setTimeout(() => world.classList.remove("has-halo"), 25000 + Math.random() * 12000);
         }
 
+        /* ============= ROAD UPGRADES (world-level) ============= */
+        const ROAD_NAMES = ["dirt", "packed dirt", "stone", "cobblestone", "flagstone"];
+        const ROAD_LOG = [
+          "A dirt path is trodden across the realm.",
+          "The road is packed flat by daily traffic.",
+          "Stone slabs are laid along the road.",
+          "Cobblestones are set into the king's road.",
+          "Master masons finish the road in great flagstones.",
+        ];
+        function setRoadLevel(n) {
+          n = Math.max(0, Math.min(4, n | 0));
+          const cur = parseInt(world.dataset.road || "0", 10);
+          if (n === cur) return;
+          world.dataset.road = n;
+          if (n > 0) logEvent(ROAD_LOG[n], "good");
+        }
+        function tryUpgradeRoad() {
+          const cur = parseInt(world.dataset.road || "0", 10);
+          if (cur >= 4) return;
+          // Need at least a few buildings for the road work to make sense
+          const builtCount = houses.filter((h) => h.stage >= 2).length;
+          if (builtCount < cur * 2 + 2) return;
+          // Spawn a road-builder visibly hammering at a random point
+          if (reduced) { setRoadLevel(cur + 1); return; }
+          const x = W() * (0.25 + Math.random() * 0.5);
+          const lj = makePerson("builder", x > W() / 2 ? "right" : "left", { bottom: 40, silent: true });
+          const fromLeft = x > W() / 2;
+          const startX = fromLeft ? -20 : (W() + 20);
+          lj.style.left = startX + "px";
+          const walkTime = Math.abs(x - startX) / 50;
+          requestAnimationFrame(() => {
+            lj.style.transition = `left ${walkTime}s linear`;
+            lj.style.left = x + "px";
+          });
+          setTimeout(() => {
+            lj.classList.add("working");
+            const dustTimer = setInterval(() => {
+              spawnParticle(x + (Math.random() - 0.5) * 30, 50 + Math.random() * 12, "dust");
+            }, 200);
+            setTimeout(() => {
+              clearInterval(dustTimer);
+              lj.classList.remove("working");
+              setRoadLevel(cur + 1);
+              const exitX = fromLeft ? (W() + 20) : -20;
+              const exitDur = Math.abs(exitX - x) / 50;
+              lj.style.transition = `left ${exitDur}s linear`;
+              lj.style.left = exitX + "px";
+              setTimeout(() => lj.remove(), exitDur * 1000 + 500);
+            }, 5000);
+          }, walkTime * 1000 + 100);
+        }
+
+        /* ============= CAMEL CARAVAN ============= */
+        function camelSVG() {
+          return `<svg viewBox="0 0 32 22" xmlns="http://www.w3.org/2000/svg">
+            <!-- legs -->
+            <rect x="5" y="14" width="2" height="8" fill="#9a6838"/>
+            <rect x="11" y="14" width="2" height="8" fill="#a87838"/>
+            <rect x="19" y="14" width="2" height="8" fill="#9a6838"/>
+            <rect x="25" y="14" width="2" height="8" fill="#a87838"/>
+            <rect x="5" y="20" width="2" height="2" fill="#5a3818"/>
+            <rect x="11" y="20" width="2" height="2" fill="#5a3818"/>
+            <rect x="19" y="20" width="2" height="2" fill="#5a3818"/>
+            <rect x="25" y="20" width="2" height="2" fill="#5a3818"/>
+            <!-- body -->
+            <rect x="4" y="10" width="22" height="6" fill="#c89858"/>
+            <rect x="4" y="10" width="22" height="1" fill="#e0b878"/>
+            <rect x="4" y="15" width="22" height="1" fill="#a87838"/>
+            <!-- humps -->
+            <rect x="7" y="6" width="6" height="4" fill="#c89858"/>
+            <rect x="7" y="5" width="6" height="2" fill="#a87838"/>
+            <rect x="14" y="6" width="6" height="4" fill="#c89858"/>
+            <rect x="14" y="5" width="6" height="2" fill="#a87838"/>
+            <!-- packs strapped between humps -->
+            <rect x="13" y="8" width="1" height="2" fill="#5a3818"/>
+            <rect x="20" y="8" width="1" height="2" fill="#5a3818"/>
+            <!-- neck -->
+            <rect x="22" y="6" width="2" height="6" fill="#c89858"/>
+            <rect x="22" y="6" width="1" height="6" fill="#a87838"/>
+            <!-- head -->
+            <rect x="23" y="4" width="5" height="4" fill="#c89858"/>
+            <rect x="23" y="4" width="5" height="1" fill="#e0b878"/>
+            <rect x="27" y="5" width="1" height="1" fill="#1a0a0a"/>
+            <!-- ear -->
+            <rect x="24" y="3" width="2" height="1" fill="#a87838"/>
+            <!-- tail -->
+            <rect x="2" y="12" width="3" height="2" fill="#a87838"/>
+            <rect x="1" y="13" width="2" height="2" fill="#5a3818"/>
+          </svg>`;
+        }
+
+        function spawnCamelCaravan() {
+          if (document.hidden || reduced) return;
+          const dir = Math.random() > 0.5 ? "left" : "right";
+          const dur = 55 + Math.random() * 25;
+          const sign = dir === "right" ? 1 : -1;
+
+          // Lead camel rider (a peasant in earthy clothes)
+          const rider = makePerson("", dir, { bottom: 6, silent: true });
+          const startBase = dir === "left" ? (W() + 30) : -30;
+          rider.style.left = startBase + "px";
+          requestAnimationFrame(() => {
+            rider.style.transition = `left ${dur}s linear`;
+            rider.style.left = (dir === "left" ? -30 : (W() + 30)) + "px";
+          });
+          setTimeout(() => rider.remove(), dur * 1000 + 500);
+
+          // Camels (2-4)
+          const camelCount = 2 + Math.floor(Math.random() * 3);
+          for (let i = 0; i < camelCount; i++) {
+            const c = document.createElement("div");
+            c.className = "camel";
+            c.innerHTML = camelSVG();
+            if (dir === "left") c.style.transform = "scaleX(-1)";
+            const offset = -sign * (24 + i * 30);
+            c.style.left = (startBase + offset) + "px";
+            c.style.bottom = (3 + Math.random() * 4) + "px";
+            c.style.animationDelay = (Math.random() * 0.3) + "s";
+            peopleLayer.appendChild(c);
+            requestAnimationFrame(() => {
+              c.style.transition = `left ${dur}s linear`;
+              c.style.left = ((dir === "left" ? -30 : (W() + 30)) + offset) + "px";
+            });
+            setTimeout(() => c.remove(), dur * 1000 + 500);
+          }
+
+          // Optional second rider at the rear
+          if (Math.random() > 0.4) {
+            const rear = makePerson("warrior", dir, { bottom: 6, silent: true });
+            const rearOffset = -sign * (24 + camelCount * 30);
+            rear.style.left = (startBase + rearOffset) + "px";
+            requestAnimationFrame(() => {
+              rear.style.transition = `left ${dur}s linear`;
+              rear.style.left = ((dir === "left" ? -30 : (W() + 30)) + rearOffset) + "px";
+            });
+            setTimeout(() => rear.remove(), dur * 1000 + 500);
+          }
+
+          logEvent("A camel caravan crosses the realm, packs heavy with spice.", "good");
+        }
+
         /* ============= APOCALYPSE CYCLE ============= */
         let developedSince = null;
         let apocalypseTriggered = false;
@@ -4800,6 +4966,8 @@
             logEvent("The realm lies in ashes... but life endures. Let it rise again.", "weather");
             apocalypseTriggered = false;
             developedSince = null;
+            // Reset the road back to dirt — the world rises anew
+            world.dataset.road = "0";
             // Seed a couple fresh trees so future builders have something to chop
             setTimeout(() => plantTree(true), 1500);
             setTimeout(() => plantTree(true), 2500);
@@ -4836,11 +5004,10 @@
           if (reduced) return;
           const seeds = [
             { kind: "house",    pos: 0.15, up: 1 },
-            { kind: "road",     pos: 0.25, up: 0 },
-            { kind: "tavern",   pos: 0.35, up: 0 },
-            { kind: "well",     pos: 0.50, up: 0 },
-            { kind: "house",    pos: 0.62, up: 0 },
-            { kind: "garden",   pos: 0.72, up: 0 },
+            { kind: "tavern",   pos: 0.30, up: 0 },
+            { kind: "well",     pos: 0.45, up: 0 },
+            { kind: "house",    pos: 0.58, up: 0 },
+            { kind: "garden",   pos: 0.70, up: 0 },
             { kind: "signpost", pos: 0.82, up: 0 },
           ];
           seeds.forEach((s, i) => setTimeout(() => seedStructure(s.kind, s.pos * W(), s.up), 200 + i * 40));
@@ -4892,6 +5059,8 @@
           setTimeout(() => loop(spawnUpgrader, 14000, 32000), 7000);
           setTimeout(() => loop(checkDevelopment, 5000, 5000), 30000);
           setTimeout(() => loop(maybeHugeDragon, 240000, 420000), 180000);
+          setTimeout(() => loop(tryUpgradeRoad, 35000, 80000), 18000);
+          setTimeout(() => loop(spawnCamelCaravan, 95000, 180000), 55000);
         }
       })();
 
