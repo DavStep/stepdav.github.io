@@ -430,6 +430,12 @@
       .world[data-time="dusk"]  .house[data-kind="castle"] .hs-windows-lit { opacity: 1; }
       .house svg { width: 100%; height: 100%; display: block; overflow: visible; }
       .house .hs-walls, .house .hs-roof { transition: opacity 0.6s ease; }
+      /* Subtle pulse on lit windows at night — a warm hearth feel */
+      .world[data-time="night"] .house .hs-windows-lit { animation: window-glow 3.5s ease-in-out infinite; }
+      @keyframes window-glow {
+        0%, 100% { filter: brightness(1) drop-shadow(0 0 1px #f0c440); }
+        50%      { filter: brightness(1.18) drop-shadow(0 0 4px #f0c440); }
+      }
       .house[data-kind="campfire"] .hs-roof { animation: flame-flicker 0.3s steps(2) infinite; transform-origin: center bottom; transition: opacity 1.5s ease; }
       @keyframes flame-flicker {
         0%,100% { transform: scaleY(1) scaleX(1); }
@@ -835,8 +841,10 @@
       a.card:hover {
         border-color: var(--gold);
         transform: translate(-2px, -2px);
-        box-shadow: inset 0 0 0 2px #000, 6px 6px 0 #000;
+        box-shadow: inset 0 0 0 2px #000, 6px 6px 0 #000, 0 0 18px rgba(212, 160, 23, 0.18);
       }
+      a.card:hover h3 { color: var(--gold); transition: color 0.2s ease; }
+      a.card h3 { transition: color 0.2s ease; }
       .card-head {
         display: flex; justify-content: space-between; align-items: baseline;
         font-family: "Press Start 2P", monospace;
@@ -3047,9 +3055,11 @@
             <rect x="4" y="2" width="4" height="4" fill="${skin}"/>
             <rect x="4" y="5" width="1" height="1" fill="#1a0a0a"/>
             <rect x="7" y="5" width="1" height="1" fill="#1a0a0a"/>
+            <rect x="5" y="6" width="2" height="1" fill="#4a1818" opacity="0.85"/>
             <rect x="4" y="1" width="4" height="2" fill="${hair}"/>
             <rect x="3" y="1" width="1" height="3" fill="${hair}"/>
             <rect x="8" y="1" width="1" height="3" fill="${hair}"/>
+            <rect x="4" y="3" width="1" height="1" fill="#ffffff" opacity="0.2"/>
           `;
           const torso = `
             <rect x="3" y="7" width="6" height="5" fill="${tunic}"/>
@@ -3736,18 +3746,70 @@
         const TREE_MIN_SPACING = 80;
 
         function makeTreeSVG() {
-          return `<svg viewBox="0 0 24 48" xmlns="http://www.w3.org/2000/svg">
-            <rect x="10" y="34" width="4" height="14" fill="#3a2410"/>
-            <rect x="11" y="34" width="2" height="14" fill="#5a3818"/>
-            <rect x="3" y="22" width="18" height="10" fill="#1a3010"/>
-            <rect x="5" y="14" width="14" height="10" fill="#2a4a1a"/>
-            <rect x="7" y="6" width="10" height="10" fill="#3a5a26"/>
-            <rect x="9" y="0" width="6" height="6" fill="#4a6a36"/>
-            <rect x="6" y="20" width="2" height="2" fill="#1a3010"/>
-            <rect x="16" y="22" width="2" height="2" fill="#1a3010"/>
-            <rect x="8" y="12" width="2" height="2" fill="#1a3010"/>
-            <rect x="14" y="10" width="2" height="2" fill="#1a3010"/>
-          </svg>`;
+          // Three tree species, picked at plant time so each tree feels distinct
+          const variant = Math.random();
+          if (variant < 0.45) {
+            // Oak — round layered canopy (original look, the staple)
+            return `<svg viewBox="0 0 24 48" xmlns="http://www.w3.org/2000/svg">
+              <rect x="10" y="34" width="4" height="14" fill="#3a2410"/>
+              <rect x="11" y="34" width="2" height="14" fill="#5a3818"/>
+              <rect x="3" y="22" width="18" height="10" fill="#1a3010"/>
+              <rect x="5" y="14" width="14" height="10" fill="#2a4a1a"/>
+              <rect x="7" y="6" width="10" height="10" fill="#3a5a26"/>
+              <rect x="9" y="0" width="6" height="6" fill="#4a6a36"/>
+              <rect x="6" y="20" width="2" height="2" fill="#1a3010"/>
+              <rect x="16" y="22" width="2" height="2" fill="#1a3010"/>
+              <rect x="8" y="12" width="2" height="2" fill="#1a3010"/>
+              <rect x="14" y="10" width="2" height="2" fill="#1a3010"/>
+            </svg>`;
+          } else if (variant < 0.78) {
+            // Pine — tall triangular evergreen
+            return `<svg viewBox="0 0 24 48" xmlns="http://www.w3.org/2000/svg">
+              <rect x="10" y="38" width="4" height="10" fill="#3a2410"/>
+              <rect x="11" y="38" width="2" height="10" fill="#5a3818"/>
+              <!-- bottom skirt -->
+              <polygon points="2,38 22,38 12,28" fill="#1a3818"/>
+              <polygon points="3,37 21,37 12,29" fill="#284a22"/>
+              <!-- middle layer -->
+              <polygon points="4,30 20,30 12,18" fill="#1a3818"/>
+              <polygon points="5,29 19,29 12,19" fill="#284a22"/>
+              <!-- top layer -->
+              <polygon points="6,22 18,22 12,10" fill="#1a3818"/>
+              <polygon points="7,21 17,21 12,11" fill="#345a2c"/>
+              <!-- crown -->
+              <polygon points="8,14 16,14 12,2" fill="#284a22"/>
+              <polygon points="9,13 15,13 12,4" fill="#3c6a34"/>
+              <!-- star/tip highlight -->
+              <rect x="11" y="2" width="2" height="2" fill="#4a7a40"/>
+            </svg>`;
+          } else {
+            // Fruit tree — round canopy dotted with little red fruits
+            return `<svg viewBox="0 0 24 48" xmlns="http://www.w3.org/2000/svg">
+              <rect x="10" y="34" width="4" height="14" fill="#4a2818"/>
+              <rect x="11" y="34" width="2" height="14" fill="#6a3818"/>
+              <!-- bark knot -->
+              <rect x="9" y="40" width="2" height="2" fill="#2a1408"/>
+              <!-- canopy -->
+              <rect x="4" y="22" width="16" height="10" fill="#1a3010"/>
+              <rect x="3" y="14" width="18" height="10" fill="#2a4a1a"/>
+              <rect x="5" y="8" width="14" height="8" fill="#3a5a26"/>
+              <rect x="7" y="2" width="10" height="8" fill="#4a6a36"/>
+              <!-- leaf shadows -->
+              <rect x="6" y="20" width="2" height="2" fill="#1a3010"/>
+              <rect x="16" y="20" width="2" height="2" fill="#1a3010"/>
+              <rect x="9" y="12" width="2" height="2" fill="#1a3010"/>
+              <!-- fruits scattered -->
+              <rect x="6" y="16" width="2" height="2" fill="#c84a35"/>
+              <rect x="14" y="14" width="2" height="2" fill="#c84a35"/>
+              <rect x="10" y="20" width="2" height="2" fill="#c84a35"/>
+              <rect x="17" y="18" width="2" height="2" fill="#c84a35"/>
+              <rect x="8" y="22" width="2" height="2" fill="#c84a35"/>
+              <!-- highlights on fruits -->
+              <rect x="6" y="16" width="1" height="1" fill="#f06850"/>
+              <rect x="14" y="14" width="1" height="1" fill="#f06850"/>
+              <rect x="10" y="20" width="1" height="1" fill="#f06850"/>
+            </svg>`;
+          }
         }
         function findTreeSpot() {
           for (let i = 0; i < 25; i++) {
@@ -3859,8 +3921,14 @@
                 <polygon points="0,12 18,2 36,12" fill="${p.roof}"/>
                 <polygon points="2,11 18,4 34,11" fill="${p.roofL}"/>
                 <rect x="0" y="11" width="36" height="2" fill="${p.roofD}"/>
+                <!-- tile rows for texture -->
+                <polygon points="4,9 18,5 32,9" fill="${p.roofD}" opacity="0.4"/>
+                <polygon points="6,7 18,3 30,7" fill="${p.roofD}" opacity="0.4"/>
                 <rect x="22" y="-2" width="3" height="8" fill="#3a2410"/>
                 <rect x="22" y="-2" width="3" height="2" fill="#5a3820"/>
+                <!-- chimney brick lines -->
+                <rect x="22" y="0" width="3" height="0.4" fill="#5a3820" opacity="0.6"/>
+                <rect x="22" y="2" width="3" height="0.4" fill="#5a3820" opacity="0.6"/>
               </g>
 
               <!-- UPGRADE 1: little garden + fence at the base -->
