@@ -1223,7 +1223,7 @@
         <h2><span class="ico">✦</span>Personal Tomes</h2>
         <div class="cards">
           <a class="card" href="https://davstep.github.io/shmixel/" target="_blank" rel="noopener">
-            <div class="card-head"><span>solo quest</span><span class="reward">+1500 G</span></div>
+            <div class="card-head"><span>solo quest</span><span class="reward">+1 G</span></div>
             <h3>Shmixel</h3>
             <p>Pixel art creation tool. Draw, edit, and export pixel artwork right in the browser.</p>
             <div class="tags">
@@ -1235,7 +1235,7 @@
           <a class="card" href="https://davstep.github.io/idle-whitch-craft/" target="_blank" rel="noopener">
             <div class="card-head"><span>solo quest</span><span class="reward">+1800 G</span></div>
             <h3>Idle Witch Craft</h3>
-            <p>Idle alchemy sim. Grow herbs, brew potions, hire managers, roll gacha, send adventurers on expeditions — all systems hot-editable in an in-game engine tab.</p>
+            <p>Idle alchemy sim. Grow herbs, brew potions, hire managers, roll gacha, send adventurers on expeditions.</p>
             <div class="tags">
               <span class="tag legendary">idle</span>
               <span class="tag epic">systems</span>
@@ -6436,13 +6436,8 @@
         const lvlEl = document.getElementById("player-level");
         if (lvlEl) lvlEl.textContent = age;
 
-        const lastBday = now >= bdayThisYear
-          ? bdayThisYear
-          : new Date(now.getFullYear() - 1, birth.getMonth(), birth.getDate());
-        const nextBday = new Date(lastBday.getFullYear() + 1, birth.getMonth(), birth.getDate());
-        const pct = Math.max(0, Math.min(100, ((now - lastBday) / (nextBday - lastBday)) * 100));
         const xpEl = document.getElementById("player-xp");
-        if (xpEl) xpEl.style.width = pct.toFixed(2) + "%";
+        if (xpEl) xpEl.style.width = "75%";
         const xpNextEl = document.getElementById("player-xp-next");
         if (xpNextEl) xpNextEl.textContent = "→ LVL " + (age + 1);
 
