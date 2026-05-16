@@ -881,6 +881,8 @@
         text-align: center;
         font-family: "Press Start 2P", monospace;
         font-size: 0.5rem; color: var(--muted);
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
       }
       .sheet .stat:last-child { border-right: none; }
       .sheet .stat b {
@@ -890,6 +892,7 @@
       }
       .sheet .stat.long b { font-size: 0.5rem; line-height: 1.6; }
       .sheet .stat b.hp-low { color: var(--ember); }
+      .sheet .stat b.inf { font-size: 1.4rem; line-height: 0.7; margin-top: 2px; }
 
       section { padding: 36px 0 20px; }
 
@@ -1158,7 +1161,7 @@
           <div class="stat long">CLASS<b>Lead Code Wizard</b></div>
           <div class="stat">LVL<b id="player-level">24</b></div>
           <div class="stat">HP<b class="hp-low">1</b></div>
-          <div class="stat">MP<b>∞</b></div>
+          <div class="stat">MP<b class="inf">∞</b></div>
           <div class="stat">XP<b>75%</b></div>
         </div>
       </header>
