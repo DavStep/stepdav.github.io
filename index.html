@@ -891,26 +891,6 @@
       .sheet .stat.long b { font-size: 0.5rem; line-height: 1.6; }
       .sheet .stat b.hp-low { color: var(--ember); }
 
-      .xp-bar {
-        display: block; margin-top: 8px;
-        height: 14px; width: 100%;
-        background: rgba(0,0,0,0.55);
-        border: 2px solid var(--frame-light);
-        position: relative; overflow: hidden;
-        image-rendering: pixelated;
-      }
-      .xp-fill {
-        height: 100%;
-        background: var(--gold);
-        box-shadow: inset 0 -3px 0 rgba(0,0,0,0.25);
-        width: 0%;
-      }
-      .xp-next {
-        display: block; margin-top: 4px;
-        font-size: 0.45rem; color: var(--muted);
-        letter-spacing: 0.05em;
-      }
-
       section { padding: 36px 0 20px; }
 
       .cards {
@@ -1179,7 +1159,7 @@
           <div class="stat">LVL<b id="player-level">24</b></div>
           <div class="stat">HP<b class="hp-low">1</b></div>
           <div class="stat">MP<b>∞</b></div>
-          <div class="stat">XP<div class="xp-bar"><div class="xp-fill" id="player-xp"></div></div><span class="xp-next" id="player-xp-next">→ LVL 25</span></div>
+          <div class="stat">XP<b>75%</b></div>
         </div>
       </header>
 
@@ -6424,8 +6404,7 @@
         });
       })();
 
-      // LVL = current age. XP = % of the way to next birthday (visual bar).
-      // Bio "Six years" = floor(career-months / 12), rendered as an English word.
+      // LVL = current age. Bio "Six years" = floor(career-months / 12), as an English word.
       (function () {
         const now = new Date();
 
@@ -6435,11 +6414,6 @@
         if (now < bdayThisYear) age--;
         const lvlEl = document.getElementById("player-level");
         if (lvlEl) lvlEl.textContent = age;
-
-        const xpEl = document.getElementById("player-xp");
-        if (xpEl) xpEl.style.width = "75%";
-        const xpNextEl = document.getElementById("player-xp-next");
-        if (xpNextEl) xpNextEl.textContent = "→ LVL " + (age + 1);
 
         const careerStart = new Date(2019, 10, 1);
         const months =
