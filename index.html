@@ -232,6 +232,30 @@
         100% { opacity: 0; }
       }
 
+      /* MOUNTAINS — distant atmospheric ridge behind the hills */
+      .mountains {
+        position: absolute; bottom: 56px; left: 0;
+        width: 100%; height: 220px;
+        z-index: 1;
+        pointer-events: none;
+        filter: brightness(var(--world-brightness, 1)) saturate(0.55);
+        opacity: 0.85;
+      }
+      .mountains svg { width: 100%; height: 100%; display: block; }
+
+      .mountain-house {
+        position: absolute;
+        width: 10px; height: 10px;
+        opacity: 0;
+        animation: mh-fade-in 4s ease forwards;
+        pointer-events: none;
+      }
+      @keyframes mh-fade-in { to { opacity: 0.9; } }
+      .mountain-house .mh-win { opacity: 0; transition: opacity 4s ease; }
+      .world[data-time="night"] .mountain-house .mh-win,
+      .world[data-time="dusk"]  .mountain-house .mh-win,
+      .world[data-time="dawn"]  .mountain-house .mh-win { opacity: 1; }
+
       /* HILLS — rolling rounded silhouette */
       .hills {
         position: absolute; bottom: 56px; left: 0;
@@ -286,7 +310,12 @@
       .house[data-kind="garden"]   { width: 26px; height: 14px; bottom: 50px; }
       .house[data-kind="statue"]   { width: 18px; height: 34px; bottom: 50px; }
       .house[data-kind="marketstall"]{ width: 32px; height: 36px; bottom: 50px; }
+      .house[data-kind="marketstall"][data-upgrade="1"]{ width: 52px; height: 40px; }
+      .house[data-kind="marketstall"][data-upgrade="2"]{ width: 80px; height: 54px; }
+      .house[data-kind="marketstall"][data-upgrade="3"]{ width: 120px; height: 68px; }
+      .house[data-kind="marketstall"][data-upgrade="4"]{ width: 120px; height: 68px; }
       .house[data-kind="guardpost"]  { width: 24px; height: 50px; }
+      .house[data-kind="blacksmith"] { width: 46px; height: 44px; bottom: 50px; }
       /* House silhouette variants */
       .house[data-kind="house"][data-variant="two-story"] { width: 44px; height: 58px; }
       .house[data-kind="house"][data-variant="a-frame"]   { width: 48px; height: 52px; }
@@ -414,29 +443,21 @@
       .house[data-upgrade="4"] .up-1, .house[data-upgrade="4"] .up-2, .house[data-upgrade="4"] .up-3, .house[data-upgrade="4"] .up-4 {
         opacity: 1;
       }
-      /* Castle progression — each tier visibly bigger */
-      .house[data-kind="castle"][data-upgrade="1"] { transform: scale(1.1); }
-      .house[data-kind="castle"][data-upgrade="2"] { transform: scale(1.3); }
-      .house[data-kind="castle"][data-upgrade="3"] { transform: scale(1.6); }
-      /* Castle L4 is COLOSSAL, golden, and lit up */
-      .house[data-kind="castle"][data-upgrade="4"] {
-        transform: scale(2.4);
-        filter: brightness(1.3) saturate(1.35) sepia(0.2) hue-rotate(-8deg) drop-shadow(0 8px 14px rgba(0,0,0,0.5));
-        z-index: 7;
-      }
-      .house[data-kind="castle"][data-upgrade="4"]::after {
-        content: ""; position: absolute;
-        inset: -12px;
-        border: 2px solid rgba(212, 160, 23, 0.55);
-        box-shadow: 0 0 28px rgba(212, 160, 23, 0.55), inset 0 0 14px rgba(240, 200, 96, 0.2);
-        pointer-events: none;
-        opacity: 0;
-        animation: castle-glow 4s ease-in-out infinite;
-      }
-      @keyframes castle-glow {
-        0%,100% { opacity: 0.2; }
-        50%     { opacity: 0.65; }
-      }
+      /* Castle progression — each tier is a redrawn bigger asset, NOT a CSS scale.
+         translateX(-50%) keeps the castle centered around its spawn x as the container grows. */
+      .house[data-kind="castle"]                   { transform: translateX(-50%); }
+      .house[data-kind="castle"][data-upgrade="1"] { transform: translateX(-50%); width: 240px; height: 156px; }
+      .house[data-kind="castle"][data-upgrade="2"] { transform: translateX(-50%); width: 290px; height: 168px; }
+      .house[data-kind="castle"][data-upgrade="3"] { transform: translateX(-50%); width: 360px; height: 184px; }
+      .house[data-kind="castle"][data-upgrade="4"] { transform: translateX(-50%); width: 430px; height: 204px; z-index: 7; }
+
+      /* Watchtower progression — explicit size per tier, no CSS scale.
+         translateX(-50%) keeps the tower centered around its spawn x as the container grows. */
+      .house[data-kind="tower"]                   { transform: translateX(-50%); }
+      .house[data-kind="tower"][data-upgrade="1"] { transform: translateX(-50%); width: 51px;  height: 102px; }
+      .house[data-kind="tower"][data-upgrade="2"] { transform: translateX(-50%); width: 70px;  height: 140px; }
+      .house[data-kind="tower"][data-upgrade="3"] { transform: translateX(-50%); width: 96px;  height: 192px; }
+      .house[data-kind="tower"][data-upgrade="4"] { transform: translateX(-50%); width: 128px; height: 256px; }
 
       /* HUGE DRAGON */
       .dragon.huge {
@@ -767,6 +788,12 @@
       .world[data-time="dawn"]  .house[data-kind="house"] .hs-windows-lit { opacity: 1; }
       .world[data-time="night"] .house[data-kind="tower"] .hs-windows-lit,
       .world[data-time="dusk"]  .house[data-kind="tower"] .hs-windows-lit { opacity: 1; }
+      .world[data-time="night"] .house[data-kind="marketstall"] .hs-windows-lit,
+      .world[data-time="dusk"]  .house[data-kind="marketstall"] .hs-windows-lit { opacity: 1; }
+      .world[data-time="night"] .house[data-kind="blacksmith"] .hs-windows-lit,
+      .world[data-time="dusk"]  .house[data-kind="blacksmith"] .hs-windows-lit,
+      .world[data-time="dawn"]  .house[data-kind="blacksmith"] .hs-windows-lit { opacity: 1; }
+      .house[data-kind="blacksmith"] .hs-windows-lit { filter: drop-shadow(0 0 5px #f08850); }
 
       /* SIGNPOST LABEL */
       .sign-label {
@@ -1090,6 +1117,11 @@
         <div class="road-tier t-stone"></div>
         <div class="road-tier t-cobble"></div>
         <div class="road-tier t-flagstone"></div>
+      </div>
+      <div class="mountains">
+        <svg class="mountains-far" viewBox="0 0 1200 220" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M0,220 L0,140 L80,90 L150,120 L220,60 L300,100 L380,40 L460,95 L540,55 L620,110 L700,50 L780,105 L860,70 L940,30 L1020,95 L1100,60 L1180,110 L1200,90 L1200,220 Z" fill="#5a6878"/>
+        </svg>
       </div>
       <div class="hills">
         <svg class="hills-far" viewBox="0 0 1200 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
@@ -2823,9 +2855,10 @@
         /* ============= ROYAL CASTLE CONSTRUCTION ============= */
         function spawnRoyalCastle() {
           if (document.hidden || reduced) return;
-          const x = findOpenSpot();
-          if (x == null) return;
-          const dir = x > W() / 2 ? "right" : "left";
+          // Only one castle ever, always dead-center
+          if (houses.some((h) => h.kind === "castle")) return;
+          const x = W() / 2;
+          const dir = "right";
           const fromLeft = dir === "right";
           const dur = 90;
 
@@ -3887,7 +3920,7 @@
 
         /* ============= STRUCTURES (houses, towers, wells, signposts, campfires) ============= */
         const houses = [];
-        const STRUCTURE_KINDS = ["house", "tower", "well", "signpost", "campfire", "castle", "tavern", "guildhall", "mill", "lamppost", "garden", "statue", "marketstall", "guardpost"];
+        const STRUCTURE_KINDS = ["house", "tower", "well", "signpost", "campfire", "castle", "tavern", "guildhall", "mill", "lamppost", "garden", "statue", "marketstall", "guardpost", "blacksmith"];
         const STRUCTURE_BUILD_LOG = {
           house:    { mid: "Walls rise from the foundation.",    done: "A house stands complete!" },
           tower:    { mid: "The watchtower shaft climbs higher.", done: "A watchtower keeps vigil!" },
@@ -3903,6 +3936,7 @@
           statue:   { mid: "Stone is shaped into a heroic likeness.", done: "A statue commemorates a forgotten hero." },
           marketstall: { mid: "A merchant raises a market stall.", done: "The stall opens for business!" },
           guardpost:   { mid: "A guard post rises beside the road.", done: "Watchmen take their posts." },
+          blacksmith:  { mid: "The smithy's chimney climbs skyward.", done: "The forge roars to life — the blacksmith is open!" },
         };
 
         // Palette variants make each house feel like its own building rather than a copy
@@ -3925,6 +3959,920 @@
           "a-frame",
           "longhouse",
         ];
+
+        // Hand-drawn market tiers. Each tier is its own asset with a larger viewBox
+        // and more architectural detail — not a CSS-scaled version of a smaller one.
+        function marketstallSVG(palette, tier) {
+          const awning  = (palette && palette.roof)  || "#c84a35";
+          const awningL = (palette && palette.roofL) || "#e06a45";
+          const awningD = (palette && palette.roofD) || "#8a2818";
+          const t = Math.max(0, Math.min(4, tier || 0));
+
+          if (t === 0) {
+            return `<svg viewBox="0 0 32 36" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+              <rect x="0" y="34" width="32" height="2" fill="#3a2818"/>
+              <g class="hs-walls" opacity="0">
+                <rect x="2" y="14" width="2" height="22" fill="#5a3818"/>
+                <rect x="2" y="14" width="2" height="2" fill="#7a4828"/>
+                <rect x="28" y="14" width="2" height="22" fill="#5a3818"/>
+                <rect x="28" y="14" width="2" height="2" fill="#7a4828"/>
+                <rect x="2" y="14" width="28" height="2" fill="#6a4828"/>
+                <rect x="2" y="14" width="28" height="0.6" fill="#8a6840"/>
+                <rect x="2" y="24" width="28" height="3" fill="#7a5028"/>
+                <rect x="2" y="24" width="28" height="0.8" fill="#9a6838"/>
+                <rect x="2" y="27" width="28" height="0.8" fill="#5a3818"/>
+                <rect x="5" y="27" width="1.5" height="7" fill="#5a3818"/>
+                <rect x="14" y="27" width="1.5" height="7" fill="#5a3818"/>
+                <rect x="25" y="27" width="1.5" height="7" fill="#5a3818"/>
+              </g>
+              <g class="hs-roof" opacity="0">
+                <polygon points="0,14 32,14 30,8 2,8" fill="${awning}"/>
+                <polygon points="2,13 30,13 28,9 4,9" fill="${awningL}"/>
+                <rect x="0" y="14" width="32" height="1" fill="${awningD}"/>
+                <rect x="6"  y="9"  width="2" height="5" fill="${awningD}" opacity="0.5"/>
+                <rect x="13" y="9"  width="2" height="5" fill="${awningD}" opacity="0.5"/>
+                <rect x="20" y="9"  width="2" height="5" fill="${awningD}" opacity="0.5"/>
+                <rect x="3"  y="14" width="2" height="1.5" fill="${awning}"/>
+                <rect x="10" y="14" width="2" height="1.5" fill="${awning}"/>
+                <rect x="17" y="14" width="2" height="1.5" fill="${awning}"/>
+                <rect x="24" y="14" width="2" height="1.5" fill="${awning}"/>
+                <rect x="6" y="20" width="6" height="4" fill="#7a5028"/>
+                <rect x="6" y="20" width="6" height="1" fill="#9a6838"/>
+                <rect x="6" y="20" width="1" height="4" fill="#5a3818"/>
+                <rect x="11" y="20" width="1" height="4" fill="#5a3818"/>
+                <rect x="7" y="18" width="1" height="2" fill="#e04060"/>
+                <rect x="9" y="17" width="1" height="3" fill="#f0c440"/>
+                <rect x="11" y="18" width="1" height="2" fill="#8040b0"/>
+                <rect x="16" y="22" width="3" height="2" fill="#d4a017"/>
+                <rect x="16" y="22" width="3" height="0.5" fill="#f0c440"/>
+                <rect x="20" y="20" width="3" height="4" fill="#a86038"/>
+                <rect x="20" y="20" width="3" height="0.5" fill="#c87858"/>
+                <rect x="14" y="14" width="0.6" height="3" fill="#3a2410"/>
+                <rect x="11" y="17" width="6" height="3" fill="#5a3818"/>
+                <rect x="11" y="17" width="6" height="0.6" fill="#7a4828"/>
+                <rect x="13" y="18" width="2" height="1" fill="#d4a017"/>
+              </g>
+              <g class="hs-windows-lit">
+                <rect x="25" y="16" width="3" height="3" fill="#f0c440"/>
+                <rect x="25" y="15" width="3" height="1" fill="#3a2410"/>
+                <rect x="25" y="16" width="3" height="1" fill="#fff4a0"/>
+              </g>
+            </svg>`;
+          }
+
+          if (t === 1) {
+            return `<svg viewBox="0 0 52 40" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+              <rect x="0" y="38" width="52" height="2" fill="#3a2818"/>
+              <g class="hs-walls" opacity="1">
+                <rect x="2" y="14" width="2" height="24" fill="#5a3818"/>
+                <rect x="2" y="14" width="2" height="2" fill="#7a4828"/>
+                <rect x="25" y="14" width="2" height="24" fill="#5a3818"/>
+                <rect x="25" y="14" width="2" height="2" fill="#7a4828"/>
+                <rect x="48" y="14" width="2" height="24" fill="#5a3818"/>
+                <rect x="48" y="14" width="2" height="2" fill="#7a4828"/>
+                <rect x="2" y="14" width="48" height="2" fill="#6a4828"/>
+                <rect x="2" y="14" width="48" height="0.6" fill="#8a6840"/>
+                <rect x="2" y="26" width="23" height="3" fill="#7a5028"/>
+                <rect x="2" y="26" width="23" height="0.8" fill="#9a6838"/>
+                <rect x="2" y="29" width="23" height="0.8" fill="#5a3818"/>
+                <rect x="27" y="26" width="23" height="3" fill="#7a5028"/>
+                <rect x="27" y="26" width="23" height="0.8" fill="#9a6838"/>
+                <rect x="27" y="29" width="23" height="0.8" fill="#5a3818"/>
+                <rect x="6" y="29" width="1.5" height="9" fill="#5a3818"/>
+                <rect x="20" y="29" width="1.5" height="9" fill="#5a3818"/>
+                <rect x="32" y="29" width="1.5" height="9" fill="#5a3818"/>
+                <rect x="44" y="29" width="1.5" height="9" fill="#5a3818"/>
+                <rect x="10" y="34" width="4" height="1.2" fill="#7a4828"/>
+                <rect x="11" y="35" width="1" height="3" fill="#5a3818"/>
+                <rect x="13" y="35" width="1" height="3" fill="#5a3818"/>
+              </g>
+              <g class="hs-roof" opacity="1">
+                <polygon points="0,14 26,14 24,8 2,8" fill="${awning}"/>
+                <polygon points="2,13 24,13 22,9 4,9" fill="${awningL}"/>
+                <rect x="0" y="14" width="26" height="1" fill="${awningD}"/>
+                <rect x="6"  y="9" width="2" height="5" fill="${awningD}" opacity="0.5"/>
+                <rect x="14" y="9" width="2" height="5" fill="${awningD}" opacity="0.5"/>
+                <rect x="20" y="9" width="2" height="5" fill="${awningD}" opacity="0.5"/>
+                <polygon points="26,14 52,14 50,8 28,8" fill="${awning}"/>
+                <polygon points="28,13 50,13 48,9 30,9" fill="${awningL}"/>
+                <rect x="26" y="14" width="26" height="1" fill="${awningD}"/>
+                <rect x="32" y="9" width="2" height="5" fill="${awningD}" opacity="0.5"/>
+                <rect x="40" y="9" width="2" height="5" fill="${awningD}" opacity="0.5"/>
+                <rect x="46" y="9" width="2" height="5" fill="${awningD}" opacity="0.5"/>
+                <rect x="4"  y="14" width="2" height="1.5" fill="${awning}"/>
+                <rect x="11" y="14" width="2" height="1.5" fill="${awning}"/>
+                <rect x="18" y="14" width="2" height="1.5" fill="${awning}"/>
+                <rect x="30" y="14" width="2" height="1.5" fill="${awning}"/>
+                <rect x="37" y="14" width="2" height="1.5" fill="${awning}"/>
+                <rect x="44" y="14" width="2" height="1.5" fill="${awning}"/>
+                <rect x="5" y="22" width="6" height="4" fill="#7a5028"/>
+                <rect x="5" y="22" width="6" height="1" fill="#9a6838"/>
+                <rect x="6" y="20" width="1" height="2" fill="#e04060"/>
+                <rect x="8" y="19" width="1" height="3" fill="#f0c440"/>
+                <rect x="10" y="20" width="1" height="2" fill="#8040b0"/>
+                <rect x="13" y="22" width="3" height="4" fill="#a86038"/>
+                <rect x="13" y="22" width="3" height="0.5" fill="#c87858"/>
+                <rect x="18" y="23" width="4" height="3" fill="#d4a017"/>
+                <rect x="18" y="23" width="4" height="0.5" fill="#f0c440"/>
+                <rect x="16" y="18" width="0.8" height="4" fill="#5a3818"/>
+                <rect x="14" y="18" width="6" height="0.6" fill="#5a3818"/>
+                <rect x="14" y="19" width="2" height="0.8" fill="#9a9088"/>
+                <rect x="18" y="19" width="2" height="0.8" fill="#9a9088"/>
+                <rect x="29" y="22" width="3" height="4" fill="#3a6a8a"/>
+                <rect x="29" y="22" width="3" height="0.5" fill="#5a8aaa"/>
+                <rect x="33" y="22" width="3" height="4" fill="#8a2818"/>
+                <rect x="33" y="22" width="3" height="0.5" fill="#a8483a"/>
+                <rect x="37" y="22" width="3" height="4" fill="#6a4828"/>
+                <rect x="37" y="22" width="3" height="0.5" fill="#8a6840"/>
+                <rect x="41" y="22" width="3" height="4" fill="#5a8a3a"/>
+                <rect x="41" y="22" width="3" height="0.5" fill="#7aaa5a"/>
+                <rect x="45" y="22" width="3" height="4" fill="#a87838"/>
+                <rect x="45" y="22" width="3" height="0.5" fill="#c89858"/>
+                <rect x="25.7" y="14" width="0.6" height="4" fill="#3a2410"/>
+                <rect x="24" y="17" width="4" height="4" fill="#3a2410"/>
+                <rect x="25" y="18" width="2" height="2" fill="#f0c440"/>
+                <rect x="12" y="14" width="0.6" height="3" fill="#3a2410"/>
+                <rect x="9" y="17" width="6" height="3" fill="#5a3818"/>
+                <rect x="9" y="17" width="6" height="0.6" fill="#7a4828"/>
+                <rect x="11" y="18" width="2" height="1" fill="#d4a017"/>
+                <rect x="38" y="14" width="0.6" height="3" fill="#3a2410"/>
+                <rect x="35" y="17" width="6" height="3" fill="#5a3818"/>
+                <rect x="35" y="17" width="6" height="0.6" fill="#7a4828"/>
+                <rect x="37" y="18" width="2" height="1" fill="#d4a017"/>
+              </g>
+              <g class="hs-windows-lit">
+                <rect x="24" y="17" width="4" height="4" fill="#3a2410"/>
+                <rect x="25" y="18" width="2" height="2" fill="#fff4a0"/>
+                <rect x="24" y="17" width="4" height="4" fill="#f0c440" opacity="0.4"/>
+              </g>
+            </svg>`;
+          }
+
+          if (t === 2) {
+            return `<svg viewBox="0 0 80 54" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+              <rect x="0" y="52" width="80" height="2" fill="#3a2818"/>
+              <g class="hs-walls" opacity="1">
+                <rect x="0" y="46" width="80" height="6" fill="#a8a098"/>
+                <rect x="0" y="46" width="80" height="1" fill="#c8c0b0"/>
+                <rect x="0" y="51" width="80" height="1" fill="#80786a"/>
+                <rect x="6" y="48" width="4" height="1" fill="#80786a"/>
+                <rect x="18" y="48" width="4" height="1" fill="#80786a"/>
+                <rect x="30" y="48" width="4" height="1" fill="#80786a"/>
+                <rect x="42" y="48" width="4" height="1" fill="#80786a"/>
+                <rect x="54" y="48" width="4" height="1" fill="#80786a"/>
+                <rect x="66" y="48" width="4" height="1" fill="#80786a"/>
+                <rect x="3" y="14" width="2.5" height="32" fill="#5a3818"/>
+                <rect x="3" y="14" width="2.5" height="2" fill="#7a4828"/>
+                <rect x="27" y="14" width="2.5" height="32" fill="#5a3818"/>
+                <rect x="27" y="14" width="2.5" height="2" fill="#7a4828"/>
+                <rect x="51" y="14" width="2.5" height="32" fill="#5a3818"/>
+                <rect x="51" y="14" width="2.5" height="2" fill="#7a4828"/>
+                <rect x="74" y="14" width="2.5" height="32" fill="#5a3818"/>
+                <rect x="74" y="14" width="2.5" height="2" fill="#7a4828"/>
+                <rect x="3" y="14" width="74" height="2.5" fill="#6a4828"/>
+                <rect x="3" y="14" width="74" height="0.8" fill="#8a6840"/>
+                <rect x="3" y="32" width="24" height="3.5" fill="#7a5028"/>
+                <rect x="3" y="32" width="24" height="0.8" fill="#9a6838"/>
+                <rect x="3" y="35" width="24" height="0.8" fill="#5a3818"/>
+                <rect x="27" y="32" width="24" height="3.5" fill="#7a5028"/>
+                <rect x="27" y="32" width="24" height="0.8" fill="#9a6838"/>
+                <rect x="27" y="35" width="24" height="0.8" fill="#5a3818"/>
+                <rect x="51" y="32" width="25" height="3.5" fill="#7a5028"/>
+                <rect x="51" y="32" width="25" height="0.8" fill="#9a6838"/>
+                <rect x="51" y="35" width="25" height="0.8" fill="#5a3818"/>
+                <rect x="8" y="36" width="1.5" height="10" fill="#5a3818"/>
+                <rect x="20" y="36" width="1.5" height="10" fill="#5a3818"/>
+                <rect x="32" y="36" width="1.5" height="10" fill="#5a3818"/>
+                <rect x="44" y="36" width="1.5" height="10" fill="#5a3818"/>
+                <rect x="56" y="36" width="1.5" height="10" fill="#5a3818"/>
+                <rect x="68" y="36" width="1.5" height="10" fill="#5a3818"/>
+                <rect x="60" y="40" width="6" height="6" fill="#6a4828"/>
+                <rect x="60" y="40" width="6" height="0.8" fill="#8a6840"/>
+                <rect x="60" y="42" width="6" height="0.6" fill="#3a2410"/>
+                <rect x="60" y="44.5" width="6" height="0.6" fill="#3a2410"/>
+                <rect x="68" y="40" width="6" height="6" fill="#6a4828"/>
+                <rect x="68" y="40" width="6" height="0.8" fill="#8a6840"/>
+                <rect x="68" y="42" width="6" height="0.6" fill="#3a2410"/>
+                <rect x="68" y="44.5" width="6" height="0.6" fill="#3a2410"/>
+                <rect x="64" y="34" width="6" height="6" fill="#6a4828"/>
+                <rect x="64" y="34" width="6" height="0.8" fill="#8a6840"/>
+                <rect x="64" y="36" width="6" height="0.6" fill="#3a2410"/>
+                <rect x="64" y="38.5" width="6" height="0.6" fill="#3a2410"/>
+                <rect x="1" y="40" width="6" height="6" fill="#a87838"/>
+                <rect x="1" y="40" width="6" height="0.8" fill="#c89858"/>
+                <rect x="1" y="40" width="0.8" height="6" fill="#7a5028"/>
+                <rect x="6.2" y="40" width="0.8" height="6" fill="#7a5028"/>
+                <rect x="1" y="43" width="6" height="0.6" fill="#7a5028"/>
+              </g>
+              <g class="hs-roof" opacity="1">
+                <polygon points="0,14 80,14 76,4 4,4" fill="${awning}"/>
+                <polygon points="3,13 77,13 73,5 7,5" fill="${awningL}"/>
+                <rect x="0" y="14" width="80" height="1.2" fill="${awningD}"/>
+                <rect x="4" y="3" width="72" height="1.5" fill="${awningD}"/>
+                <rect x="10" y="6" width="2.5" height="8" fill="${awningD}" opacity="0.4"/>
+                <rect x="22" y="6" width="2.5" height="8" fill="${awningD}" opacity="0.4"/>
+                <rect x="34" y="6" width="2.5" height="8" fill="${awningD}" opacity="0.4"/>
+                <rect x="46" y="6" width="2.5" height="8" fill="${awningD}" opacity="0.4"/>
+                <rect x="58" y="6" width="2.5" height="8" fill="${awningD}" opacity="0.4"/>
+                <rect x="68" y="6" width="2.5" height="8" fill="${awningD}" opacity="0.4"/>
+                <rect x="6"  y="14" width="3" height="2" fill="${awning}"/>
+                <rect x="14" y="14" width="3" height="2" fill="${awning}"/>
+                <rect x="22" y="14" width="3" height="2" fill="${awning}"/>
+                <rect x="30" y="14" width="3" height="2" fill="${awning}"/>
+                <rect x="38" y="14" width="3" height="2" fill="${awning}"/>
+                <rect x="46" y="14" width="3" height="2" fill="${awning}"/>
+                <rect x="54" y="14" width="3" height="2" fill="${awning}"/>
+                <rect x="62" y="14" width="3" height="2" fill="${awning}"/>
+                <rect x="70" y="14" width="3" height="2" fill="${awning}"/>
+                <rect x="6" y="26" width="6" height="6" fill="#7a5028"/>
+                <rect x="6" y="26" width="6" height="1" fill="#9a6838"/>
+                <rect x="7" y="23" width="1" height="3" fill="#e04060"/>
+                <rect x="9" y="22" width="1" height="4" fill="#f0c440"/>
+                <rect x="11" y="23" width="1" height="3" fill="#8040b0"/>
+                <rect x="14" y="27" width="5" height="5" fill="#c89858"/>
+                <rect x="14" y="27" width="5" height="0.6" fill="#e0b878"/>
+                <rect x="20" y="28" width="5" height="4" fill="#a87838"/>
+                <rect x="20" y="28" width="5" height="0.6" fill="#c89858"/>
+                <rect x="30" y="26" width="3" height="6" fill="#3a6a8a"/>
+                <rect x="30" y="26" width="3" height="0.6" fill="#5a8aaa"/>
+                <rect x="34" y="26" width="3" height="6" fill="#8a2818"/>
+                <rect x="34" y="26" width="3" height="0.6" fill="#a8483a"/>
+                <rect x="38" y="26" width="3" height="6" fill="#5a8a3a"/>
+                <rect x="38" y="26" width="3" height="0.6" fill="#7aaa5a"/>
+                <rect x="42" y="26" width="3" height="6" fill="#6a4828"/>
+                <rect x="42" y="26" width="3" height="0.6" fill="#8a6840"/>
+                <rect x="46" y="26" width="3" height="6" fill="#a87838"/>
+                <rect x="46" y="26" width="3" height="0.6" fill="#c89858"/>
+                <rect x="54" y="26" width="0.8" height="6" fill="#5a3818"/>
+                <rect x="51.5" y="26" width="6" height="0.6" fill="#5a3818"/>
+                <rect x="51.5" y="27" width="2" height="1" fill="#9a9088"/>
+                <rect x="55.5" y="27" width="2" height="1" fill="#9a9088"/>
+                <rect x="58" y="28" width="2" height="4" fill="#5a8a3a"/>
+                <rect x="58" y="28" width="2" height="0.6" fill="#7aaa5a"/>
+                <rect x="61" y="29" width="2" height="3" fill="#3a6a8a"/>
+                <rect x="61" y="29" width="2" height="0.6" fill="#5a8aaa"/>
+                <rect x="38" y="36" width="1.2" height="14" fill="#5a3818"/>
+                <rect x="34" y="36" width="9" height="4" fill="#5a3818"/>
+                <rect x="34" y="36" width="9" height="0.6" fill="#7a4828"/>
+                <rect x="35" y="37" width="3" height="2" fill="#d4a017"/>
+                <rect x="39" y="37" width="3" height="2" fill="#d4a017"/>
+                <rect x="15" y="14" width="0.6" height="3" fill="#3a2410"/>
+                <rect x="13" y="17" width="4" height="4" fill="#3a2410"/>
+                <rect x="14" y="18" width="2" height="2" fill="#f0c440"/>
+                <rect x="63" y="14" width="0.6" height="3" fill="#3a2410"/>
+                <rect x="61" y="17" width="4" height="4" fill="#3a2410"/>
+                <rect x="62" y="18" width="2" height="2" fill="#f0c440"/>
+              </g>
+              <g class="hs-windows-lit">
+                <rect x="13" y="17" width="4" height="4" fill="#3a2410"/>
+                <rect x="14" y="18" width="2" height="2" fill="#fff4a0"/>
+                <rect x="13" y="17" width="4" height="4" fill="#f0c440" opacity="0.4"/>
+                <rect x="61" y="17" width="4" height="4" fill="#3a2410"/>
+                <rect x="62" y="18" width="2" height="2" fill="#fff4a0"/>
+                <rect x="61" y="17" width="4" height="4" fill="#f0c440" opacity="0.4"/>
+              </g>
+            </svg>`;
+          }
+
+          return `<svg viewBox="0 0 120 68" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+            <rect x="0" y="66" width="120" height="2" fill="#3a2818"/>
+            <g class="hs-walls" opacity="1">
+              <rect x="0" y="58" width="120" height="8" fill="#a8a098"/>
+              <rect x="0" y="58" width="120" height="1" fill="#c8c0b0"/>
+              <rect x="0" y="65" width="120" height="1" fill="#80786a"/>
+              <rect x="6" y="61" width="5" height="1.2" fill="#80786a"/>
+              <rect x="18" y="61" width="5" height="1.2" fill="#80786a"/>
+              <rect x="30" y="61" width="5" height="1.2" fill="#80786a"/>
+              <rect x="42" y="61" width="5" height="1.2" fill="#80786a"/>
+              <rect x="54" y="61" width="5" height="1.2" fill="#80786a"/>
+              <rect x="66" y="61" width="5" height="1.2" fill="#80786a"/>
+              <rect x="78" y="61" width="5" height="1.2" fill="#80786a"/>
+              <rect x="90" y="61" width="5" height="1.2" fill="#80786a"/>
+              <rect x="102" y="61" width="5" height="1.2" fill="#80786a"/>
+              <rect x="54" y="62" width="12" height="2" fill="#9a9088"/>
+              <rect x="56" y="60" width="8" height="2" fill="#9a9088"/>
+              <rect x="58" y="58" width="4" height="2" fill="#9a9088"/>
+              <rect x="3" y="22" width="3" height="36" fill="#5a3818"/>
+              <rect x="3" y="22" width="3" height="2.5" fill="#7a4828"/>
+              <rect x="32" y="22" width="3" height="36" fill="#5a3818"/>
+              <rect x="32" y="22" width="3" height="2.5" fill="#7a4828"/>
+              <rect x="58.5" y="22" width="3" height="36" fill="#5a3818"/>
+              <rect x="58.5" y="22" width="3" height="2.5" fill="#7a4828"/>
+              <rect x="85" y="22" width="3" height="36" fill="#5a3818"/>
+              <rect x="85" y="22" width="3" height="2.5" fill="#7a4828"/>
+              <rect x="114" y="22" width="3" height="36" fill="#5a3818"/>
+              <rect x="114" y="22" width="3" height="2.5" fill="#7a4828"/>
+              <rect x="3" y="22" width="114" height="3" fill="#6a4828"/>
+              <rect x="3" y="22" width="114" height="1" fill="#8a6840"/>
+              <rect x="3" y="24.5" width="114" height="0.5" fill="#3a2410"/>
+              <rect x="3" y="42" width="29" height="4" fill="#7a5028"/>
+              <rect x="3" y="42" width="29" height="1" fill="#9a6838"/>
+              <rect x="3" y="45" width="29" height="1" fill="#5a3818"/>
+              <rect x="32" y="42" width="26.5" height="4" fill="#7a5028"/>
+              <rect x="32" y="42" width="26.5" height="1" fill="#9a6838"/>
+              <rect x="32" y="45" width="26.5" height="1" fill="#5a3818"/>
+              <rect x="61.5" y="42" width="55.5" height="4" fill="#7a5028"/>
+              <rect x="61.5" y="42" width="55.5" height="1" fill="#9a6838"/>
+              <rect x="61.5" y="45" width="55.5" height="1" fill="#5a3818"/>
+              <rect x="8" y="46" width="1.5" height="12" fill="#5a3818"/>
+              <rect x="22" y="46" width="1.5" height="12" fill="#5a3818"/>
+              <rect x="38" y="46" width="1.5" height="12" fill="#5a3818"/>
+              <rect x="52" y="46" width="1.5" height="12" fill="#5a3818"/>
+              <rect x="68" y="46" width="1.5" height="12" fill="#5a3818"/>
+              <rect x="80" y="46" width="1.5" height="12" fill="#5a3818"/>
+              <rect x="92" y="46" width="1.5" height="12" fill="#5a3818"/>
+              <rect x="104" y="46" width="1.5" height="12" fill="#5a3818"/>
+              <rect x="1" y="50" width="8" height="8" fill="#a87838"/>
+              <rect x="1" y="50" width="8" height="1" fill="#c89858"/>
+              <rect x="1" y="50" width="1" height="8" fill="#7a5028"/>
+              <rect x="8" y="50" width="1" height="8" fill="#7a5028"/>
+              <rect x="1" y="53.5" width="8" height="0.8" fill="#7a5028"/>
+              <rect x="3" y="44" width="6" height="6" fill="#a87838"/>
+              <rect x="3" y="44" width="6" height="1" fill="#c89858"/>
+              <rect x="3" y="44" width="0.8" height="6" fill="#7a5028"/>
+              <rect x="8.2" y="44" width="0.8" height="6" fill="#7a5028"/>
+            </g>
+            <g class="hs-roof" opacity="1">
+              <polygon points="0,22 120,22 114,8 6,8" fill="${awning}"/>
+              <polygon points="4,21 116,21 110,9 10,9" fill="${awningL}"/>
+              <rect x="0" y="22" width="120" height="1.6" fill="${awningD}"/>
+              <rect x="6" y="7" width="108" height="2" fill="${awningD}"/>
+              <rect x="12" y="10" width="3" height="12" fill="${awningD}" opacity="0.4"/>
+              <rect x="26" y="10" width="3" height="12" fill="${awningD}" opacity="0.4"/>
+              <rect x="40" y="10" width="3" height="12" fill="${awningD}" opacity="0.4"/>
+              <rect x="54" y="10" width="3" height="12" fill="${awningD}" opacity="0.4"/>
+              <rect x="68" y="10" width="3" height="12" fill="${awningD}" opacity="0.4"/>
+              <rect x="82" y="10" width="3" height="12" fill="${awningD}" opacity="0.4"/>
+              <rect x="96" y="10" width="3" height="12" fill="${awningD}" opacity="0.4"/>
+              <rect x="108" y="10" width="3" height="12" fill="${awningD}" opacity="0.4"/>
+              <rect x="6"  y="22" width="4" height="2.5" fill="${awning}"/>
+              <rect x="16" y="22" width="4" height="2.5" fill="${awning}"/>
+              <rect x="26" y="22" width="4" height="2.5" fill="${awning}"/>
+              <rect x="36" y="22" width="4" height="2.5" fill="${awning}"/>
+              <rect x="46" y="22" width="4" height="2.5" fill="${awning}"/>
+              <rect x="56" y="22" width="4" height="2.5" fill="${awning}"/>
+              <rect x="66" y="22" width="4" height="2.5" fill="${awning}"/>
+              <rect x="76" y="22" width="4" height="2.5" fill="${awning}"/>
+              <rect x="86" y="22" width="4" height="2.5" fill="${awning}"/>
+              <rect x="96" y="22" width="4" height="2.5" fill="${awning}"/>
+              <rect x="106" y="22" width="4" height="2.5" fill="${awning}"/>
+              <rect x="59.5" y="-6" width="1" height="14" fill="#3a2410"/>
+              <polygon points="60.5,-6 70,-3 60.5,0" fill="${awning}"/>
+              <polygon points="59.5,1 50,4 59.5,7" fill="${awningD}"/>
+              <rect x="7" y="34" width="3" height="8" fill="#5a8a3a"/>
+              <rect x="7" y="34" width="3" height="1" fill="#7aaa5a"/>
+              <rect x="11" y="36" width="3" height="6" fill="#a87838"/>
+              <rect x="11" y="36" width="3" height="0.8" fill="#c89858"/>
+              <rect x="15" y="34" width="3" height="8" fill="#8a2818"/>
+              <rect x="15" y="34" width="3" height="1" fill="#a8483a"/>
+              <rect x="19" y="36" width="3" height="6" fill="#3a6a8a"/>
+              <rect x="19" y="36" width="3" height="0.8" fill="#5a8aaa"/>
+              <rect x="23" y="34" width="3" height="8" fill="#f0c440"/>
+              <rect x="23" y="34" width="3" height="1" fill="#fff4a0"/>
+              <rect x="27" y="36" width="3" height="6" fill="#c84a35"/>
+              <rect x="27" y="36" width="3" height="0.8" fill="#e06a45"/>
+              <rect x="36" y="26" width="2" height="10" fill="#5a3818"/>
+              <rect x="35" y="26" width="4" height="1.2" fill="#5a3818"/>
+              <rect x="34" y="27" width="6" height="3" fill="#a8483a"/>
+              <rect x="35" y="30" width="4" height="3" fill="#c84a35"/>
+              <rect x="42" y="27" width="6" height="4" fill="#a8483a"/>
+              <rect x="43" y="31" width="4" height="2" fill="#c84a35"/>
+              <rect x="50" y="27" width="6" height="3" fill="#a8483a"/>
+              <rect x="51" y="30" width="4" height="3" fill="#c84a35"/>
+              <rect x="40" y="36" width="8" height="6" fill="#6a4828"/>
+              <rect x="40" y="36" width="8" height="1" fill="#8a6840"/>
+              <rect x="48" y="37" width="3" height="5" fill="#9a9088"/>
+              <rect x="48" y="37" width="3" height="0.6" fill="#c8c0b0"/>
+              <rect x="64" y="34" width="4" height="8" fill="#3a6a8a"/>
+              <rect x="64" y="34" width="4" height="1" fill="#5a8aaa"/>
+              <rect x="70" y="34" width="4" height="8" fill="#8a2818"/>
+              <rect x="70" y="34" width="4" height="1" fill="#a8483a"/>
+              <rect x="76" y="34" width="4" height="8" fill="#5a8a3a"/>
+              <rect x="76" y="34" width="4" height="1" fill="#7aaa5a"/>
+              <rect x="82" y="34" width="4" height="8" fill="#6a4828"/>
+              <rect x="82" y="34" width="4" height="1" fill="#8a6840"/>
+              <rect x="88" y="34" width="4" height="8" fill="#a87838"/>
+              <rect x="88" y="34" width="4" height="1" fill="#c89858"/>
+              <rect x="97" y="32" width="0.8" height="10" fill="#5a3818"/>
+              <rect x="93" y="32" width="9" height="0.8" fill="#5a3818"/>
+              <rect x="93" y="33" width="3" height="1" fill="#9a9088"/>
+              <rect x="99" y="33" width="3" height="1" fill="#9a9088"/>
+              <rect x="105" y="36" width="3" height="6" fill="#3a6a8a"/>
+              <rect x="105" y="36" width="3" height="0.8" fill="#5a8aaa"/>
+              <rect x="109" y="34" width="3" height="8" fill="#5a8a3a"/>
+              <rect x="109" y="34" width="3" height="0.8" fill="#7aaa5a"/>
+              <rect x="113" y="36" width="3" height="6" fill="#c84a35"/>
+              <rect x="113" y="36" width="3" height="0.8" fill="#e06a45"/>
+              <rect x="18" y="22" width="0.6" height="4" fill="#3a2410"/>
+              <rect x="15" y="26" width="6" height="5" fill="#3a2410"/>
+              <rect x="16.5" y="27" width="3" height="3" fill="#f0c440"/>
+              <rect x="58.5" y="22" width="0.6" height="4" fill="#3a2410"/>
+              <rect x="56" y="26" width="6" height="5" fill="#3a2410"/>
+              <rect x="57.5" y="27" width="3" height="3" fill="#f0c440"/>
+              <rect x="98" y="22" width="0.6" height="4" fill="#3a2410"/>
+              <rect x="95" y="26" width="6" height="5" fill="#3a2410"/>
+              <rect x="96.5" y="27" width="3" height="3" fill="#f0c440"/>
+              <rect x="6" y="28" width="0.6" height="6" fill="#3a2410"/>
+              <rect x="2" y="30" width="8" height="0.8" fill="#3a2410"/>
+              <rect x="2" y="30.8" width="2.5" height="1" fill="#9a9088"/>
+              <rect x="7.5" y="30.8" width="2.5" height="1" fill="#9a9088"/>
+              <rect x="22" y="22" width="0.6" height="4" fill="#3a2410"/>
+              <rect x="18" y="26" width="9" height="4" fill="#5a3818"/>
+              <rect x="18" y="26" width="9" height="0.8" fill="#7a4828"/>
+              <rect x="20" y="27" width="5" height="2" fill="#d4a017"/>
+              <rect x="78" y="22" width="0.6" height="4" fill="#3a2410"/>
+              <rect x="74" y="26" width="9" height="4" fill="#5a3818"/>
+              <rect x="74" y="26" width="9" height="0.8" fill="#7a4828"/>
+              <rect x="76" y="27" width="5" height="2" fill="#d4a017"/>
+            </g>
+            <g class="hs-windows-lit">
+              <rect x="15" y="26" width="6" height="5" fill="#3a2410"/>
+              <rect x="16.5" y="27" width="3" height="3" fill="#fff4a0"/>
+              <rect x="15" y="26" width="6" height="5" fill="#f0c440" opacity="0.4"/>
+              <rect x="56" y="26" width="6" height="5" fill="#3a2410"/>
+              <rect x="57.5" y="27" width="3" height="3" fill="#fff4a0"/>
+              <rect x="56" y="26" width="6" height="5" fill="#f0c440" opacity="0.4"/>
+              <rect x="95" y="26" width="6" height="5" fill="#3a2410"/>
+              <rect x="96.5" y="27" width="3" height="3" fill="#fff4a0"/>
+              <rect x="95" y="26" width="6" height="5" fill="#f0c440" opacity="0.4"/>
+            </g>
+          </svg>`;
+        }
+
+        // Hand-drawn castle tiers. Each tier adds a brand-new wing/structure to the right
+        // of the base castle — bigger asset with more architectural detail, NOT a CSS scale.
+        function castleSVG(palette, tier) {
+          const t = Math.max(0, Math.min(4, tier || 0));
+          const w = [200, 240, 290, 360, 430][t];
+          const h = [150, 156, 168, 184, 204][t];
+
+          const tier1 = t >= 1 ? `
+            <!-- Tier 1: outer drum tower on the right -->
+            <g class="castle-ext">
+              <rect x="200" y="142" width="40" height="8" fill="#5a4030"/>
+              <rect x="200" y="142" width="40" height="2" fill="#7a5840"/>
+              <rect x="200" y="148" width="40" height="2" fill="#3a2818"/>
+              <rect x="206" y="76" width="28" height="66" fill="#a8a098"/>
+              <rect x="206" y="76" width="28" height="3" fill="#c8c0b0"/>
+              <rect x="206" y="139" width="28" height="3" fill="#80786a"/>
+              <rect x="210" y="84" width="4" height="2" fill="#80786a"/>
+              <rect x="224" y="84" width="4" height="2" fill="#80786a"/>
+              <rect x="212" y="96" width="4" height="2" fill="#9a9088"/>
+              <rect x="222" y="96" width="4" height="2" fill="#80786a"/>
+              <rect x="210" y="108" width="4" height="2" fill="#80786a"/>
+              <rect x="224" y="108" width="4" height="2" fill="#9a9088"/>
+              <rect x="212" y="120" width="4" height="2" fill="#9a9088"/>
+              <rect x="222" y="120" width="4" height="2" fill="#80786a"/>
+              <rect x="215" y="88" width="2" height="6" fill="#1a1208"/>
+              <rect x="221" y="88" width="2" height="6" fill="#1a1208"/>
+              <rect x="215" y="106" width="2" height="6" fill="#1a1208"/>
+              <rect x="221" y="106" width="2" height="6" fill="#1a1208"/>
+              <rect x="202" y="118" width="36" height="2" fill="#6a6258"/>
+              <rect x="202" y="118" width="36" height="0.6" fill="#8a8580"/>
+              <rect x="204" y="120" width="1" height="3" fill="#6a6258"/>
+              <rect x="218" y="120" width="1" height="3" fill="#6a6258"/>
+              <rect x="234" y="120" width="1" height="3" fill="#6a6258"/>
+              <rect x="216" y="128" width="3" height="9" fill="#1a1208"/>
+              <rect x="220" y="128" width="3" height="9" fill="#1a1208"/>
+              <rect x="202" y="72" width="36" height="4" fill="#80786a"/>
+              <rect x="202" y="68" width="4" height="4" fill="#80786a"/>
+              <rect x="210" y="68" width="4" height="4" fill="#80786a"/>
+              <rect x="218" y="68" width="4" height="4" fill="#80786a"/>
+              <rect x="226" y="68" width="4" height="4" fill="#80786a"/>
+              <rect x="234" y="68" width="4" height="4" fill="#80786a"/>
+              <polygon points="202,68 238,68 220,44" fill="#6a2818"/>
+              <polygon points="205,68 235,68 220,48" fill="#8a3a25"/>
+              <polygon points="208,68 232,68 220,52" fill="#a8442a"/>
+              <rect x="204" y="64" width="32" height="0.6" fill="#5a1810" opacity="0.6"/>
+              <rect x="208" y="58" width="24" height="0.6" fill="#5a1810" opacity="0.6"/>
+              <rect x="219.5" y="36" width="1" height="10" fill="#3a2410"/>
+              <polygon points="220,40 230,42 220,44" fill="#c84a35"/>
+            </g>
+            <g class="hs-windows-lit">
+              <rect x="215" y="88" width="2" height="6" fill="#d4a017"/>
+              <rect x="221" y="88" width="2" height="6" fill="#d4a017"/>
+              <rect x="215" y="106" width="2" height="6" fill="#d4a017"/>
+              <rect x="221" y="106" width="2" height="6" fill="#d4a017"/>
+              <rect x="216" y="128" width="3" height="9" fill="#d4a017"/>
+              <rect x="220" y="128" width="3" height="9" fill="#d4a017"/>
+            </g>
+          ` : "";
+
+          const tier2 = t >= 2 ? `
+            <!-- Tier 2: extended outer wall + smaller turret -->
+            <g class="castle-ext">
+              <rect x="235" y="142" width="55" height="8" fill="#5a4030"/>
+              <rect x="235" y="142" width="55" height="2" fill="#7a5840"/>
+              <rect x="235" y="148" width="55" height="2" fill="#3a2818"/>
+              <rect x="238" y="106" width="42" height="36" fill="#a8a098"/>
+              <rect x="238" y="106" width="42" height="2" fill="#c8c0b0"/>
+              <rect x="238" y="139" width="42" height="3" fill="#80786a"/>
+              <rect x="238" y="102" width="42" height="4" fill="#80786a"/>
+              <rect x="240" y="98" width="4" height="4" fill="#80786a"/>
+              <rect x="250" y="98" width="4" height="4" fill="#80786a"/>
+              <rect x="260" y="98" width="4" height="4" fill="#80786a"/>
+              <rect x="270" y="98" width="4" height="4" fill="#80786a"/>
+              <rect x="244" y="114" width="4" height="2" fill="#80786a"/>
+              <rect x="258" y="114" width="4" height="2" fill="#9a9088"/>
+              <rect x="272" y="114" width="4" height="2" fill="#80786a"/>
+              <rect x="248" y="126" width="4" height="2" fill="#9a9088"/>
+              <rect x="266" y="126" width="4" height="2" fill="#80786a"/>
+              <rect x="245" y="120" width="1.5" height="6" fill="#1a1208"/>
+              <rect x="260" y="120" width="1.5" height="6" fill="#1a1208"/>
+              <rect x="273" y="120" width="1.5" height="6" fill="#1a1208"/>
+              <rect x="276" y="86" width="18" height="56" fill="#a8a098"/>
+              <rect x="276" y="86" width="18" height="3" fill="#c8c0b0"/>
+              <rect x="276" y="139" width="18" height="3" fill="#80786a"/>
+              <rect x="280" y="92" width="3" height="2" fill="#80786a"/>
+              <rect x="288" y="92" width="3" height="2" fill="#80786a"/>
+              <rect x="280" y="106" width="3" height="2" fill="#9a9088"/>
+              <rect x="288" y="106" width="3" height="2" fill="#80786a"/>
+              <rect x="282" y="98" width="2" height="6" fill="#1a1208"/>
+              <rect x="287" y="98" width="2" height="6" fill="#1a1208"/>
+              <rect x="282" y="115" width="2" height="6" fill="#1a1208"/>
+              <rect x="287" y="115" width="2" height="6" fill="#1a1208"/>
+              <rect x="283" y="124" width="4" height="9" fill="#1a1208"/>
+              <rect x="274" y="82" width="22" height="4" fill="#80786a"/>
+              <rect x="274" y="78" width="4" height="4" fill="#80786a"/>
+              <rect x="282" y="78" width="4" height="4" fill="#80786a"/>
+              <rect x="290" y="78" width="4" height="4" fill="#80786a"/>
+              <polygon points="274,78 296,78 285,60" fill="#6a2818"/>
+              <polygon points="276,78 294,78 285,64" fill="#8a3a25"/>
+              <rect x="285" y="52" width="0.8" height="8" fill="#3a2410"/>
+              <polygon points="286,53 293,55 286,57" fill="#c84a35"/>
+            </g>
+            <g class="hs-windows-lit">
+              <rect x="245" y="120" width="1.5" height="6" fill="#d4a017"/>
+              <rect x="260" y="120" width="1.5" height="6" fill="#d4a017"/>
+              <rect x="273" y="120" width="1.5" height="6" fill="#d4a017"/>
+              <rect x="282" y="98" width="2" height="6" fill="#d4a017"/>
+              <rect x="287" y="98" width="2" height="6" fill="#d4a017"/>
+              <rect x="282" y="115" width="2" height="6" fill="#d4a017"/>
+              <rect x="287" y="115" width="2" height="6" fill="#d4a017"/>
+              <rect x="283" y="124" width="4" height="9" fill="#d4a017"/>
+            </g>
+          ` : "";
+
+          const tier3 = t >= 3 ? `
+            <!-- Tier 3: great-hall east bailey -->
+            <g class="castle-ext">
+              <rect x="294" y="160" width="68" height="8" fill="#5a4030"/>
+              <rect x="294" y="160" width="68" height="2" fill="#7a5840"/>
+              <rect x="298" y="100" width="58" height="60" fill="#a8a098"/>
+              <rect x="298" y="100" width="58" height="3" fill="#c8c0b0"/>
+              <rect x="298" y="157" width="58" height="3" fill="#80786a"/>
+              <rect x="298" y="100" width="3" height="60" fill="#80786a"/>
+              <rect x="353" y="100" width="3" height="60" fill="#80786a"/>
+              <rect x="306" y="112" width="4" height="14" fill="#1a1208"/>
+              <rect x="318" y="112" width="4" height="14" fill="#1a1208"/>
+              <rect x="330" y="112" width="4" height="14" fill="#1a1208"/>
+              <rect x="342" y="112" width="4" height="14" fill="#1a1208"/>
+              <rect x="320" y="138" width="12" height="22" fill="#3a2410"/>
+              <rect x="320" y="138" width="12" height="2" fill="#5a3820"/>
+              <rect x="322" y="142" width="8" height="18" fill="#5a3818"/>
+              <polygon points="295,100 359,100 327,72" fill="#6a2818"/>
+              <polygon points="298,100 356,100 327,76" fill="#8a3a25"/>
+              <polygon points="301,100 353,100 327,80" fill="#a8442a"/>
+              <rect x="298" y="95" width="58" height="0.8" fill="#5a1810" opacity="0.6"/>
+              <rect x="304" y="88" width="46" height="0.8" fill="#5a1810" opacity="0.6"/>
+              <rect x="312" y="80" width="30" height="0.8" fill="#5a1810" opacity="0.6"/>
+              <rect x="326" y="62" width="1.2" height="14" fill="#3a2410"/>
+              <polygon points="327,64 340,66 327,68" fill="#d4a017"/>
+            </g>
+            <g class="hs-windows-lit">
+              <rect x="306" y="112" width="4" height="14" fill="#d4a017"/>
+              <rect x="318" y="112" width="4" height="14" fill="#d4a017"/>
+              <rect x="330" y="112" width="4" height="14" fill="#d4a017"/>
+              <rect x="342" y="112" width="4" height="14" fill="#d4a017"/>
+              <rect x="322" y="142" width="8" height="18" fill="#d4a017" opacity="0.5"/>
+            </g>
+          ` : "";
+
+          const tier4 = t >= 4 ? `
+            <!-- Tier 4: grand cathedral palace wing with stained glass + soaring spire -->
+            <g class="castle-ext">
+              <rect x="360" y="180" width="68" height="8" fill="#5a4030"/>
+              <rect x="360" y="180" width="68" height="2" fill="#7a5840"/>
+              <rect x="364" y="120" width="58" height="60" fill="#a8a098"/>
+              <rect x="364" y="120" width="58" height="3" fill="#c8c0b0"/>
+              <rect x="364" y="177" width="58" height="3" fill="#80786a"/>
+              <rect x="364" y="120" width="3" height="60" fill="#80786a"/>
+              <rect x="380" y="120" width="2" height="60" fill="#80786a"/>
+              <rect x="404" y="120" width="2" height="60" fill="#80786a"/>
+              <rect x="419" y="120" width="3" height="60" fill="#80786a"/>
+              <rect x="369" y="130" width="9" height="18" fill="#1a1208"/>
+              <rect x="370" y="131" width="3" height="6" fill="#3a6a8a"/>
+              <rect x="374" y="131" width="3" height="6" fill="#c84a35"/>
+              <rect x="370" y="138" width="3" height="6" fill="#5a8a3a"/>
+              <rect x="374" y="138" width="3" height="6" fill="#d4a017"/>
+              <rect x="384" y="130" width="9" height="18" fill="#1a1208"/>
+              <rect x="385" y="131" width="3" height="6" fill="#c84a35"/>
+              <rect x="389" y="131" width="3" height="6" fill="#3a6a8a"/>
+              <rect x="385" y="138" width="3" height="6" fill="#d4a017"/>
+              <rect x="389" y="138" width="3" height="6" fill="#5a8a3a"/>
+              <rect x="394" y="130" width="9" height="18" fill="#1a1208"/>
+              <rect x="395" y="131" width="3" height="6" fill="#5a8a3a"/>
+              <rect x="399" y="131" width="3" height="6" fill="#d4a017"/>
+              <rect x="395" y="138" width="3" height="6" fill="#3a6a8a"/>
+              <rect x="399" y="138" width="3" height="6" fill="#c84a35"/>
+              <rect x="408" y="130" width="9" height="18" fill="#1a1208"/>
+              <rect x="409" y="131" width="3" height="6" fill="#d4a017"/>
+              <rect x="413" y="131" width="3" height="6" fill="#5a8a3a"/>
+              <rect x="409" y="138" width="3" height="6" fill="#c84a35"/>
+              <rect x="413" y="138" width="3" height="6" fill="#3a6a8a"/>
+              <rect x="370" y="160" width="4" height="12" fill="#1a1208"/>
+              <rect x="383" y="160" width="4" height="12" fill="#1a1208"/>
+              <rect x="395" y="160" width="4" height="12" fill="#1a1208"/>
+              <rect x="408" y="160" width="4" height="12" fill="#1a1208"/>
+              <polygon points="361,120 425,120 393,90" fill="#6a2818"/>
+              <polygon points="364,120 422,120 393,94" fill="#8a3a25"/>
+              <polygon points="367,120 419,120 393,98" fill="#a8442a"/>
+              <rect x="364" y="115" width="58" height="0.8" fill="#5a1810" opacity="0.6"/>
+              <rect x="370" y="108" width="46" height="0.8" fill="#5a1810" opacity="0.6"/>
+              <rect x="378" y="100" width="30" height="0.8" fill="#5a1810" opacity="0.6"/>
+              <rect x="390" y="50" width="6" height="40" fill="#a8a098"/>
+              <rect x="390" y="50" width="6" height="2" fill="#c8c0b0"/>
+              <polygon points="388,50 398,50 393,18" fill="#6a2818"/>
+              <polygon points="389,50 397,50 393,24" fill="#8a3a25"/>
+              <rect x="392.5" y="6" width="1" height="14" fill="#d4a017"/>
+              <rect x="391" y="10" width="4" height="1" fill="#d4a017"/>
+              <rect x="391" y="14" width="4" height="1" fill="#d4a017"/>
+            </g>
+            <g class="hs-windows-lit">
+              <rect x="370" y="160" width="4" height="12" fill="#d4a017"/>
+              <rect x="383" y="160" width="4" height="12" fill="#d4a017"/>
+              <rect x="395" y="160" width="4" height="12" fill="#d4a017"/>
+              <rect x="408" y="160" width="4" height="12" fill="#d4a017"/>
+              <rect x="369" y="130" width="9" height="18" fill="#fff4a0" opacity="0.25"/>
+              <rect x="384" y="130" width="9" height="18" fill="#fff4a0" opacity="0.25"/>
+              <rect x="394" y="130" width="9" height="18" fill="#fff4a0" opacity="0.25"/>
+              <rect x="408" y="130" width="9" height="18" fill="#fff4a0" opacity="0.25"/>
+            </g>
+          ` : "";
+
+          // Core castle (200x150) — at upgrade tiers, walls/roof are revealed immediately.
+          const wallOpacity = t === 0 ? 0 : 1;
+          const roofOpacity = t === 0 ? 0 : 1;
+
+          return `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+            <!-- foundation plinth + moat -->
+            <rect x="0" y="142" width="200" height="8" fill="#5a4030"/>
+            <rect x="0" y="142" width="200" height="2" fill="#7a5840"/>
+            <rect x="0" y="148" width="200" height="2" fill="#3a2818"/>
+            <rect x="14" y="141" width="3" height="1" fill="#4a6a30"/>
+            <rect x="58" y="141" width="2" height="1" fill="#5a7a36"/>
+            <rect x="148" y="141" width="3" height="1" fill="#4a6a30"/>
+            <rect x="184" y="141" width="2" height="1" fill="#5a7a36"/>
+            <rect x="74" y="138" width="52" height="4" fill="#2a4878"/>
+            <rect x="74" y="138" width="52" height="1" fill="#4a78a8"/>
+            <rect x="80" y="139" width="6" height="1" fill="#4a78a8" opacity="0.5"/>
+            <rect x="100" y="139" width="6" height="1" fill="#4a78a8" opacity="0.5"/>
+            <rect x="116" y="139" width="6" height="1" fill="#4a78a8" opacity="0.5"/>
+
+            <g class="hs-walls" opacity="${wallOpacity}">
+              <rect x="44" y="80" width="112" height="62" fill="#80786a"/>
+              <rect x="44" y="80" width="112" height="2" fill="#9a9088"/>
+              <rect x="30" y="86" width="140" height="56" fill="#a8a098"/>
+              <rect x="30" y="86" width="140" height="3" fill="#c8c0b0"/>
+              <rect x="30" y="139" width="140" height="3" fill="#80786a"/>
+              <rect x="36" y="94" width="4" height="2" fill="#80786a"/>
+              <rect x="52" y="94" width="4" height="2" fill="#80786a"/>
+              <rect x="68" y="94" width="4" height="2" fill="#9a9088"/>
+              <rect x="128" y="94" width="4" height="2" fill="#9a9088"/>
+              <rect x="144" y="94" width="4" height="2" fill="#80786a"/>
+              <rect x="160" y="94" width="4" height="2" fill="#80786a"/>
+              <rect x="38" y="106" width="4" height="2" fill="#9a9088"/>
+              <rect x="56" y="106" width="4" height="2" fill="#80786a"/>
+              <rect x="140" y="106" width="4" height="2" fill="#80786a"/>
+              <rect x="158" y="106" width="4" height="2" fill="#9a9088"/>
+              <rect x="40" y="120" width="4" height="2" fill="#80786a"/>
+              <rect x="62" y="120" width="4" height="2" fill="#9a9088"/>
+              <rect x="136" y="120" width="4" height="2" fill="#80786a"/>
+              <rect x="156" y="120" width="4" height="2" fill="#9a9088"/>
+              <rect x="48" y="100" width="1.5" height="6" fill="#1a1208"/>
+              <rect x="64" y="100" width="1.5" height="6" fill="#1a1208"/>
+              <rect x="134" y="100" width="1.5" height="6" fill="#1a1208"/>
+              <rect x="150" y="100" width="1.5" height="6" fill="#1a1208"/>
+              <rect x="42" y="112" width="4" height="10" fill="#1a1208"/>
+              <rect x="154" y="112" width="4" height="10" fill="#1a1208"/>
+              <rect x="4" y="60" width="28" height="82" fill="#a8a098"/>
+              <rect x="4" y="60" width="28" height="3" fill="#c8c0b0"/>
+              <rect x="4" y="139" width="28" height="3" fill="#80786a"/>
+              <rect x="8" y="68" width="4" height="2" fill="#80786a"/>
+              <rect x="22" y="68" width="4" height="2" fill="#80786a"/>
+              <rect x="10" y="78" width="4" height="2" fill="#80786a"/>
+              <rect x="20" y="78" width="4" height="2" fill="#80786a"/>
+              <rect x="13" y="72" width="2" height="6" fill="#1a1208"/>
+              <rect x="20" y="72" width="2" height="6" fill="#1a1208"/>
+              <rect x="13" y="92" width="2" height="6" fill="#1a1208"/>
+              <rect x="20" y="92" width="2" height="6" fill="#1a1208"/>
+              <rect x="0" y="106" width="36" height="2" fill="#6a6258"/>
+              <rect x="0" y="106" width="36" height="0.6" fill="#8a8580"/>
+              <rect x="2" y="108" width="1" height="3" fill="#6a6258"/>
+              <rect x="10" y="108" width="1" height="3" fill="#6a6258"/>
+              <rect x="25" y="108" width="1" height="3" fill="#6a6258"/>
+              <rect x="33" y="108" width="1" height="3" fill="#6a6258"/>
+              <rect x="11" y="118" width="3" height="9" fill="#1a1208"/>
+              <rect x="22" y="118" width="3" height="9" fill="#1a1208"/>
+              <rect x="168" y="60" width="28" height="82" fill="#a8a098"/>
+              <rect x="168" y="60" width="28" height="3" fill="#c8c0b0"/>
+              <rect x="168" y="139" width="28" height="3" fill="#80786a"/>
+              <rect x="172" y="68" width="4" height="2" fill="#80786a"/>
+              <rect x="186" y="68" width="4" height="2" fill="#80786a"/>
+              <rect x="174" y="78" width="4" height="2" fill="#80786a"/>
+              <rect x="184" y="78" width="4" height="2" fill="#80786a"/>
+              <rect x="177" y="72" width="2" height="6" fill="#1a1208"/>
+              <rect x="184" y="72" width="2" height="6" fill="#1a1208"/>
+              <rect x="177" y="92" width="2" height="6" fill="#1a1208"/>
+              <rect x="184" y="92" width="2" height="6" fill="#1a1208"/>
+              <rect x="164" y="106" width="36" height="2" fill="#6a6258"/>
+              <rect x="164" y="106" width="36" height="0.6" fill="#8a8580"/>
+              <rect x="166" y="108" width="1" height="3" fill="#6a6258"/>
+              <rect x="174" y="108" width="1" height="3" fill="#6a6258"/>
+              <rect x="189" y="108" width="1" height="3" fill="#6a6258"/>
+              <rect x="197" y="108" width="1" height="3" fill="#6a6258"/>
+              <rect x="175" y="118" width="3" height="9" fill="#1a1208"/>
+              <rect x="186" y="118" width="3" height="9" fill="#1a1208"/>
+              <rect x="38" y="64" width="22" height="22" fill="#80786a"/>
+              <rect x="38" y="64" width="22" height="2" fill="#9a9088"/>
+              <rect x="42" y="70" width="2" height="6" fill="#1a1208"/>
+              <rect x="54" y="70" width="2" height="6" fill="#1a1208"/>
+              <rect x="140" y="64" width="22" height="22" fill="#80786a"/>
+              <rect x="140" y="64" width="22" height="2" fill="#9a9088"/>
+              <rect x="144" y="70" width="2" height="6" fill="#1a1208"/>
+              <rect x="156" y="70" width="2" height="6" fill="#1a1208"/>
+              <rect x="68" y="92" width="14" height="50" fill="#a8a098"/>
+              <rect x="68" y="92" width="14" height="3" fill="#c8c0b0"/>
+              <rect x="118" y="92" width="14" height="50" fill="#a8a098"/>
+              <rect x="118" y="92" width="14" height="3" fill="#c8c0b0"/>
+              <rect x="72" y="100" width="2" height="6" fill="#1a1208"/>
+              <rect x="76" y="100" width="2" height="6" fill="#1a1208"/>
+              <rect x="124" y="100" width="2" height="6" fill="#1a1208"/>
+              <rect x="128" y="100" width="2" height="6" fill="#1a1208"/>
+              <rect x="82" y="100" width="36" height="42" fill="#3a2410"/>
+              <rect x="82" y="100" width="36" height="3" fill="#5a3820"/>
+              <rect x="82" y="100" width="3" height="3" fill="#5a4030"/>
+              <rect x="115" y="100" width="3" height="3" fill="#5a4030"/>
+              <rect x="86" y="104" width="1.5" height="36" fill="#7a5828"/>
+              <rect x="92" y="104" width="1.5" height="36" fill="#7a5828"/>
+              <rect x="98" y="104" width="1.5" height="36" fill="#7a5828"/>
+              <rect x="104" y="104" width="1.5" height="36" fill="#7a5828"/>
+              <rect x="110" y="104" width="1.5" height="36" fill="#7a5828"/>
+              <rect x="114" y="104" width="1.5" height="36" fill="#7a5828"/>
+              <rect x="84" y="110" width="34" height="1.5" fill="#7a5828"/>
+              <rect x="84" y="122" width="34" height="1.5" fill="#7a5828"/>
+              <rect x="84" y="134" width="34" height="1.5" fill="#7a5828"/>
+              <rect x="80" y="142" width="40" height="3" fill="#5a3818"/>
+              <rect x="80" y="142" width="40" height="0.8" fill="#7a4828"/>
+              <rect x="82" y="142" width="0.8" height="3" fill="#3a2410"/>
+              <rect x="88" y="142" width="0.8" height="3" fill="#3a2410"/>
+              <rect x="94" y="142" width="0.8" height="3" fill="#3a2410"/>
+              <rect x="100" y="142" width="0.8" height="3" fill="#3a2410"/>
+              <rect x="106" y="142" width="0.8" height="3" fill="#3a2410"/>
+              <rect x="112" y="142" width="0.8" height="3" fill="#3a2410"/>
+              <rect x="80" y="98" width="0.6" height="44" fill="#3a3530"/>
+              <rect x="119" y="98" width="0.6" height="44" fill="#3a3530"/>
+              <rect x="30" y="84" width="140" height="2" fill="#80786a"/>
+            </g>
+
+            <g class="hs-roof" opacity="${roofOpacity}">
+              <rect x="30" y="82" width="140" height="4" fill="#80786a"/>
+              <rect x="30" y="78" width="5" height="4" fill="#80786a"/>
+              <rect x="40" y="78" width="5" height="4" fill="#80786a"/>
+              <rect x="50" y="78" width="5" height="4" fill="#80786a"/>
+              <rect x="60" y="78" width="5" height="4" fill="#80786a"/>
+              <rect x="70" y="78" width="5" height="4" fill="#80786a"/>
+              <rect x="80" y="78" width="5" height="4" fill="#80786a"/>
+              <rect x="90" y="78" width="5" height="4" fill="#80786a"/>
+              <rect x="105" y="78" width="5" height="4" fill="#80786a"/>
+              <rect x="115" y="78" width="5" height="4" fill="#80786a"/>
+              <rect x="125" y="78" width="5" height="4" fill="#80786a"/>
+              <rect x="135" y="78" width="5" height="4" fill="#80786a"/>
+              <rect x="145" y="78" width="5" height="4" fill="#80786a"/>
+              <rect x="155" y="78" width="5" height="4" fill="#80786a"/>
+              <rect x="165" y="78" width="5" height="4" fill="#80786a"/>
+              <rect x="0" y="56" width="36" height="4" fill="#80786a"/>
+              <rect x="0" y="52" width="4" height="4" fill="#80786a"/>
+              <rect x="8" y="52" width="4" height="4" fill="#80786a"/>
+              <rect x="16" y="52" width="4" height="4" fill="#80786a"/>
+              <rect x="24" y="52" width="4" height="4" fill="#80786a"/>
+              <rect x="32" y="52" width="4" height="4" fill="#80786a"/>
+              <polygon points="0,52 36,52 18,28" fill="#6a2818"/>
+              <polygon points="3,52 33,52 18,32" fill="#8a3a25"/>
+              <polygon points="6,52 30,52 18,36" fill="#a8442a"/>
+              <rect x="2" y="48" width="32" height="0.6" fill="#5a1810" opacity="0.6"/>
+              <rect x="5" y="42" width="26" height="0.6" fill="#5a1810" opacity="0.6"/>
+              <rect x="17.5" y="20" width="1" height="10" fill="#3a2410"/>
+              <rect x="14" y="22" width="1" height="4" fill="#3a2410"/>
+              <rect x="21" y="22" width="1" height="4" fill="#3a2410"/>
+              <polygon points="14,22 22,22 18,16" fill="#d4a017"/>
+              <rect x="164" y="56" width="36" height="4" fill="#80786a"/>
+              <rect x="164" y="52" width="4" height="4" fill="#80786a"/>
+              <rect x="172" y="52" width="4" height="4" fill="#80786a"/>
+              <rect x="180" y="52" width="4" height="4" fill="#80786a"/>
+              <rect x="188" y="52" width="4" height="4" fill="#80786a"/>
+              <rect x="196" y="52" width="4" height="4" fill="#80786a"/>
+              <polygon points="164,52 200,52 182,28" fill="#6a2818"/>
+              <polygon points="167,52 197,52 182,32" fill="#8a3a25"/>
+              <polygon points="170,52 194,52 182,36" fill="#a8442a"/>
+              <rect x="166" y="48" width="32" height="0.6" fill="#5a1810" opacity="0.6"/>
+              <rect x="169" y="42" width="26" height="0.6" fill="#5a1810" opacity="0.6"/>
+              <rect x="181.5" y="20" width="1" height="10" fill="#3a2410"/>
+              <rect x="178" y="22" width="1" height="4" fill="#3a2410"/>
+              <rect x="185" y="22" width="1" height="4" fill="#3a2410"/>
+              <polygon points="178,22 186,22 182,16" fill="#d4a017"/>
+              <rect x="36" y="60" width="26" height="4" fill="#80786a"/>
+              <rect x="36" y="56" width="4" height="4" fill="#80786a"/>
+              <rect x="44" y="56" width="4" height="4" fill="#80786a"/>
+              <rect x="52" y="56" width="4" height="4" fill="#80786a"/>
+              <rect x="58" y="56" width="4" height="4" fill="#80786a"/>
+              <polygon points="36,56 62,56 49,42" fill="#6a2818"/>
+              <polygon points="38,56 60,56 49,46" fill="#8a3a25"/>
+              <rect x="138" y="60" width="26" height="4" fill="#80786a"/>
+              <rect x="138" y="56" width="4" height="4" fill="#80786a"/>
+              <rect x="146" y="56" width="4" height="4" fill="#80786a"/>
+              <rect x="154" y="56" width="4" height="4" fill="#80786a"/>
+              <rect x="160" y="56" width="4" height="4" fill="#80786a"/>
+              <polygon points="138,56 164,56 151,42" fill="#6a2818"/>
+              <polygon points="140,56 162,56 151,46" fill="#8a3a25"/>
+              <rect x="82" y="42" width="36" height="40" fill="#a8a098"/>
+              <rect x="82" y="42" width="36" height="3" fill="#c8c0b0"/>
+              <rect x="82" y="42" width="3" height="4" fill="#80786a"/>
+              <rect x="82" y="50" width="3" height="4" fill="#80786a"/>
+              <rect x="82" y="58" width="3" height="4" fill="#80786a"/>
+              <rect x="82" y="66" width="3" height="4" fill="#80786a"/>
+              <rect x="82" y="74" width="3" height="4" fill="#80786a"/>
+              <rect x="115" y="42" width="3" height="4" fill="#80786a"/>
+              <rect x="115" y="50" width="3" height="4" fill="#80786a"/>
+              <rect x="115" y="58" width="3" height="4" fill="#80786a"/>
+              <rect x="115" y="66" width="3" height="4" fill="#80786a"/>
+              <rect x="115" y="74" width="3" height="4" fill="#80786a"/>
+              <rect x="89" y="50" width="4" height="8" fill="#1a1208"/>
+              <rect x="107" y="50" width="4" height="8" fill="#1a1208"/>
+              <rect x="98" y="60" width="4" height="10" fill="#1a1208"/>
+              <rect x="80" y="38" width="40" height="4" fill="#80786a"/>
+              <rect x="80" y="34" width="4" height="4" fill="#80786a"/>
+              <rect x="88" y="34" width="4" height="4" fill="#80786a"/>
+              <rect x="96" y="34" width="4" height="4" fill="#80786a"/>
+              <rect x="104" y="34" width="4" height="4" fill="#80786a"/>
+              <rect x="112" y="34" width="4" height="4" fill="#80786a"/>
+              <polygon points="78,34 122,34 100,4" fill="#6a2818"/>
+              <polygon points="81,34 119,34 100,9" fill="#8a3a25"/>
+              <polygon points="84,34 116,34 100,14" fill="#a8442a"/>
+              <rect x="82" y="28" width="36" height="0.6" fill="#5a1810" opacity="0.6"/>
+              <rect x="86" y="22" width="28" height="0.6" fill="#5a1810" opacity="0.6"/>
+              <rect x="90" y="16" width="20" height="0.6" fill="#5a1810" opacity="0.6"/>
+              <rect x="99" y="-12" width="1.5" height="20" fill="#5a3818"/>
+              <polygon points="100,-10 116,-10 116,-2 100,-2" fill="#6a2848"/>
+              <polygon points="100,-10 116,-10 112,-6 116,-2 100,-2" fill="#6a2848"/>
+              <rect x="100" y="-10" width="16" height="1.5" fill="#8a3868"/>
+              <rect x="106" y="-6" width="2.5" height="2.5" fill="#d4a017"/>
+              <rect x="98" y="-13" width="3" height="1" fill="#d4a017"/>
+              <rect x="99" y="-15" width="1.5" height="2" fill="#d4a017"/>
+              <rect x="17" y="14" width="1" height="8" fill="#5a3818"/>
+              <polygon points="18,15 26,17 18,19" fill="#c84a35"/>
+              <rect x="181" y="14" width="1" height="8" fill="#5a3818"/>
+              <polygon points="182,15 190,17 182,19" fill="#c84a35"/>
+              <rect x="49" y="34" width="1" height="8" fill="#5a3818"/>
+              <polygon points="50,35 56,37 50,39" fill="#c84a35"/>
+              <rect x="151" y="34" width="1" height="8" fill="#5a3818"/>
+              <polygon points="152,35 158,37 152,39" fill="#c84a35"/>
+            </g>
+
+            <g class="hs-windows-lit">
+              <rect x="13" y="72" width="2" height="6" fill="#d4a017"/>
+              <rect x="20" y="72" width="2" height="6" fill="#d4a017"/>
+              <rect x="13" y="92" width="2" height="6" fill="#d4a017"/>
+              <rect x="20" y="92" width="2" height="6" fill="#d4a017"/>
+              <rect x="11" y="118" width="3" height="9" fill="#d4a017"/>
+              <rect x="22" y="118" width="3" height="9" fill="#d4a017"/>
+              <rect x="177" y="72" width="2" height="6" fill="#d4a017"/>
+              <rect x="184" y="72" width="2" height="6" fill="#d4a017"/>
+              <rect x="177" y="92" width="2" height="6" fill="#d4a017"/>
+              <rect x="184" y="92" width="2" height="6" fill="#d4a017"/>
+              <rect x="175" y="118" width="3" height="9" fill="#d4a017"/>
+              <rect x="186" y="118" width="3" height="9" fill="#d4a017"/>
+              <rect x="42" y="70" width="2" height="6" fill="#d4a017"/>
+              <rect x="54" y="70" width="2" height="6" fill="#d4a017"/>
+              <rect x="144" y="70" width="2" height="6" fill="#d4a017"/>
+              <rect x="156" y="70" width="2" height="6" fill="#d4a017"/>
+              <rect x="72" y="100" width="2" height="6" fill="#d4a017"/>
+              <rect x="76" y="100" width="2" height="6" fill="#d4a017"/>
+              <rect x="124" y="100" width="2" height="6" fill="#d4a017"/>
+              <rect x="128" y="100" width="2" height="6" fill="#d4a017"/>
+              <rect x="42" y="112" width="4" height="10" fill="#d4a017"/>
+              <rect x="154" y="112" width="4" height="10" fill="#d4a017"/>
+              <rect x="89" y="50" width="4" height="8" fill="#d4a017"/>
+              <rect x="107" y="50" width="4" height="8" fill="#d4a017"/>
+              <rect x="98" y="60" width="4" height="10" fill="#d4a017"/>
+              <rect x="84" y="134" width="34" height="6" fill="#d4a017" opacity="0.4"/>
+            </g>
+            ${tier1}
+            ${tier2}
+            ${tier3}
+            ${tier4}
+          </svg>`;
+        }
 
         function structureSVG(kind, palette) {
           switch (kind) {
@@ -4361,9 +5309,61 @@
             </svg>`;
             }
 
-            case "tower": return `<svg viewBox="0 0 32 64" xmlns="http://www.w3.org/2000/svg">
+            case "tower": return `<svg viewBox="0 0 32 64" xmlns="http://www.w3.org/2000/svg" overflow="visible">
               <rect x="2" y="58" width="28" height="6" fill="#5a4030"/>
               <rect x="2" y="58" width="28" height="2" fill="#7a5840"/>
+              <!-- L1+ side towers: small flanking pair -->
+              <g class="up-1">
+                <!-- left small tower -->
+                <rect x="-12" y="58" width="10" height="6" fill="#5a4030"/>
+                <rect x="-12" y="58" width="10" height="2" fill="#7a5840"/>
+                <rect x="-10" y="30" width="6" height="28" fill="#a8a098"/>
+                <rect x="-10" y="30" width="6" height="1" fill="#c8c0b0"/>
+                <rect x="-10" y="56" width="6" height="2" fill="#80786a"/>
+                <rect x="-8" y="40" width="2" height="4" fill="#1a1208"/>
+                <rect x="-12" y="28" width="2" height="2" fill="#80786a"/>
+                <rect x="-8" y="28" width="2" height="2" fill="#80786a"/>
+                <rect x="-4" y="28" width="2" height="2" fill="#80786a"/>
+                <!-- right small tower (mirror) -->
+                <rect x="34" y="58" width="10" height="6" fill="#5a4030"/>
+                <rect x="34" y="58" width="10" height="2" fill="#7a5840"/>
+                <rect x="36" y="30" width="6" height="28" fill="#a8a098"/>
+                <rect x="36" y="30" width="6" height="1" fill="#c8c0b0"/>
+                <rect x="36" y="56" width="6" height="2" fill="#80786a"/>
+                <rect x="38" y="40" width="2" height="4" fill="#1a1208"/>
+                <rect x="34" y="28" width="2" height="2" fill="#80786a"/>
+                <rect x="38" y="28" width="2" height="2" fill="#80786a"/>
+                <rect x="42" y="28" width="2" height="2" fill="#80786a"/>
+              </g>
+              <!-- L3+ side towers: taller pair set further out, with conical caps -->
+              <g class="up-3">
+                <!-- left tall tower -->
+                <rect x="-26" y="58" width="12" height="6" fill="#5a4030"/>
+                <rect x="-26" y="58" width="12" height="2" fill="#7a5840"/>
+                <rect x="-24" y="18" width="8" height="40" fill="#a8a098"/>
+                <rect x="-24" y="18" width="8" height="1" fill="#c8c0b0"/>
+                <rect x="-24" y="56" width="8" height="2" fill="#80786a"/>
+                <rect x="-21" y="30" width="2" height="4" fill="#1a1208"/>
+                <rect x="-21" y="44" width="2" height="4" fill="#1a1208"/>
+                <rect x="-26" y="14" width="12" height="4" fill="#80786a"/>
+                <polygon points="-26,14 -20,4 -14,14" fill="#8a3a25"/>
+                <polygon points="-24,13 -20,6 -16,13" fill="#a8442a"/>
+                <rect x="-21" y="0" width="1" height="6" fill="#5a3818"/>
+                <rect x="-20" y="2" width="3" height="2" fill="#c84a35"/>
+                <!-- right tall tower (mirror) -->
+                <rect x="46" y="58" width="12" height="6" fill="#5a4030"/>
+                <rect x="46" y="58" width="12" height="2" fill="#7a5840"/>
+                <rect x="48" y="18" width="8" height="40" fill="#a8a098"/>
+                <rect x="48" y="18" width="8" height="1" fill="#c8c0b0"/>
+                <rect x="48" y="56" width="8" height="2" fill="#80786a"/>
+                <rect x="51" y="30" width="2" height="4" fill="#1a1208"/>
+                <rect x="51" y="44" width="2" height="4" fill="#1a1208"/>
+                <rect x="46" y="14" width="12" height="4" fill="#80786a"/>
+                <polygon points="46,14 52,4 58,14" fill="#8a3a25"/>
+                <polygon points="48,13 52,6 56,13" fill="#a8442a"/>
+                <rect x="51" y="0" width="1" height="6" fill="#5a3818"/>
+                <rect x="52" y="2" width="3" height="2" fill="#c84a35"/>
+              </g>
               <g class="hs-walls" opacity="0">
                 <rect x="6" y="16" width="20" height="42" fill="#a8a098"/>
                 <rect x="6" y="16" width="20" height="2" fill="#c8c0b0"/>
@@ -4634,398 +5634,9 @@
               </g>
             </svg>`;
 
-            case "castle": return `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg" overflow="visible">
-              <!-- foundation plinth + moat -->
-              <rect x="0" y="142" width="200" height="8" fill="#5a4030"/>
-              <rect x="0" y="142" width="200" height="2" fill="#7a5840"/>
-              <rect x="0" y="148" width="200" height="2" fill="#3a2818"/>
-              <!-- moss tufts on the plinth -->
-              <rect x="14" y="141" width="3" height="1" fill="#4a6a30"/>
-              <rect x="58" y="141" width="2" height="1" fill="#5a7a36"/>
-              <rect x="148" y="141" width="3" height="1" fill="#4a6a30"/>
-              <rect x="184" y="141" width="2" height="1" fill="#5a7a36"/>
-              <!-- moat strip in front of the gate -->
-              <rect x="74" y="138" width="52" height="4" fill="#2a4878"/>
-              <rect x="74" y="138" width="52" height="1" fill="#4a78a8"/>
-              <rect x="80" y="139" width="6" height="1" fill="#4a78a8" opacity="0.5"/>
-              <rect x="100" y="139" width="6" height="1" fill="#4a78a8" opacity="0.5"/>
-              <rect x="116" y="139" width="6" height="1" fill="#4a78a8" opacity="0.5"/>
+            case "castle": return castleSVG(palette, 0);
 
-              <!-- ============ STAGE 1: walls ============ -->
-              <g class="hs-walls" opacity="0">
-                <!-- Inner bailey wall (behind, partial overlap for depth) -->
-                <rect x="44" y="80" width="112" height="62" fill="#80786a"/>
-                <rect x="44" y="80" width="112" height="2" fill="#9a9088"/>
-
-                <!-- Main curtain wall (foreground) -->
-                <rect x="30" y="86" width="140" height="56" fill="#a8a098"/>
-                <rect x="30" y="86" width="140" height="3" fill="#c8c0b0"/>
-                <rect x="30" y="139" width="140" height="3" fill="#80786a"/>
-
-                <!-- Curtain-wall stone block hints (two tones) -->
-                <rect x="36" y="94" width="4" height="2" fill="#80786a"/>
-                <rect x="52" y="94" width="4" height="2" fill="#80786a"/>
-                <rect x="68" y="94" width="4" height="2" fill="#9a9088"/>
-                <rect x="128" y="94" width="4" height="2" fill="#9a9088"/>
-                <rect x="144" y="94" width="4" height="2" fill="#80786a"/>
-                <rect x="160" y="94" width="4" height="2" fill="#80786a"/>
-                <rect x="38" y="106" width="4" height="2" fill="#9a9088"/>
-                <rect x="56" y="106" width="4" height="2" fill="#80786a"/>
-                <rect x="140" y="106" width="4" height="2" fill="#80786a"/>
-                <rect x="158" y="106" width="4" height="2" fill="#9a9088"/>
-                <rect x="40" y="120" width="4" height="2" fill="#80786a"/>
-                <rect x="62" y="120" width="4" height="2" fill="#9a9088"/>
-                <rect x="136" y="120" width="4" height="2" fill="#80786a"/>
-                <rect x="156" y="120" width="4" height="2" fill="#9a9088"/>
-
-                <!-- Arrow slits along the main wall -->
-                <rect x="48" y="100" width="1.5" height="6" fill="#1a1208"/>
-                <rect x="64" y="100" width="1.5" height="6" fill="#1a1208"/>
-                <rect x="134" y="100" width="1.5" height="6" fill="#1a1208"/>
-                <rect x="150" y="100" width="1.5" height="6" fill="#1a1208"/>
-
-                <!-- Larger wall windows -->
-                <rect x="42" y="112" width="4" height="10" fill="#1a1208"/>
-                <rect x="154" y="112" width="4" height="10" fill="#1a1208"/>
-
-                <!-- ====== Four corner towers ====== -->
-                <!-- Front-left tower (large, in front) -->
-                <rect x="4" y="60" width="28" height="82" fill="#a8a098"/>
-                <rect x="4" y="60" width="28" height="3" fill="#c8c0b0"/>
-                <rect x="4" y="139" width="28" height="3" fill="#80786a"/>
-                <!-- block hints + arrow slits -->
-                <rect x="8" y="68" width="4" height="2" fill="#80786a"/>
-                <rect x="22" y="68" width="4" height="2" fill="#80786a"/>
-                <rect x="10" y="78" width="4" height="2" fill="#80786a"/>
-                <rect x="20" y="78" width="4" height="2" fill="#80786a"/>
-                <rect x="13" y="72" width="2" height="6" fill="#1a1208"/>
-                <rect x="20" y="72" width="2" height="6" fill="#1a1208"/>
-                <rect x="13" y="92" width="2" height="6" fill="#1a1208"/>
-                <rect x="20" y="92" width="2" height="6" fill="#1a1208"/>
-                <!-- balcony -->
-                <rect x="0" y="106" width="36" height="2" fill="#6a6258"/>
-                <rect x="0" y="106" width="36" height="0.6" fill="#8a8580"/>
-                <rect x="2" y="108" width="1" height="3" fill="#6a6258"/>
-                <rect x="10" y="108" width="1" height="3" fill="#6a6258"/>
-                <rect x="25" y="108" width="1" height="3" fill="#6a6258"/>
-                <rect x="33" y="108" width="1" height="3" fill="#6a6258"/>
-                <!-- larger lower windows -->
-                <rect x="11" y="118" width="3" height="9" fill="#1a1208"/>
-                <rect x="22" y="118" width="3" height="9" fill="#1a1208"/>
-
-                <!-- Front-right tower (large, in front) -->
-                <rect x="168" y="60" width="28" height="82" fill="#a8a098"/>
-                <rect x="168" y="60" width="28" height="3" fill="#c8c0b0"/>
-                <rect x="168" y="139" width="28" height="3" fill="#80786a"/>
-                <rect x="172" y="68" width="4" height="2" fill="#80786a"/>
-                <rect x="186" y="68" width="4" height="2" fill="#80786a"/>
-                <rect x="174" y="78" width="4" height="2" fill="#80786a"/>
-                <rect x="184" y="78" width="4" height="2" fill="#80786a"/>
-                <rect x="177" y="72" width="2" height="6" fill="#1a1208"/>
-                <rect x="184" y="72" width="2" height="6" fill="#1a1208"/>
-                <rect x="177" y="92" width="2" height="6" fill="#1a1208"/>
-                <rect x="184" y="92" width="2" height="6" fill="#1a1208"/>
-                <rect x="164" y="106" width="36" height="2" fill="#6a6258"/>
-                <rect x="164" y="106" width="36" height="0.6" fill="#8a8580"/>
-                <rect x="166" y="108" width="1" height="3" fill="#6a6258"/>
-                <rect x="174" y="108" width="1" height="3" fill="#6a6258"/>
-                <rect x="189" y="108" width="1" height="3" fill="#6a6258"/>
-                <rect x="197" y="108" width="1" height="3" fill="#6a6258"/>
-                <rect x="175" y="118" width="3" height="9" fill="#1a1208"/>
-                <rect x="186" y="118" width="3" height="9" fill="#1a1208"/>
-
-                <!-- Back-left tower (smaller, behind) -->
-                <rect x="38" y="64" width="22" height="22" fill="#80786a"/>
-                <rect x="38" y="64" width="22" height="2" fill="#9a9088"/>
-                <rect x="42" y="70" width="2" height="6" fill="#1a1208"/>
-                <rect x="54" y="70" width="2" height="6" fill="#1a1208"/>
-
-                <!-- Back-right tower (smaller, behind) -->
-                <rect x="140" y="64" width="22" height="22" fill="#80786a"/>
-                <rect x="140" y="64" width="22" height="2" fill="#9a9088"/>
-                <rect x="144" y="70" width="2" height="6" fill="#1a1208"/>
-                <rect x="156" y="70" width="2" height="6" fill="#1a1208"/>
-
-                <!-- ====== Gatehouse + portcullis ====== -->
-                <!-- Two flanking guard blocks -->
-                <rect x="68" y="92" width="14" height="50" fill="#a8a098"/>
-                <rect x="68" y="92" width="14" height="3" fill="#c8c0b0"/>
-                <rect x="118" y="92" width="14" height="50" fill="#a8a098"/>
-                <rect x="118" y="92" width="14" height="3" fill="#c8c0b0"/>
-                <rect x="72" y="100" width="2" height="6" fill="#1a1208"/>
-                <rect x="76" y="100" width="2" height="6" fill="#1a1208"/>
-                <rect x="124" y="100" width="2" height="6" fill="#1a1208"/>
-                <rect x="128" y="100" width="2" height="6" fill="#1a1208"/>
-
-                <!-- Gate opening -->
-                <rect x="82" y="100" width="36" height="42" fill="#3a2410"/>
-                <rect x="82" y="100" width="36" height="3" fill="#5a3820"/>
-                <!-- gate arch top -->
-                <rect x="82" y="100" width="3" height="3" fill="#5a4030"/>
-                <rect x="115" y="100" width="3" height="3" fill="#5a4030"/>
-                <!-- portcullis bars -->
-                <rect x="86" y="104" width="1.5" height="36" fill="#7a5828"/>
-                <rect x="92" y="104" width="1.5" height="36" fill="#7a5828"/>
-                <rect x="98" y="104" width="1.5" height="36" fill="#7a5828"/>
-                <rect x="104" y="104" width="1.5" height="36" fill="#7a5828"/>
-                <rect x="110" y="104" width="1.5" height="36" fill="#7a5828"/>
-                <rect x="114" y="104" width="1.5" height="36" fill="#7a5828"/>
-                <!-- portcullis cross bars -->
-                <rect x="84" y="110" width="34" height="1.5" fill="#7a5828"/>
-                <rect x="84" y="122" width="34" height="1.5" fill="#7a5828"/>
-                <rect x="84" y="134" width="34" height="1.5" fill="#7a5828"/>
-
-                <!-- Drawbridge planks across the moat -->
-                <rect x="80" y="142" width="40" height="3" fill="#5a3818"/>
-                <rect x="80" y="142" width="40" height="0.8" fill="#7a4828"/>
-                <rect x="82" y="142" width="0.8" height="3" fill="#3a2410"/>
-                <rect x="88" y="142" width="0.8" height="3" fill="#3a2410"/>
-                <rect x="94" y="142" width="0.8" height="3" fill="#3a2410"/>
-                <rect x="100" y="142" width="0.8" height="3" fill="#3a2410"/>
-                <rect x="106" y="142" width="0.8" height="3" fill="#3a2410"/>
-                <rect x="112" y="142" width="0.8" height="3" fill="#3a2410"/>
-                <!-- drawbridge chains -->
-                <rect x="80" y="98" width="0.6" height="44" fill="#3a3530"/>
-                <rect x="119" y="98" width="0.6" height="44" fill="#3a3530"/>
-
-                <!-- Stone trim near top of curtain wall -->
-                <rect x="30" y="84" width="140" height="2" fill="#80786a"/>
-              </g>
-
-              <!-- ============ STAGE 2: battlements + keep + roofs ============ -->
-              <g class="hs-roof" opacity="0">
-                <!-- Crenellations along the main curtain wall -->
-                <rect x="30" y="82" width="140" height="4" fill="#80786a"/>
-                <rect x="30" y="78" width="5" height="4" fill="#80786a"/>
-                <rect x="40" y="78" width="5" height="4" fill="#80786a"/>
-                <rect x="50" y="78" width="5" height="4" fill="#80786a"/>
-                <rect x="60" y="78" width="5" height="4" fill="#80786a"/>
-                <rect x="70" y="78" width="5" height="4" fill="#80786a"/>
-                <rect x="80" y="78" width="5" height="4" fill="#80786a"/>
-                <rect x="90" y="78" width="5" height="4" fill="#80786a"/>
-                <rect x="105" y="78" width="5" height="4" fill="#80786a"/>
-                <rect x="115" y="78" width="5" height="4" fill="#80786a"/>
-                <rect x="125" y="78" width="5" height="4" fill="#80786a"/>
-                <rect x="135" y="78" width="5" height="4" fill="#80786a"/>
-                <rect x="145" y="78" width="5" height="4" fill="#80786a"/>
-                <rect x="155" y="78" width="5" height="4" fill="#80786a"/>
-                <rect x="165" y="78" width="5" height="4" fill="#80786a"/>
-
-                <!-- Front-left tower: balcony cap + conical roof -->
-                <rect x="0" y="56" width="36" height="4" fill="#80786a"/>
-                <rect x="0" y="52" width="4" height="4" fill="#80786a"/>
-                <rect x="8" y="52" width="4" height="4" fill="#80786a"/>
-                <rect x="16" y="52" width="4" height="4" fill="#80786a"/>
-                <rect x="24" y="52" width="4" height="4" fill="#80786a"/>
-                <rect x="32" y="52" width="4" height="4" fill="#80786a"/>
-                <polygon points="0,52 36,52 18,28" fill="#6a2818"/>
-                <polygon points="3,52 33,52 18,32" fill="#8a3a25"/>
-                <polygon points="6,52 30,52 18,36" fill="#a8442a"/>
-                <!-- conical roof rings for texture -->
-                <rect x="2" y="48" width="32" height="0.6" fill="#5a1810" opacity="0.6"/>
-                <rect x="5" y="42" width="26" height="0.6" fill="#5a1810" opacity="0.6"/>
-                <!-- weathervane -->
-                <rect x="17.5" y="20" width="1" height="10" fill="#3a2410"/>
-                <rect x="14" y="22" width="1" height="4" fill="#3a2410"/>
-                <rect x="21" y="22" width="1" height="4" fill="#3a2410"/>
-                <polygon points="14,22 22,22 18,16" fill="#d4a017"/>
-
-                <!-- Front-right tower: same -->
-                <rect x="164" y="56" width="36" height="4" fill="#80786a"/>
-                <rect x="164" y="52" width="4" height="4" fill="#80786a"/>
-                <rect x="172" y="52" width="4" height="4" fill="#80786a"/>
-                <rect x="180" y="52" width="4" height="4" fill="#80786a"/>
-                <rect x="188" y="52" width="4" height="4" fill="#80786a"/>
-                <rect x="196" y="52" width="4" height="4" fill="#80786a"/>
-                <polygon points="164,52 200,52 182,28" fill="#6a2818"/>
-                <polygon points="167,52 197,52 182,32" fill="#8a3a25"/>
-                <polygon points="170,52 194,52 182,36" fill="#a8442a"/>
-                <rect x="166" y="48" width="32" height="0.6" fill="#5a1810" opacity="0.6"/>
-                <rect x="169" y="42" width="26" height="0.6" fill="#5a1810" opacity="0.6"/>
-                <rect x="181.5" y="20" width="1" height="10" fill="#3a2410"/>
-                <rect x="178" y="22" width="1" height="4" fill="#3a2410"/>
-                <rect x="185" y="22" width="1" height="4" fill="#3a2410"/>
-                <polygon points="178,22 186,22 182,16" fill="#d4a017"/>
-
-                <!-- Back-left tower: small battlements + conical cap -->
-                <rect x="36" y="60" width="26" height="4" fill="#80786a"/>
-                <rect x="36" y="56" width="4" height="4" fill="#80786a"/>
-                <rect x="44" y="56" width="4" height="4" fill="#80786a"/>
-                <rect x="52" y="56" width="4" height="4" fill="#80786a"/>
-                <rect x="58" y="56" width="4" height="4" fill="#80786a"/>
-                <polygon points="36,56 62,56 49,42" fill="#6a2818"/>
-                <polygon points="38,56 60,56 49,46" fill="#8a3a25"/>
-
-                <!-- Back-right tower: small battlements + conical cap -->
-                <rect x="138" y="60" width="26" height="4" fill="#80786a"/>
-                <rect x="138" y="56" width="4" height="4" fill="#80786a"/>
-                <rect x="146" y="56" width="4" height="4" fill="#80786a"/>
-                <rect x="154" y="56" width="4" height="4" fill="#80786a"/>
-                <rect x="160" y="56" width="4" height="4" fill="#80786a"/>
-                <polygon points="138,56 164,56 151,42" fill="#6a2818"/>
-                <polygon points="140,56 162,56 151,46" fill="#8a3a25"/>
-
-                <!-- ============ Central Keep ============ -->
-                <!-- keep body -->
-                <rect x="82" y="42" width="36" height="40" fill="#a8a098"/>
-                <rect x="82" y="42" width="36" height="3" fill="#c8c0b0"/>
-                <!-- decorative quoins (corner stones) -->
-                <rect x="82" y="42" width="3" height="4" fill="#80786a"/>
-                <rect x="82" y="50" width="3" height="4" fill="#80786a"/>
-                <rect x="82" y="58" width="3" height="4" fill="#80786a"/>
-                <rect x="82" y="66" width="3" height="4" fill="#80786a"/>
-                <rect x="82" y="74" width="3" height="4" fill="#80786a"/>
-                <rect x="115" y="42" width="3" height="4" fill="#80786a"/>
-                <rect x="115" y="50" width="3" height="4" fill="#80786a"/>
-                <rect x="115" y="58" width="3" height="4" fill="#80786a"/>
-                <rect x="115" y="66" width="3" height="4" fill="#80786a"/>
-                <rect x="115" y="74" width="3" height="4" fill="#80786a"/>
-                <!-- keep windows (two levels) -->
-                <rect x="89" y="50" width="4" height="8" fill="#1a1208"/>
-                <rect x="107" y="50" width="4" height="8" fill="#1a1208"/>
-                <rect x="98" y="60" width="4" height="10" fill="#1a1208"/>
-                <!-- keep battlements -->
-                <rect x="80" y="38" width="40" height="4" fill="#80786a"/>
-                <rect x="80" y="34" width="4" height="4" fill="#80786a"/>
-                <rect x="88" y="34" width="4" height="4" fill="#80786a"/>
-                <rect x="96" y="34" width="4" height="4" fill="#80786a"/>
-                <rect x="104" y="34" width="4" height="4" fill="#80786a"/>
-                <rect x="112" y="34" width="4" height="4" fill="#80786a"/>
-                <!-- keep steep tile roof -->
-                <polygon points="78,34 122,34 100,4" fill="#6a2818"/>
-                <polygon points="81,34 119,34 100,9" fill="#8a3a25"/>
-                <polygon points="84,34 116,34 100,14" fill="#a8442a"/>
-                <rect x="82" y="28" width="36" height="0.6" fill="#5a1810" opacity="0.6"/>
-                <rect x="86" y="22" width="28" height="0.6" fill="#5a1810" opacity="0.6"/>
-                <rect x="90" y="16" width="20" height="0.6" fill="#5a1810" opacity="0.6"/>
-
-                <!-- Royal banner pole + large pennant on keep -->
-                <rect x="99" y="-12" width="1.5" height="20" fill="#5a3818"/>
-                <polygon points="100,-10 116,-10 116,-2 100,-2" fill="#6a2848"/>
-                <polygon points="100,-10 116,-10 112,-6 116,-2 100,-2" fill="#6a2848"/>
-                <rect x="100" y="-10" width="16" height="1.5" fill="#8a3868"/>
-                <rect x="106" y="-6" width="2.5" height="2.5" fill="#d4a017"/>
-                <rect x="98" y="-13" width="3" height="1" fill="#d4a017"/>
-                <rect x="99" y="-15" width="1.5" height="2" fill="#d4a017"/>
-
-                <!-- 4 corner-tower pennants -->
-                <rect x="17" y="14" width="1" height="8" fill="#5a3818"/>
-                <polygon points="18,15 26,17 18,19" fill="#c84a35"/>
-                <rect x="181" y="14" width="1" height="8" fill="#5a3818"/>
-                <polygon points="182,15 190,17 182,19" fill="#c84a35"/>
-                <rect x="49" y="34" width="1" height="8" fill="#5a3818"/>
-                <polygon points="50,35 56,37 50,39" fill="#c84a35"/>
-                <rect x="151" y="34" width="1" height="8" fill="#5a3818"/>
-                <polygon points="152,35 158,37 152,39" fill="#c84a35"/>
-              </g>
-
-              <!-- ============ Lit windows for night ============ -->
-              <g class="hs-windows-lit">
-                <!-- front-left tower windows -->
-                <rect x="13" y="72" width="2" height="6" fill="#d4a017"/>
-                <rect x="20" y="72" width="2" height="6" fill="#d4a017"/>
-                <rect x="13" y="92" width="2" height="6" fill="#d4a017"/>
-                <rect x="20" y="92" width="2" height="6" fill="#d4a017"/>
-                <rect x="11" y="118" width="3" height="9" fill="#d4a017"/>
-                <rect x="22" y="118" width="3" height="9" fill="#d4a017"/>
-                <!-- front-right tower windows -->
-                <rect x="177" y="72" width="2" height="6" fill="#d4a017"/>
-                <rect x="184" y="72" width="2" height="6" fill="#d4a017"/>
-                <rect x="177" y="92" width="2" height="6" fill="#d4a017"/>
-                <rect x="184" y="92" width="2" height="6" fill="#d4a017"/>
-                <rect x="175" y="118" width="3" height="9" fill="#d4a017"/>
-                <rect x="186" y="118" width="3" height="9" fill="#d4a017"/>
-                <!-- back tower windows -->
-                <rect x="42" y="70" width="2" height="6" fill="#d4a017"/>
-                <rect x="54" y="70" width="2" height="6" fill="#d4a017"/>
-                <rect x="144" y="70" width="2" height="6" fill="#d4a017"/>
-                <rect x="156" y="70" width="2" height="6" fill="#d4a017"/>
-                <!-- gate guard windows -->
-                <rect x="72" y="100" width="2" height="6" fill="#d4a017"/>
-                <rect x="76" y="100" width="2" height="6" fill="#d4a017"/>
-                <rect x="124" y="100" width="2" height="6" fill="#d4a017"/>
-                <rect x="128" y="100" width="2" height="6" fill="#d4a017"/>
-                <!-- main wall windows -->
-                <rect x="42" y="112" width="4" height="10" fill="#d4a017"/>
-                <rect x="154" y="112" width="4" height="10" fill="#d4a017"/>
-                <!-- keep windows -->
-                <rect x="89" y="50" width="4" height="8" fill="#d4a017"/>
-                <rect x="107" y="50" width="4" height="8" fill="#d4a017"/>
-                <rect x="98" y="60" width="4" height="10" fill="#d4a017"/>
-                <!-- glow under gate -->
-                <rect x="84" y="134" width="34" height="6" fill="#d4a017" opacity="0.4"/>
-              </g>
-            </svg>`;
-
-            case "marketstall": {
-              // Awning color rolled by Math via palette if present, else default red.
-              const awning = (palette && palette.roof) || "#c84a35";
-              const awningL = (palette && palette.roofL) || "#e06a45";
-              const awningD = (palette && palette.roofD) || "#8a2818";
-              return `<svg viewBox="0 0 32 36" xmlns="http://www.w3.org/2000/svg" overflow="visible">
-                <!-- ground shadow -->
-                <rect x="0" y="34" width="32" height="2" fill="#3a2818"/>
-                <!-- stage 1: wooden frame -->
-                <g class="hs-walls" opacity="0">
-                  <!-- vertical posts -->
-                  <rect x="2" y="14" width="2" height="22" fill="#5a3818"/>
-                  <rect x="2" y="14" width="2" height="2" fill="#7a4828"/>
-                  <rect x="28" y="14" width="2" height="22" fill="#5a3818"/>
-                  <rect x="28" y="14" width="2" height="2" fill="#7a4828"/>
-                  <!-- crossbeam -->
-                  <rect x="2" y="14" width="28" height="2" fill="#6a4828"/>
-                  <rect x="2" y="14" width="28" height="0.6" fill="#8a6840"/>
-                  <!-- counter -->
-                  <rect x="2" y="24" width="28" height="3" fill="#7a5028"/>
-                  <rect x="2" y="24" width="28" height="0.8" fill="#9a6838"/>
-                  <rect x="2" y="27" width="28" height="0.8" fill="#5a3818"/>
-                  <!-- counter legs -->
-                  <rect x="5" y="27" width="1.5" height="7" fill="#5a3818"/>
-                  <rect x="14" y="27" width="1.5" height="7" fill="#5a3818"/>
-                  <rect x="25" y="27" width="1.5" height="7" fill="#5a3818"/>
-                </g>
-                <!-- stage 2: awning + goods + sign -->
-                <g class="hs-roof" opacity="0">
-                  <!-- striped awning -->
-                  <polygon points="0,14 32,14 30,8 2,8" fill="${awning}"/>
-                  <polygon points="2,13 30,13 28,9 4,9" fill="${awningL}"/>
-                  <rect x="0" y="14" width="32" height="1" fill="${awningD}"/>
-                  <!-- awning stripes -->
-                  <rect x="6"  y="9"  width="2" height="5" fill="${awningD}" opacity="0.5"/>
-                  <rect x="13" y="9"  width="2" height="5" fill="${awningD}" opacity="0.5"/>
-                  <rect x="20" y="9"  width="2" height="5" fill="${awningD}" opacity="0.5"/>
-                  <!-- awning scallop drips -->
-                  <rect x="3"  y="14" width="2" height="1.5" fill="${awning}"/>
-                  <rect x="10" y="14" width="2" height="1.5" fill="${awning}"/>
-                  <rect x="17" y="14" width="2" height="1.5" fill="${awning}"/>
-                  <rect x="24" y="14" width="2" height="1.5" fill="${awning}"/>
-                  <!-- basket of goods on counter -->
-                  <rect x="6" y="20" width="6" height="4" fill="#7a5028"/>
-                  <rect x="6" y="20" width="6" height="1" fill="#9a6838"/>
-                  <rect x="6" y="20" width="1" height="4" fill="#5a3818"/>
-                  <rect x="11" y="20" width="1" height="4" fill="#5a3818"/>
-                  <rect x="7" y="18" width="1" height="2" fill="#e04060"/>
-                  <rect x="9" y="17" width="1" height="3" fill="#f0c440"/>
-                  <rect x="11" y="18" width="1" height="2" fill="#8040b0"/>
-                  <!-- bread/wares stack -->
-                  <rect x="16" y="22" width="3" height="2" fill="#d4a017"/>
-                  <rect x="16" y="22" width="3" height="0.5" fill="#f0c440"/>
-                  <rect x="20" y="20" width="3" height="4" fill="#a86038"/>
-                  <rect x="20" y="20" width="3" height="0.5" fill="#c87858"/>
-                  <!-- hanging sign with chain -->
-                  <rect x="14" y="14" width="0.6" height="3" fill="#3a2410"/>
-                  <rect x="11" y="17" width="6" height="3" fill="#5a3818"/>
-                  <rect x="11" y="17" width="6" height="0.6" fill="#7a4828"/>
-                  <rect x="13" y="18" width="2" height="1" fill="#d4a017"/>
-                </g>
-                <!-- lit lantern at night -->
-                <g class="hs-windows-lit">
-                  <rect x="25" y="16" width="3" height="3" fill="#f0c440"/>
-                  <rect x="25" y="15" width="3" height="1" fill="#3a2410"/>
-                  <rect x="25" y="16" width="3" height="1" fill="#fff4a0"/>
-                </g>
-              </svg>`;
-            }
+            case "marketstall": return marketstallSVG(palette, 0);
 
             case "guardpost": return `<svg viewBox="0 0 24 50" xmlns="http://www.w3.org/2000/svg" overflow="visible">
               <!-- foundation -->
@@ -5084,6 +5695,72 @@
                 <rect x="20" y="5" width="2" height="1" fill="#fff4a0"/>
               </g>
             </svg>`;
+
+            case "blacksmith": return `<svg viewBox="0 0 46 44" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+              <rect x="0" y="42" width="46" height="2" fill="#3a2818"/>
+              <rect x="0" y="40" width="46" height="2" fill="#5a4030"/>
+              <g class="hs-walls" opacity="0">
+                <rect x="2" y="24" width="32" height="16" fill="#a8a098"/>
+                <rect x="2" y="24" width="32" height="1.5" fill="#c8c0b0"/>
+                <rect x="2" y="38.5" width="32" height="1.5" fill="#80786a"/>
+                <rect x="4" y="28" width="4" height="1.5" fill="#80786a"/>
+                <rect x="10" y="28" width="4" height="1.5" fill="#80786a"/>
+                <rect x="16" y="28" width="4" height="1.5" fill="#80786a"/>
+                <rect x="22" y="28" width="4" height="1.5" fill="#80786a"/>
+                <rect x="28" y="28" width="4" height="1.5" fill="#80786a"/>
+                <rect x="6" y="33" width="4" height="1.5" fill="#9a9088"/>
+                <rect x="14" y="33" width="4" height="1.5" fill="#9a9088"/>
+                <rect x="22" y="33" width="4" height="1.5" fill="#9a9088"/>
+                <rect x="30" y="33" width="2" height="1.5" fill="#9a9088"/>
+                <rect x="2" y="12" width="32" height="12" fill="#6a4828"/>
+                <rect x="2" y="12" width="32" height="1" fill="#8a6840"/>
+                <rect x="4" y="12" width="1.5" height="12" fill="#3a2410"/>
+                <rect x="12" y="12" width="1.5" height="12" fill="#3a2410"/>
+                <rect x="20" y="12" width="1.5" height="12" fill="#3a2410"/>
+                <rect x="28" y="12" width="1.5" height="12" fill="#3a2410"/>
+                <rect x="14" y="30" width="8" height="10" fill="#1a0e06"/>
+                <rect x="14" y="29.5" width="8" height="1" fill="#3a2410"/>
+                <rect x="13" y="29" width="10" height="1.5" fill="#5a3818"/>
+                <rect x="6" y="36" width="6" height="2" fill="#3a3030"/>
+                <rect x="7" y="34" width="4" height="2" fill="#5a544e"/>
+                <rect x="7" y="34" width="4" height="0.5" fill="#8a8580"/>
+                <rect x="8" y="33" width="2" height="1" fill="#5a544e"/>
+                <rect x="26" y="36" width="3" height="1" fill="#5a544e"/>
+                <rect x="26" y="34" width="3" height="1" fill="#5a544e"/>
+                <rect x="26" y="38" width="3" height="1" fill="#3a3030"/>
+              </g>
+              <g class="hs-roof" opacity="0">
+                <rect x="26" y="0" width="6" height="14" fill="#80786a"/>
+                <rect x="26" y="0" width="6" height="1" fill="#a8a098"/>
+                <rect x="25" y="0" width="8" height="1.5" fill="#5a544e"/>
+                <rect x="27" y="3" width="4" height="0.8" fill="#5a544e"/>
+                <rect x="27" y="7" width="4" height="0.8" fill="#5a544e"/>
+                <rect x="27" y="-3" width="4" height="2" fill="#aaa6a0" opacity="0.6"/>
+                <rect x="28" y="-6" width="3" height="2" fill="#bbb8b0" opacity="0.45"/>
+                <rect x="29" y="-9" width="3" height="2" fill="#c8c4bc" opacity="0.3"/>
+                <polygon points="0,12 36,12 32,4 4,4" fill="#3a3848"/>
+                <polygon points="2,12 34,12 30,5 6,5" fill="#4a4858"/>
+                <rect x="0" y="11" width="36" height="1.5" fill="#2a2838"/>
+                <rect x="6" y="7" width="3" height="0.8" fill="#3a3848"/>
+                <rect x="12" y="7" width="3" height="0.8" fill="#3a3848"/>
+                <rect x="18" y="7" width="3" height="0.8" fill="#3a3848"/>
+                <rect x="24" y="7" width="3" height="0.8" fill="#3a3848"/>
+                <rect x="38" y="14" width="0.6" height="4" fill="#3a2410"/>
+                <rect x="35" y="18" width="8" height="6" fill="#5a3818"/>
+                <rect x="35" y="18" width="8" height="0.8" fill="#7a4828"/>
+                <rect x="35" y="23.2" width="8" height="0.8" fill="#3a2410"/>
+                <rect x="37" y="21" width="4" height="1" fill="#3a3030"/>
+                <rect x="38" y="20" width="2" height="1" fill="#5a544e"/>
+                <rect x="41" y="19.5" width="0.6" height="2.5" fill="#3a2410"/>
+                <rect x="40.6" y="19" width="1.4" height="1" fill="#5a544e"/>
+              </g>
+              <g class="hs-windows-lit">
+                <rect x="14" y="30" width="8" height="10" fill="#f08850"/>
+                <rect x="14" y="30" width="8" height="2" fill="#fff4a0"/>
+                <rect x="15" y="32" width="6" height="4" fill="#ff5020" opacity="0.6"/>
+                <rect x="27" y="0" width="4" height="1" fill="#f08850" opacity="0.7"/>
+              </g>
+            </svg>`;
           }
           return "";
         }
@@ -5106,14 +5783,17 @@
               "lamppost", "lamppost",
               "garden", "garden",
               "statue",
+              "blacksmith", "blacksmith",
             ];
             kind = weighted[Math.floor(Math.random() * weighted.length)];
-            // Cap castles at 2 — re-roll if maxed out
-            if (kind === "castle" && houses.filter((h) => h.kind === "castle").length >= 2) {
+            // Only one castle ever — re-roll if it already exists
+            if (kind === "castle" && houses.some((h) => h.kind === "castle")) {
               const fallback = ["house", "tower", "tavern", "guildhall", "mill", "well", "garden"];
               kind = fallback[Math.floor(Math.random() * fallback.length)];
             }
           }
+          // Sole castle is always built dead-center
+          if (kind === "castle") targetX = W() / 2;
           const lj = makePerson("builder", targetX > W() / 2 ? "right" : "left", { bottom: 40 });
           const fromLeft = targetX > W() / 2;
           const startX = fromLeft ? -20 : W() + 20;
@@ -5138,6 +5818,7 @@
               well: "A builder digs a well.",
               signpost: "A builder plants a signpost.",
               campfire: "A traveler arranges logs for a fire.",
+              blacksmith: "A builder lays the foundation for a forge.",
             };
             logEvent(breakground[kind] || "A builder breaks ground.", "good");
 
@@ -5162,6 +5843,7 @@
                            : kind === "tavern" || kind === "guildhall" ? 4500
                            : kind === "mill" ? 4000
                            : kind === "statue" ? 3500
+                           : kind === "blacksmith" ? 4000
                            : 3500;
             const doneDelay = kind === "signpost" ? 2000
                             : kind === "lamppost" ? 2200
@@ -5173,6 +5855,7 @@
                             : kind === "tavern" || kind === "guildhall" ? 10000
                             : kind === "mill" ? 8000
                             : kind === "statue" ? 6500
+                            : kind === "blacksmith" ? 8500
                             : 8000;
             const log = STRUCTURE_BUILD_LOG[kind] || STRUCTURE_BUILD_LOG.house;
 
@@ -5598,9 +6281,10 @@
           if (document.hidden || reduced) return;
           const upgradeable = houses.filter((h) =>
             h.stage >= 2
-            && (h.upgrade || 0) < 4
+            && (h.upgrade || 0) < (h.kind === "marketstall" ? 3 : 4)
             && (h.kind === "house" || h.kind === "tower" || h.kind === "castle"
-                || h.kind === "tavern" || h.kind === "guildhall" || h.kind === "mill")
+                || h.kind === "tavern" || h.kind === "guildhall" || h.kind === "mill"
+                || h.kind === "marketstall")
           );
           if (upgradeable.length === 0) return;
           const target = upgradeable[Math.floor(Math.random() * upgradeable.length)];
@@ -5625,6 +6309,7 @@
             tavern: ["adds a hearth to the tavern", "extends the tavern's common room", "builds an inn alongside the tavern", "makes the tavern the realm's grandest"],
             guildhall: ["reinforces the guildhall", "adds a guildmaster's wing", "raises a guildhall tower", "makes the guildhall renowned across the land"],
             mill: ["reinforces the mill's frame", "adds a second pair of sails", "builds a granary by the mill", "makes the mill the realm's busiest"],
+            marketstall: ["adds a second counter to the stall", "extends the stall into a covered market", "raises a grand bazaar with awnings and crates"],
           };
           const label = (labels[target.kind] || ["upgrades the structure"])[nextLevel - 1] || "improves the building";
           logEvent(`A master builder arrives to ${label}.`, "good");
@@ -5635,12 +6320,20 @@
               spawnParticle(target.x + 24 + (Math.random() - 0.5) * 40, 50 + Math.random() * 22, "dust");
             }, 220);
             // Big upgrade structures take longer
-            const buildTime = target.kind === "castle" ? 15000 : 8000;
+            const buildTime = target.kind === "castle" ? 15000
+                            : target.kind === "marketstall" ? 9000
+                            : 8000;
             setTimeout(() => {
               clearInterval(dustTimer);
               upgr.classList.remove("working");
               target.upgrade = nextLevel;
               target.el.dataset.upgrade = String(nextLevel);
+              // Markets and castles get fully redrawn — no CSS scale, a bigger hand-drawn asset
+              if (target.kind === "marketstall") {
+                target.el.innerHTML = marketstallSVG(target.palette, nextLevel);
+              } else if (target.kind === "castle") {
+                target.el.innerHTML = castleSVG(target.palette, nextLevel);
+              }
               for (let i = 0; i < 10; i++) {
                 setTimeout(() => spawnSparkle(target.x + 24, 80, "#f0d060"), i * 70);
               }
@@ -5788,8 +6481,8 @@
         }
 
         /* ============= MARKETSTALLS + MERCHANTS + CUSTOMERS ============= */
-        const MARKET_ANCHORS = ["tavern", "well", "guildhall", "marketstall"];
-        const STALL_CAP = 8;
+        const MARKET_ANCHORS = ["tavern", "well", "guildhall", "marketstall", "blacksmith"];
+        const STALL_CAP = 14;
         function spawnStallBuilder() {
           if (document.hidden || reduced) return;
           if (houses.filter((h) => h.kind === "marketstall").length >= STALL_CAP) return;
@@ -6094,6 +6787,39 @@
           }, walkTime * 1000 + 100);
         }
 
+        /* ============= MOUNTAIN HAMLETS ============= */
+        const MOUNTAIN_HOUSE_SPOTS = [
+          { xPct: 0.07, y: 120 }, { xPct: 0.19, y: 88 },  { xPct: 0.32, y: 70 },
+          { xPct: 0.45, y: 80 },  { xPct: 0.58, y: 88 },  { xPct: 0.65, y: 60 },
+          { xPct: 0.78, y: 78 },  { xPct: 0.86, y: 50 },  { xPct: 0.95, y: 80 },
+        ];
+        const mountainHouses = [];
+        function mountainHouseSVG() {
+          return `<svg viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg">
+            <rect x="1" y="5" width="8" height="5" fill="#3a4858"/>
+            <polygon points="0,5 10,5 5,1" fill="#2a3848"/>
+            <rect x="4" y="7" width="2" height="2" fill="#f0c440" class="mh-win"/>
+          </svg>`;
+        }
+        function tryAddMountainHouse() {
+          const tier = parseInt(world.dataset.road || "0", 10);
+          if (tier < 3) return;
+          if (mountainHouses.length >= MOUNTAIN_HOUSE_SPOTS.length) return;
+          const spot = MOUNTAIN_HOUSE_SPOTS[mountainHouses.length];
+          const mountainsEl = world.querySelector(".mountains");
+          if (!mountainsEl) return;
+          const h = document.createElement("div");
+          h.className = "mountain-house";
+          h.innerHTML = mountainHouseSVG();
+          h.style.left = "calc(" + (spot.xPct * 100) + "% - 5px)";
+          h.style.bottom = spot.y + "px";
+          mountainsEl.appendChild(h);
+          mountainHouses.push({ el: h, spot });
+          if (mountainHouses.length === 1) {
+            logEvent("Smoke rises from a distant mountain hamlet.", "good");
+          }
+        }
+
         /* ============= CAMEL CARAVAN ============= */
         function camelSVG() {
           return `<svg viewBox="0 0 32 22" xmlns="http://www.w3.org/2000/svg">
@@ -6361,7 +7087,7 @@
           setTimeout(() => loop(spawnDragon, 120000, 240000), 8000);
           setTimeout(() => loop(() => plantTree(false), 7000, 14000), 2000);
           setTimeout(() => loop(spawnLumberjack, 28000, 60000, { minRoad: 0, rateScale: RS }), 18000);
-          setTimeout(() => loop(spawnLoneBuilder, 9000, 22000, { minRoad: 0, rateScale: RS }), 3500);
+          setTimeout(() => loop(spawnLoneBuilder, 4500, 11000, { minRoad: 0, rateScale: RS }), 3500);
           // Realm is at peace — buildings are protected (no destruction loops)
           // Weather-aware cloud spawning — sparse when clear/cloudy; denser for rain/storm
           function cloudLoop() {
@@ -6388,9 +7114,10 @@
           setTimeout(() => loop(spawnUpgrader, 14000, 32000), 7000);
           // checkDevelopment / huge dragon disabled — the realm has been declared invulnerable
           setTimeout(() => loop(tryUpgradeRoad, 35000, 80000), 18000);
+          setTimeout(() => loop(tryAddMountainHouse, 60000, 140000), 30000);
           setTimeout(() => loop(spawnCamelCaravan, 95000, 180000, { minRoad: 3, rateScale: RS }), 55000);
           // NEW: marketstalls + guard posts
-          setTimeout(() => loop(spawnStallBuilder, 25000, 50000, { minRoad: 2, rateScale: RS }), 30000);
+          setTimeout(() => loop(spawnStallBuilder, 14000, 28000, { minRoad: 2, rateScale: RS }), 30000);
           setTimeout(() => loop(spawnGuardpostBuilder, 40000, 90000, { minRoad: 3, rateScale: RS }), 50000);
         }
       })();
