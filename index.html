@@ -817,7 +817,9 @@
       }
 
       a { color: var(--gold); text-decoration: none; }
-      a:hover { color: #f0c040; }
+      @media (hover: hover) and (pointer: fine) {
+        a:hover { color: #f0c040; }
+      }
 
       h1, h2, h3 {
         font-family: "Press Start 2P", monospace;
@@ -848,8 +850,10 @@
       }
       nav .brand { color: var(--gold); text-shadow: 2px 2px 0 #000; }
       nav .links { display: flex; gap: 16px; }
-      nav .links a { color: var(--muted); }
-      nav .links a:hover { color: var(--ink); }
+      nav .links a { color: var(--muted); padding: 6px 4px; touch-action: manipulation; }
+      @media (hover: hover) and (pointer: fine) {
+        nav .links a:hover { color: var(--ink); }
+      }
 
       header.hero { padding: 24px 0 16px; }
 
@@ -885,6 +889,27 @@
         overflow-wrap: break-word; word-break: normal;
       }
       .sheet .stat.long b { font-size: 0.5rem; line-height: 1.6; }
+      .sheet .stat b.hp-low { color: var(--ember); }
+
+      .xp-bar {
+        display: block; margin-top: 8px;
+        height: 14px; width: 100%;
+        background: rgba(0,0,0,0.55);
+        border: 2px solid var(--frame-light);
+        position: relative; overflow: hidden;
+        image-rendering: pixelated;
+      }
+      .xp-fill {
+        height: 100%;
+        background: var(--gold);
+        box-shadow: inset 0 -3px 0 rgba(0,0,0,0.25);
+        width: 0%;
+      }
+      .xp-next {
+        display: block; margin-top: 4px;
+        font-size: 0.45rem; color: var(--muted);
+        letter-spacing: 0.05em;
+      }
 
       section { padding: 36px 0 20px; }
 
@@ -900,21 +925,25 @@
         transition: transform 0.1s, border-color 0.1s;
         color: var(--ink); text-decoration: none; display: block;
       }
-      a.card:hover {
-        border-color: var(--gold);
-        transform: translate(-2px, -2px);
-        box-shadow: inset 0 0 0 2px #000, 6px 6px 0 #000, 0 0 18px rgba(212, 160, 23, 0.18);
+      a.card { touch-action: manipulation; }
+      @media (hover: hover) and (pointer: fine) {
+        a.card:hover {
+          border-color: var(--gold);
+          transform: translate(-2px, -2px);
+          box-shadow: inset 0 0 0 2px #000, 6px 6px 0 #000, 0 0 18px rgba(212, 160, 23, 0.18);
+        }
+        a.card:hover h3 { color: var(--gold); transition: color 0.2s ease; }
       }
-      a.card:hover h3 { color: var(--gold); transition: color 0.2s ease; }
       a.card h3 { transition: color 0.2s ease; }
       .card-head {
         display: flex; justify-content: space-between; align-items: baseline;
         font-family: "Press Start 2P", monospace;
         font-size: 0.45rem; color: var(--muted);
         margin-bottom: 12px; letter-spacing: 0.5px;
+        gap: 8px; flex-wrap: wrap; overflow-wrap: anywhere;
       }
       .card-head .reward { color: var(--gold); }
-      .card p { margin: 0 0 12px; color: var(--ink); font-size: 1rem; }
+      .card p { margin: 0 0 12px; color: var(--ink); font-size: 1rem; overflow-wrap: anywhere; }
       .card.locked { border-style: dashed; opacity: 0.85; }
       .card.locked h3 { color: var(--muted); }
 
@@ -938,7 +967,8 @@
 
       .actions { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 16px; }
       .btn {
-        display: inline-block; padding: 10px 16px;
+        display: inline-flex; align-items: center; justify-content: center;
+        padding: 10px 16px; min-height: 44px;
         background: var(--panel);
         border: 2px solid var(--frame);
         box-shadow: inset 0 0 0 2px #000, 4px 4px 0 #000;
@@ -946,16 +976,18 @@
         font-size: 0.55rem; letter-spacing: 1px;
         color: var(--ink);
         transition: transform 0.1s, color 0.1s, border-color 0.1s;
-        cursor: pointer;
+        cursor: pointer; touch-action: manipulation;
       }
-      .btn:hover {
-        color: var(--gold); border-color: var(--gold);
-        transform: translate(-2px, -2px);
-        box-shadow: inset 0 0 0 2px #000, 6px 6px 0 #000;
+      @media (hover: hover) and (pointer: fine) {
+        .btn:hover {
+          color: var(--gold); border-color: var(--gold);
+          transform: translate(-2px, -2px);
+          box-shadow: inset 0 0 0 2px #000, 6px 6px 0 #000;
+        }
       }
       .btn:active { transform: translate(2px, 2px); box-shadow: inset 0 0 0 2px #000, 0 0 0 #000; }
       .btn.gold { color: var(--gold); border-color: var(--gold); }
-      button.btn { font-family: inherit; font-size: 0.55rem; outline: none; }
+      button.btn { font-family: "Press Start 2P", monospace; font-size: 0.55rem; line-height: inherit; outline: none; }
 
       footer {
         padding: 40px 0 90px;
@@ -967,21 +999,35 @@
 
       /* HUD (top right) */
       .hud {
-        position: fixed; top: 14px; right: 14px; z-index: 11;
+        position: fixed;
+        top: calc(14px + env(safe-area-inset-top));
+        right: calc(14px + env(safe-area-inset-right));
+        z-index: 11;
         display: flex; gap: 6px;
         font-family: "Press Start 2P", monospace; font-size: 0.45rem;
       }
       .hud span {
         color: var(--muted); background: var(--panel);
         border: 1px solid var(--frame);
-        padding: 6px 8px; letter-spacing: 0.5px;
+        padding: 10px 12px; min-height: 32px;
+        display: inline-flex; align-items: center;
+        letter-spacing: 0.5px;
         cursor: pointer; user-select: none;
+        touch-action: manipulation;
       }
-      .hud span:hover { color: var(--gold); border-color: var(--gold); }
+      @media (hover: hover) and (pointer: fine) {
+        .hud span:hover { color: var(--gold); border-color: var(--gold); }
+      }
+      .hud span:active {
+        color: var(--gold); border-color: var(--gold);
+        transform: translate(1px, 1px);
+      }
 
       /* ACTIVITY LOG (top left) */
       .log {
-        position: fixed; top: 14px; left: 14px; z-index: 11;
+        position: fixed; z-index: 11;
+        top: calc(14px + env(safe-area-inset-top));
+        left: calc(14px + env(safe-area-inset-left));
         width: min(280px, 55vw);
         pointer-events: none;
         font-family: "VT323", monospace;
@@ -1016,11 +1062,33 @@
       }
 
       @media (max-width: 600px) {
-        nav { flex-direction: column; gap: 14px; }
+        body { font-size: 18px; }
+        nav { flex-direction: column; gap: 14px; padding: 18px 0 12px; }
+        nav .links { flex-wrap: wrap; justify-content: center; }
+        header.hero { padding: 16px 0 8px; }
+        section { padding: 24px 0 14px; }
         .sheet .stat { border-right: none; border-bottom: 2px solid var(--frame); }
         .sheet .stat:last-child { border-bottom: none; }
-        .hud { top: 8px; right: 8px; }
-        .log { width: 150px; font-size: 0.8rem; top: 8px; left: 8px; }
+        .cards { grid-template-columns: 1fr; }
+        .actions { gap: 10px; }
+        .actions .btn { flex: 1 1 100%; }
+        footer { padding: 24px 0 40px; }
+        .hud {
+          top: calc(8px + env(safe-area-inset-top));
+          right: calc(8px + env(safe-area-inset-right));
+          gap: 4px;
+        }
+        .hud span { padding: 8px 10px; font-size: 0.42rem; min-height: 30px; }
+        .log {
+          width: min(180px, 50vw); font-size: 0.85rem;
+          top: calc(8px + env(safe-area-inset-top));
+          left: calc(8px + env(safe-area-inset-left));
+        }
+      }
+
+      @media (max-width: 380px) {
+        .log { width: 140px; font-size: 0.75rem; }
+        .hud span { padding: 7px 9px; }
       }
     </style>
   </head>
@@ -1102,17 +1170,16 @@
         <div class="kicker"><span class="ico">▸</span>adventurer has entered the realm</div>
         <h1>Game dev forging crunchy loops &amp; deep economies.</h1>
         <p class="lead">
-          Six years building game systems at Rockbite. Currently raising
-          Idle Outpost from zero. Previously shipped Sandship (joined
-          mid-voyage) and Battle Cards (started as a game jam, grew into a
-          real release).
+          <span id="years-at-rockbite">Six</span> years making games at Rockbite Games.
+          Currently leading Idle Outpost from its first prototype.
+          Previously Sandship and Battle Cards (which started as a game jam).
         </p>
         <div class="sheet">
           <div class="stat long">CLASS<b>Lead Code Wizard</b></div>
           <div class="stat">LVL<b id="player-level">24</b></div>
-          <div class="stat">HP<b>87/100</b></div>
+          <div class="stat">HP<b class="hp-low">1</b></div>
           <div class="stat">MP<b>∞</b></div>
-          <div class="stat">XP<b id="player-xp">0%</b></div>
+          <div class="stat">XP<div class="xp-bar"><div class="xp-fill" id="player-xp"></div></div><span class="xp-next" id="player-xp-next">→ LVL 25</span></div>
         </div>
       </header>
 
@@ -1179,15 +1246,17 @@
       </section>
 
       <section id="skills">
-        <h2><span class="ico">✦</span>Skill Tree</h2>
+        <h2><span class="ico">✦</span>things I love</h2>
         <ul class="skill-list">
-          <li><b>Code &amp; Architecture</b> — designing the systems that hold the game together, then keeping them load-bearing</li>
-          <li><b>Team Lead</b> — managing the dev team without putting down the keyboard</li>
-          <li><b>Hands-on Build</b> — implementing the gameplay myself, often borrowing ideas from games I'm playing off the clock</li>
-          <li><b>Simulation Systems</b> — many small agents with simple behaviors that combine into emergent scenes (literally what's happening on this page)</li>
-          <li><b>Game-Feel &amp; Polish</b> — particles, animation timing, the small things that make a click feel like it landed</li>
-          <li><b>Tech-Art</b> — pixel sprites and animation by an engineer who couldn't help himself</li>
-          <li><b>Player Hangouts</b> — sitting with the people who actually play the thing and listening</li>
+          <li>leading teams</li>
+          <li>designing game systems</li>
+          <li>writing the gameplay myself</li>
+          <li>building little worlds out of small moving parts</li>
+          <li>polishing game feel</li>
+          <li>learning what players actually do</li>
+          <li>playing video games</li>
+          <li>playing board games</li>
+          <li>watching anime</li>
         </ul>
       </section>
 
@@ -1198,7 +1267,7 @@
           <a class="btn gold" href="mailto:davitstepanyan99@gmail.com"><span class="ico">✦</span>send a raven</a>
           <a class="btn" href="https://github.com/DavStep" target="_blank" rel="noopener"><span class="ico">◆</span>guild hall</a>
           <a class="btn" href="https://anilist.co/user/stepdev" target="_blank" rel="noopener"><span class="ico">✦</span>anime tomes</a>
-          <button class="btn" id="discord-btn" type="button"><span class="ico">◆</span>discord: step_dev</button>
+          <button class="btn" id="discord-btn" type="button"><span class="ico">◆</span>discord</button>
           <a class="btn" href="https://steamcommunity.com/id/stepdev/" target="_blank" rel="noopener"><span class="ico">✦</span>steam armory</a>
         </div>
       </section>
@@ -1454,9 +1523,9 @@
               logEvent("The campfires sputter back to life.", "good");
             }
           }
-          // Seed extra clouds when going overcast — 2x for cloudy/rain, 4x for storm
+          // Seed extra clouds when going overcast — sparse for cloudy, heavy for rain/storm
           if ((w === "cloudy" || w === "rain" || w === "storm") && (old === "clear" || (old === "cloudy" && (w === "rain" || w === "storm")))) {
-            const count = w === "storm" ? 28 : w === "rain" ? 16 : 12;
+            const count = w === "storm" ? 28 : w === "rain" ? 16 : 3;
             for (let i = 0; i < count; i++) setTimeout(() => randomCloud(), i * 35);
           }
           // Rainbow when transitioning from wet to dry — but only when not night
@@ -1502,8 +1571,10 @@
         const canvas = world.querySelector(".rain-canvas");
         const ctx = canvas.getContext("2d");
         let CW, CH;
+        let isSmallViewport = false;
         function resize() {
-          const dpr = Math.min(window.devicePixelRatio || 1, 2);
+          isSmallViewport = innerWidth < 640;
+          const dpr = Math.min(window.devicePixelRatio || 1, isSmallViewport ? 1.5 : 2);
           CW = innerWidth; CH = innerHeight;
           canvas.width = CW * dpr; canvas.height = CH * dpr;
           canvas.style.width = CW + "px"; canvas.style.height = CH + "px";
@@ -1589,7 +1660,7 @@
           }
           ctx.clearRect(0, 0, CW, CH);
           if (intensity < 0.01) { requestAnimationFrame(tickRain); return; }
-          const want = Math.floor(intensity * 260);
+          const want = Math.floor(intensity * 260 * (isSmallViewport ? 0.6 : 1));
           ensureDrops(want);
           ctx.lineWidth = 1.2; ctx.lineCap = "round";
           for (let i = 0; i < want; i++) {
@@ -1675,7 +1746,7 @@
             }, i * 30);
           }
         }
-        if (!reduced) seedClouds(10);
+        if (!reduced) seedClouds(3);
 
         /* ============= PARTICLES ============= */
         function spawnParticle(x, y, kind = "chip") {
@@ -6311,13 +6382,13 @@
           setTimeout(() => loop(spawnLumberjack, 28000, 60000, { minRoad: 0, rateScale: RS }), 18000);
           setTimeout(() => loop(spawnLoneBuilder, 9000, 22000, { minRoad: 0, rateScale: RS }), 3500);
           // Realm is at peace — buildings are protected (no destruction loops)
-          // Weather-aware cloud spawning — 2x for cloudy/rain, 4x for storm
+          // Weather-aware cloud spawning — sparse when clear/cloudy; denser for rain/storm
           function cloudLoop() {
             if (!document.hidden) randomCloud();
-            let min = 5000, max = 10000;
-            if (weather === "cloudy") { min = 900;  max = 1800; }  // 2x
-            else if (weather === "rain")  { min = 600;  max = 1200; }  // 2x
-            else if (weather === "storm") { min = 200;  max = 450;  }  // 4x
+            let min = 20000, max = 40000;
+            if (weather === "cloudy") { min = 3600; max = 7200; }
+            else if (weather === "rain")  { min = 600;  max = 1200; }
+            else if (weather === "storm") { min = 200;  max = 450;  }
             setTimeout(cloudLoop, min + Math.random() * (max - min));
           }
           setTimeout(cloudLoop, 1000);
@@ -6355,23 +6426,37 @@
         });
       })();
 
-      // Dynamic LVL = age in years; XP = % of the way to the next birthday.
-      // Birth: 2002-05-12. Today, the level updates itself.
+      // LVL = current age. XP = % of the way to next birthday (visual bar).
+      // Bio "Six years" = floor(career-months / 12), rendered as an English word.
       (function () {
-        const birth = new Date(2002, 4, 12); // Month is 0-indexed: 4 = May
         const now = new Date();
+
+        const birth = new Date(2002, 4, 12);
         const bdayThisYear = new Date(now.getFullYear(), birth.getMonth(), birth.getDate());
         let age = now.getFullYear() - birth.getFullYear();
         if (now < bdayThisYear) age--;
+        const lvlEl = document.getElementById("player-level");
+        if (lvlEl) lvlEl.textContent = age;
+
         const lastBday = now >= bdayThisYear
           ? bdayThisYear
           : new Date(now.getFullYear() - 1, birth.getMonth(), birth.getDate());
         const nextBday = new Date(lastBday.getFullYear() + 1, birth.getMonth(), birth.getDate());
-        const xp = Math.round(((now - lastBday) / (nextBday - lastBday)) * 100);
-        const lvlEl = document.getElementById("player-level");
-        const xpEl  = document.getElementById("player-xp");
-        if (lvlEl) lvlEl.textContent = age;
-        if (xpEl)  xpEl.textContent  = xp + "%";
+        const pct = Math.max(0, Math.min(100, ((now - lastBday) / (nextBday - lastBday)) * 100));
+        const xpEl = document.getElementById("player-xp");
+        if (xpEl) xpEl.style.width = pct.toFixed(2) + "%";
+        const xpNextEl = document.getElementById("player-xp-next");
+        if (xpNextEl) xpNextEl.textContent = "→ LVL " + (age + 1);
+
+        const careerStart = new Date(2019, 10, 1);
+        const months =
+          (now.getFullYear() - careerStart.getFullYear()) * 12 +
+          (now.getMonth() - careerStart.getMonth());
+        const years = Math.floor(months / 12);
+        const words = ["zero","one","two","three","four","five","six","seven","eight","nine","ten","eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen","twenty"];
+        const word = words[years] ? words[years].replace(/^./, c => c.toUpperCase()) : String(years);
+        const yEl = document.getElementById("years-at-rockbite");
+        if (yEl) yEl.textContent = word;
       })();
     </script>
   </body>
