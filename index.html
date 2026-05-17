@@ -27,6 +27,12 @@
         --grass-dark: #25401a;
         --grass-blade: #4a6a30;
         --grass-blade-2: #5a7a36;
+        --grass-rim: #4a6a30;
+        --grass-rim-dark: #2f4a20;
+        --grass-back: #4d6c2c;
+        --grass-back-dark: #36511e;
+        --grass-back-rim: #3a5520;
+        --grass-back-shadow: #233814;
         --leaf-light: #4a6a36;
         --leaf-mid: #3a5a26;
         --leaf-dark: #2a4a1a;
@@ -43,6 +49,10 @@
         --hill-far-fill: #1a1208;
         --hill-near-fill: #2a2018;
         --mountain-fill: #5a6878;
+        --snow-top: #f7fbff;
+        --snow-mid: #dce8f3;
+        --snow-low: #b9cadb;
+        --snow-shadow: rgba(65, 82, 102, 0.38);
         --snow-opacity: 0;
         --bare-show: 0;
       }
@@ -53,6 +63,12 @@
         --grass-dark: #356018;
         --grass-blade: #5e8c3a;
         --grass-blade-2: #74a448;
+        --grass-rim: #5f8a36;
+        --grass-rim-dark: #3c641f;
+        --grass-back: #5b7d36;
+        --grass-back-dark: #3f6124;
+        --grass-back-rim: #486d28;
+        --grass-back-shadow: #263d16;
         --leaf-canopy-1: #6aa040;
         --leaf-canopy-2: #4a8030;
         --leaf-canopy-3: #2e6420;
@@ -77,6 +93,12 @@
         --grass-dark: #5a4818;
         --grass-blade: #8a7030;
         --grass-blade-2: #a87836;
+        --grass-rim: #9a7a34;
+        --grass-rim-dark: #6a531e;
+        --grass-back: #80682e;
+        --grass-back-dark: #604b1e;
+        --grass-back-rim: #6f5624;
+        --grass-back-shadow: #3b2c12;
         --leaf-canopy-1: #e08838;
         --leaf-canopy-2: #c86028;
         --leaf-canopy-3: #8a3818;
@@ -95,6 +117,12 @@
         --grass-dark: #8a92a0;
         --grass-blade: #d8dee6;
         --grass-blade-2: #e4e8ee;
+        --grass-rim: #eef4fb;
+        --grass-rim-dark: #b7c4d2;
+        --grass-back: #d5dde6;
+        --grass-back-dark: #aeb8c5;
+        --grass-back-rim: #eff6ff;
+        --grass-back-shadow: #7d8b9c;
         --leaf-canopy-1: #3a5a26;
         --leaf-canopy-2: #2a4a1a;
         --leaf-canopy-3: #1a3010;
@@ -106,6 +134,10 @@
         --hill-far-fill: #3a4248;
         --hill-near-fill: #586068;
         --mountain-fill: #8a98a8;
+        --snow-top: #f8fcff;
+        --snow-mid: #dce8f4;
+        --snow-low: #b8c9da;
+        --snow-shadow: rgba(64, 84, 108, 0.46);
         --snow-opacity: 1;
         --bare-show: 1;
         --fruit-show: 0;
@@ -113,10 +145,10 @@
       /* Smooth fade when season changes */
       .grass, .grass::before, .grass::after,
       .hills path, .mountains svg path,
-      .hills-snow, .mountains-snow,
+      .hills-snow-fill, .mountains-snow-fill, .hills-snow-far, .hills-snow-near, .mountains-snow,
       .tree .canopy, .tree .bark, .tree .bare-branches, .tree .snow-cap, .tree .fruits,
-      .house::after {
-        transition: fill 3s ease, stroke 3s ease, background 3s ease, opacity 3s ease, color 3s ease;
+      .grass-back {
+        transition: fill 3s ease, stroke 3s ease, background 3s ease, opacity 3s ease, color 3s ease, box-shadow 3s ease;
       }
 
       * { box-sizing: border-box; image-rendering: pixelated; }
@@ -338,7 +370,7 @@
 
       .mountain-house {
         position: absolute;
-        width: 10px; height: 10px;
+        width: 16px; height: 14px;
         opacity: 0;
         animation: mh-fade-in 4s ease forwards;
         pointer-events: none;
@@ -366,17 +398,34 @@
       .hills .h-far-fill  { fill: var(--hill-far-fill); }
       .hills .h-near-fill { fill: var(--hill-near-fill); }
       .mountains .m-fill  { fill: var(--mountain-fill); }
-      /* Snow ridge strokes — visible only in winter via --snow-opacity */
-      .hills-snow-far, .hills-snow-near, .mountains-snow {
-        fill: none; stroke: #f0f6ff; stroke-linecap: round; stroke-linejoin: round;
-        opacity: var(--snow-opacity);
+      /* Snow blankets: filled caps plus a small bright ridge, instead of flat white strokes. */
+      .hills-snow-fill, .mountains-snow-fill {
+        fill: var(--snow-mid);
+        opacity: calc(var(--snow-opacity) * 0.92);
+        filter: drop-shadow(0 3px 0 var(--snow-shadow));
       }
-      .hills-snow-far  { stroke-width: 5; }
-      .hills-snow-near { stroke-width: 6; }
-      .mountains-snow  { stroke-width: 7; }
+      .hills-snow-fill-far { opacity: calc(var(--snow-opacity) * 0.72); }
+      .mountains-snow-fill {
+        fill: var(--snow-top);
+        opacity: calc(var(--snow-opacity) * 0.82);
+        filter: drop-shadow(0 4px 0 rgba(56, 72, 94, 0.42));
+      }
+      .hills-snow-far, .hills-snow-near, .mountains-snow {
+        fill: none;
+        stroke: var(--snow-top);
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        vector-effect: non-scaling-stroke;
+        opacity: calc(var(--snow-opacity) * 0.86);
+        filter: drop-shadow(0 2px 0 var(--snow-shadow));
+      }
+      .hills-snow-far  { stroke-width: 3; opacity: calc(var(--snow-opacity) * 0.62); }
+      .hills-snow-near { stroke-width: 4; }
+      .mountains-snow  { stroke-width: 2.5; opacity: calc(var(--snow-opacity) * 0.72); }
 
       /* TREES */
       .trees-layer { position: absolute; inset: 0; z-index: 6; pointer-events: none; }
+      .back-trees-layer { position: absolute; inset: 0; z-index: 5; pointer-events: none; }
       .tree {
         position: absolute;
         bottom: 48px;
@@ -384,6 +433,12 @@
         transform: scale(var(--g, 0));
         transform-origin: bottom center;
         transition: transform 2.5s cubic-bezier(.34, 1.2, .64, 1);
+      }
+      .back-trees-layer .tree {
+        bottom: 68px;
+        width: 18px; height: 36px;
+        opacity: 0.72;
+        filter: brightness(calc(var(--world-brightness, 1) * 0.82)) saturate(0.72);
       }
       .tree svg { width: 100%; height: 100%; display: block; }
       .tree.falling { animation: fall 1.4s cubic-bezier(.45, 0, .85, .55) forwards; }
@@ -402,17 +457,17 @@
         transform-origin: bottom center;
       }
       .house[data-kind="tower"]    { width: 32px; height: 64px; }
-      .house[data-kind="well"]     { width: 26px; height: 28px; bottom: 50px; }
-      .house[data-kind="signpost"] { width: 18px; height: 30px; bottom: 50px; }
-      .house[data-kind="campfire"] { width: 30px; height: 22px; bottom: 50px; }
+      .house[data-kind="well"]     { width: 28px; height: 30px; bottom: 50px; }
+      .house[data-kind="signpost"] { width: 22px; height: 32px; bottom: 50px; }
+      .house[data-kind="campfire"] { width: 34px; height: 24px; bottom: 50px; }
       .house[data-kind="castle"]   { width: 200px; height: 150px; }
       .house[data-kind="tavern"]   { width: 72px; height: 58px; }
       .house[data-kind="guildhall"]{ width: 66px; height: 68px; }
       .house[data-kind="mill"]     { width: 44px; height: 60px; }
       /* Per-tile "road" structure removed in favor of the continuous road strip below */
-      .house[data-kind="lamppost"] { width: 14px; height: 34px; bottom: 50px; }
-      .house[data-kind="garden"]   { width: 26px; height: 14px; bottom: 50px; }
-      .house[data-kind="statue"]   { width: 18px; height: 34px; bottom: 50px; }
+      .house[data-kind="lamppost"] { width: 18px; height: 38px; bottom: 50px; }
+      .house[data-kind="garden"]   { width: 32px; height: 18px; bottom: 50px; }
+      .house[data-kind="statue"]   { width: 22px; height: 38px; bottom: 50px; }
       .house[data-kind="marketstall"]{ width: 32px; height: 36px; bottom: 50px; }
       .house[data-kind="marketstall"][data-upgrade="1"]{ width: 52px; height: 40px; }
       .house[data-kind="marketstall"][data-upgrade="2"]{ width: 80px; height: 54px; }
@@ -435,41 +490,61 @@
       /* Castle is dead-center and already scaled per tier — back-row offset only, no shrink. */
       .house[data-kind="castle"].lane-back { --lane-y: -10px; --lane-scale: 1; filter: none; }
 
-      /* SNOW CAP — fades in over the top of every structure during winter */
       .house { position: absolute; }
-      .house::after {
-        content: ""; position: absolute;
-        left: 0; right: 0; top: 0;
-        height: 30%;
-        background: #f0f6ff;
-        -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 35%, transparent 95%);
-        mask-image: linear-gradient(180deg, #000 0%, #000 35%, transparent 95%);
-        opacity: calc(var(--snow-opacity) * 0.85);
-        transition: opacity 3s ease;
-        pointer-events: none;
-        mix-blend-mode: screen;
-      }
-      .house[data-kind="campfire"]::after,
-      .house[data-kind="signpost"]::after,
-      .house[data-kind="well"]::after,
-      .house[data-kind="lamppost"]::after,
-      .house[data-kind="statue"]::after,
-      .house[data-kind="garden"]::after { display: none; }
 
       /* CONTINUOUS ROAD STRIP — the end-to-end path people walk on */
       .road-strip {
         position: absolute;
         left: 0; right: 0;
         bottom: 7px;
-        height: 40px;
+        height: 42px;
         z-index: 5;
         pointer-events: none;
+        --road-edge-top: rgba(45, 32, 20, 0.55);
+        --road-edge-bottom: rgba(20, 16, 12, 0.5);
+        --road-pebble: rgba(250, 220, 150, 0.28);
+        --road-shadow: rgba(0, 0, 0, 0.28);
+        filter: brightness(var(--world-brightness, 1));
+        image-rendering: pixelated;
       }
       .road-tier {
         position: absolute;
         inset: 0;
         opacity: 0;
         transition: opacity 2s ease;
+        box-shadow:
+          inset 0 2px 0 rgba(255, 234, 174, 0.14),
+          inset 0 -3px 0 rgba(0, 0, 0, 0.28);
+      }
+      .road-strip::before,
+      .road-strip::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        height: 8px;
+        z-index: 2;
+        opacity: 0.95;
+        pointer-events: none;
+        background-repeat: repeat-x;
+      }
+      .road-strip::before {
+        top: -4px;
+        background-image:
+          radial-gradient(circle 3px at 8px 6px, var(--grass-dark) 0 2px, transparent 3px),
+          radial-gradient(circle 2px at 24px 4px, var(--grass-blade) 0 1.5px, transparent 2px),
+          radial-gradient(circle 3px at 40px 7px, var(--road-edge-top) 0 2px, transparent 3px),
+          linear-gradient(180deg, transparent 0 3px, var(--road-edge-top) 3px 6px, transparent 6px);
+        background-size: 52px 8px, 52px 8px, 52px 8px, 100% 8px;
+      }
+      .road-strip::after {
+        bottom: -5px;
+        background-image:
+          radial-gradient(circle 3px at 10px 1px, var(--road-edge-bottom) 0 2px, transparent 3px),
+          radial-gradient(circle 2px at 28px 3px, var(--grass-blade-2) 0 1.5px, transparent 2px),
+          radial-gradient(circle 2px at 45px 1px, var(--road-pebble) 0 1.5px, transparent 2px),
+          linear-gradient(180deg, var(--road-edge-bottom) 0 3px, transparent 3px);
+        background-size: 58px 8px, 58px 8px, 58px 8px, 100% 8px;
       }
       /* Tier 0 = raw grass — no road strip at all */
       .world[data-road="0"] .road-strip           { opacity: 0; }
@@ -479,60 +554,94 @@
       .world[data-road="4"] .road-tier.t-cobble   { opacity: 1; }
       .world[data-road="5"] .road-tier.t-flagstone{ opacity: 1; }
       .road-strip { transition: opacity 2s ease; }
-      /* dirt — uneven brown */
+      .world[data-road="1"] .road-strip {
+        --road-edge-top: rgba(80, 49, 24, 0.75);
+        --road-edge-bottom: rgba(52, 32, 17, 0.72);
+        --road-pebble: rgba(160, 108, 54, 0.52);
+      }
+      .world[data-road="2"] .road-strip {
+        --road-edge-top: rgba(114, 77, 45, 0.72);
+        --road-edge-bottom: rgba(69, 45, 27, 0.7);
+        --road-pebble: rgba(194, 143, 86, 0.5);
+      }
+      .world[data-road="3"] .road-strip,
+      .world[data-road="4"] .road-strip,
+      .world[data-road="5"] .road-strip {
+        --road-edge-top: rgba(74, 68, 58, 0.86);
+        --road-edge-bottom: rgba(42, 38, 34, 0.82);
+        --road-pebble: rgba(184, 176, 152, 0.55);
+      }
+      /* dirt - uneven footpath with wheel ruts */
       .road-tier.t-dirt {
-        background: #7a4e22;
+        background-color: #765025;
         background-image:
-          radial-gradient(circle 2px at 5% 30%, #5a3818 30%, transparent 40%),
-          radial-gradient(circle 1px at 12% 70%, #5a3818 30%, transparent 40%),
-          radial-gradient(circle 2px at 22% 40%, #5a3818 30%, transparent 40%),
-          radial-gradient(circle 1px at 30% 80%, #5a3818 30%, transparent 40%),
-          radial-gradient(circle 2px at 42% 20%, #5a3818 30%, transparent 40%),
-          radial-gradient(circle 1px at 55% 70%, #5a3818 30%, transparent 40%),
-          radial-gradient(circle 2px at 67% 30%, #5a3818 30%, transparent 40%),
-          radial-gradient(circle 1px at 78% 65%, #5a3818 30%, transparent 40%),
-          radial-gradient(circle 2px at 90% 40%, #5a3818 30%, transparent 40%),
-          linear-gradient(180deg, #8a5828 0%, #6a4218 100%);
+          linear-gradient(90deg, transparent 0 14px, rgba(55, 33, 16, 0.38) 14px 18px, transparent 18px 46px, rgba(55, 33, 16, 0.3) 46px 50px, transparent 50px),
+          radial-gradient(circle 2px at 7px 13px, #4a2b12 0 1.5px, transparent 2px),
+          radial-gradient(circle 1.5px at 27px 29px, #a66d32 0 1px, transparent 2px),
+          radial-gradient(circle 2px at 42px 19px, #573617 0 1.5px, transparent 2px),
+          radial-gradient(circle 2px at 63px 33px, #b77a3a 0 1.5px, transparent 2px),
+          linear-gradient(180deg, #9b6830 0%, #845426 35%, #633b18 100%);
+        background-size: 96px 42px, 72px 42px, 88px 42px, 94px 42px, 110px 42px, 100% 100%;
       }
-      /* packed dirt — smoother, slightly lighter */
+      /* packed dirt - tamped center lane with cleaner wagon tracks */
       .road-tier.t-packed {
-        background: linear-gradient(180deg, #a07850 0%, #80583a 50%, #5a3818 100%);
-        background-image: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.18) 100%), linear-gradient(180deg, #a07850, #80583a);
+        background-color: #94663c;
+        background-image:
+          linear-gradient(90deg, transparent 0 18px, rgba(58, 36, 18, 0.3) 18px 22px, transparent 22px 74px, rgba(58, 36, 18, 0.24) 74px 78px, transparent 78px),
+          repeating-linear-gradient(90deg, transparent 0 31px, rgba(245, 198, 112, 0.12) 31px 33px, transparent 33px 64px),
+          radial-gradient(ellipse 10px 2px at 12px 11px, rgba(60, 37, 18, 0.25) 0 65%, transparent 70%),
+          radial-gradient(ellipse 8px 2px at 48px 31px, rgba(60, 37, 18, 0.22) 0 65%, transparent 70%),
+          linear-gradient(180deg, #b48958 0%, #93623a 48%, #654225 100%);
+        background-size: 112px 42px, 64px 42px, 86px 42px, 104px 42px, 100% 100%;
       }
-      /* dressed stone — repeating slabs */
+      /* dressed stone - squared slabs with offset seams */
       .road-tier.t-stone {
-        background-color: #8a8580;
+        background-color: #8a8378;
         background-image:
-          repeating-linear-gradient(90deg, transparent 0 23px, #4a4438 23px 25px),
-          linear-gradient(180deg, #9a9088 0%, #6a6258 100%);
+          linear-gradient(180deg, rgba(255,255,255,0.18) 0 2px, transparent 2px 39px, rgba(0,0,0,0.26) 39px 42px),
+          repeating-linear-gradient(90deg, transparent 0 35px, #4b463d 35px 37px, transparent 37px 72px),
+          linear-gradient(90deg, transparent 0 17px, #5c554b 17px 19px, transparent 19px 53px, #4d473f 53px 55px, transparent 55px),
+          repeating-linear-gradient(180deg, transparent 0 19px, #4d473f 19px 21px, transparent 21px 42px),
+          radial-gradient(circle 1.5px at 11px 10px, #bbb2a4 0 1px, transparent 1.5px),
+          radial-gradient(circle 1.5px at 49px 30px, #595249 0 1px, transparent 1.5px),
+          linear-gradient(180deg, #a59c8e 0%, #827a70 54%, #5c564d 100%);
+        background-size: 100% 100%, 72px 42px, 72px 42px, 72px 42px, 72px 42px, 94px 42px, 100% 100%;
       }
-      /* cobblestone — repeating rounded bumps */
+      /* cobblestone - dense rounded pavers with varied rows */
       .road-tier.t-cobble {
-        background-color: #6a625a;
+        background-color: #655f58;
         background-image:
-          radial-gradient(circle 3px at 7px 4px, #8a8580 60%, #3a3530 75%, transparent 76%),
-          radial-gradient(circle 3px at 21px 4px, #8a8580 60%, #3a3530 75%, transparent 76%),
-          radial-gradient(circle 3px at 14px 4px, #7a7268 60%, #3a3530 75%, transparent 76%);
-        background-size: 28px 8px, 28px 8px, 14px 8px;
-        background-repeat: repeat-x;
-        box-shadow: inset 0 1px 0 #80786a, inset 0 -1px 0 #3a3530;
+          radial-gradient(ellipse 7px 4px at 8px 7px, #918a80 0 55%, #3c3934 58% 70%, transparent 72%),
+          radial-gradient(ellipse 7px 4px at 24px 7px, #7e776e 0 55%, #3c3934 58% 70%, transparent 72%),
+          radial-gradient(ellipse 7px 4px at 40px 7px, #9b9488 0 55%, #3c3934 58% 70%, transparent 72%),
+          radial-gradient(ellipse 7px 4px at 16px 19px, #777068 0 55%, #3c3934 58% 70%, transparent 72%),
+          radial-gradient(ellipse 7px 4px at 32px 19px, #8a8378 0 55%, #3c3934 58% 70%, transparent 72%),
+          radial-gradient(ellipse 7px 4px at 48px 19px, #756e66 0 55%, #3c3934 58% 70%, transparent 72%),
+          radial-gradient(ellipse 7px 4px at 8px 31px, #8d867c 0 55%, #3c3934 58% 70%, transparent 72%),
+          radial-gradient(ellipse 7px 4px at 24px 31px, #797269 0 55%, #3c3934 58% 70%, transparent 72%),
+          radial-gradient(ellipse 7px 4px at 40px 31px, #948d82 0 55%, #3c3934 58% 70%, transparent 72%),
+          linear-gradient(180deg, #827b72 0%, #5c564f 100%);
+        background-size: 56px 42px, 56px 42px, 56px 42px, 56px 42px, 56px 42px, 56px 42px, 56px 42px, 56px 42px, 56px 42px, 100% 100%;
+        box-shadow: inset 0 2px 0 #8b847a, inset 0 -3px 0 #34312e;
       }
-      /* flagstone — large rectangular tiles (medieval, NOT modern paint stripes) */
+      /* flagstone - large master-mason slabs with cracks and highlights */
       .road-tier.t-flagstone {
-        background-color: #6a625a;
+        background-color: #68635c;
         background-image:
-          repeating-linear-gradient(90deg,
-            #80786a 0px,
-            #80786a 28px,
-            #3a3530 28px,
-            #3a3530 30px,
-            #6a625a 30px,
-            #6a625a 58px,
-            #3a3530 58px,
-            #3a3530 60px
-          ),
-          linear-gradient(180deg, #80786a 0%, #5a544e 100%);
-        box-shadow: inset 0 1px 0 #9a9088, inset 0 -1px 0 #3a3530;
+          linear-gradient(180deg, rgba(255,255,255,0.16) 0 2px, transparent 2px 38px, rgba(0,0,0,0.26) 38px 42px),
+          repeating-linear-gradient(90deg, transparent 0 58px, #342f2a 58px 61px, transparent 61px 120px),
+          linear-gradient(90deg, transparent 0 28px, #4a443d 28px 30px, transparent 30px 90px, #3a3530 90px 92px, transparent 92px),
+          repeating-linear-gradient(180deg, transparent 0 20px, #3a3530 20px 23px, transparent 23px 42px),
+          linear-gradient(135deg, transparent 0 31px, rgba(42, 38, 34, 0.75) 31px 33px, transparent 33px 100%),
+          linear-gradient(45deg, transparent 0 71px, rgba(220, 212, 190, 0.16) 71px 73px, transparent 73px 100%),
+          radial-gradient(circle 2px at 24px 11px, #948c82 0 1px, transparent 2px),
+          radial-gradient(circle 1.5px at 82px 31px, #403b36 0 1px, transparent 1.5px),
+          linear-gradient(180deg, #918a80 0%, #6f6961 52%, #4f4943 100%);
+        background-size: 100% 100%, 120px 42px, 120px 42px, 120px 42px, 120px 42px, 120px 42px, 120px 42px, 120px 42px, 100% 100%;
+        box-shadow:
+          inset 0 2px 0 #a8a096,
+          inset 0 -4px 0 #332f2b,
+          inset 0 0 0 1px rgba(255,255,255,0.05);
       }
 
       /* CAMEL */
@@ -800,7 +909,7 @@
         position: absolute; left: 0; right: 0; bottom: 0;
         height: 60px; z-index: 5;
         background: linear-gradient(180deg, var(--grass) 0%, var(--grass-dark) 100%);
-        box-shadow: inset 0 6px 0 #4a6a30, inset 0 12px 0 #2f4a20;
+        box-shadow: inset 0 6px 0 var(--grass-rim), inset 0 12px 0 var(--grass-rim-dark);
         filter: brightness(var(--world-brightness, 1));
       }
       .grass::before {
@@ -818,13 +927,13 @@
          visually separates the two ground layers. */
       .grass-back {
         position: absolute; left: 0; right: 0;
-        bottom: 47px;       /* sits flush with the top edge of the road-strip (road = bottom 7, height 40 → top at 47) */
+        bottom: 49px;       /* sits flush with the top edge of the road-strip (road = bottom 7, height 42 -> top at 49) */
         height: 22px;
         z-index: 5;
-        background: linear-gradient(180deg, #4d6c2c 0%, #36511e 100%);
+        background: linear-gradient(180deg, var(--grass-back) 0%, var(--grass-back-dark) 100%);
         box-shadow:
-          inset 0 4px 0 #3a5520,
-          inset 0 -2px 0 #233814;
+          inset 0 4px 0 var(--grass-back-rim),
+          inset 0 -2px 0 var(--grass-back-shadow);
         filter: brightness(calc(var(--world-brightness, 1) * 0.92)) saturate(0.88);
         pointer-events: none;
       }
@@ -842,13 +951,21 @@
         content: ""; position: absolute; bottom: -5px; left: 0; right: 0; height: 5px;
         background: linear-gradient(180deg, rgba(0,0,0,0.35) 0%, transparent 100%);
       }
-      /* Snow blanket on top of grass, fades in with --snow-opacity */
+      /* Snow blanket on top of the front shelf, fades in with --snow-opacity */
       .grass::after {
-        content: ""; position: absolute; top: -4px; left: 0; right: 0; height: 10px;
-        background: linear-gradient(180deg, #f4f8fc 0%, #d8e0ea 60%, transparent 100%);
-        opacity: var(--snow-opacity);
+        content: ""; position: absolute; top: -9px; left: 0; right: 0; height: 24px;
+        background-image:
+          linear-gradient(180deg, transparent 0 2px, var(--snow-top) 2px 9px, var(--snow-mid) 10px 16px, transparent 22px),
+          radial-gradient(ellipse 28px 7px at 26px 7px, var(--snow-top) 0 68%, transparent 72%),
+          radial-gradient(ellipse 36px 8px at 52px 11px, var(--snow-mid) 0 62%, transparent 68%),
+          radial-gradient(ellipse 9px 3px at 12px 16px, var(--snow-low) 0 58%, transparent 64%);
+        background-size: 100% 100%, 96px 20px, 132px 18px, 68px 12px;
+        background-position: 0 0, 0 0, 36px 4px, 12px 8px;
+        background-repeat: no-repeat, repeat-x, repeat-x, repeat-x;
+        opacity: calc(var(--snow-opacity) * 0.96);
         transition: opacity 3s ease;
         pointer-events: none;
+        filter: drop-shadow(0 3px 0 var(--snow-shadow));
       }
 
       .rain-canvas { position: absolute; inset: 0; z-index: 8; pointer-events: none; }
@@ -1341,19 +1458,23 @@
       <div class="mountains">
         <svg class="mountains-far" viewBox="0 0 1200 220" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
           <path class="m-fill" d="M0,220 L0,140 L80,90 L150,120 L220,60 L300,100 L380,40 L460,95 L540,55 L620,110 L700,50 L780,105 L860,70 L940,30 L1020,95 L1100,60 L1180,110 L1200,90 L1200,220 Z"/>
+          <path class="mountains-snow-fill" d="M48,110 L80,90 L118,110 L102,110 L90,101 L80,96 L68,110 Z M184,78 L220,60 L258,80 L242,83 L229,72 L220,68 L208,82 Z M340,63 L380,40 L426,66 L404,69 L392,53 L380,48 L365,68 Z M510,70 L540,55 L572,76 L558,78 L548,64 L540,61 L530,76 Z M660,72 L700,50 L742,77 L724,80 L711,62 L700,58 L686,80 Z M918,55 L940,30 L986,64 L963,66 L952,45 L940,38 L930,63 Z M1072,76 L1100,60 L1138,82 L1120,84 L1110,70 L1100,66 L1088,82 Z"/>
           <path class="mountains-snow" d="M0,140 L80,90 L150,120 L220,60 L300,100 L380,40 L460,95 L540,55 L620,110 L700,50 L780,105 L860,70 L940,30 L1020,95 L1100,60 L1180,110 L1200,90"/>
         </svg>
       </div>
       <div class="hills">
         <svg class="hills-far" viewBox="0 0 1200 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
           <path class="h-far-fill" d="M0,100 L0,60 Q70,30 140,55 Q210,80 280,50 Q350,25 420,55 Q490,80 560,55 Q630,30 700,55 Q770,80 840,55 Q910,30 980,55 Q1050,80 1120,55 Q1170,40 1200,60 L1200,100 Z"/>
+          <path class="hills-snow-fill hills-snow-fill-far" d="M0,60 Q70,30 140,55 Q210,80 280,50 Q350,25 420,55 Q490,80 560,55 Q630,30 700,55 Q770,80 840,55 Q910,30 980,55 Q1050,80 1120,55 Q1170,40 1200,60 L1200,75 Q1165,69 1120,70 Q1060,88 995,68 Q930,45 858,68 Q790,90 718,70 Q650,45 585,70 Q515,88 450,68 Q385,44 315,68 Q250,88 184,68 Q110,48 45,74 Q20,78 0,76 Z"/>
           <path class="hills-snow-far" d="M0,60 Q70,30 140,55 Q210,80 280,50 Q350,25 420,55 Q490,80 560,55 Q630,30 700,55 Q770,80 840,55 Q910,30 980,55 Q1050,80 1120,55 Q1170,40 1200,60"/>
         </svg>
         <svg class="hills-near" viewBox="0 0 1200 80" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
           <path class="h-near-fill" d="M0,80 L0,40 Q100,5 200,35 Q310,60 410,30 Q510,5 600,30 Q700,60 810,30 Q920,5 1020,35 Q1110,60 1200,40 L1200,80 Z"/>
+          <path class="hills-snow-fill hills-snow-fill-near" d="M0,40 Q100,5 200,35 Q310,60 410,30 Q510,5 600,30 Q700,60 810,30 Q920,5 1020,35 Q1110,60 1200,40 L1200,60 Q1120,74 1035,52 Q930,22 825,52 Q715,76 610,49 Q505,24 410,52 Q305,74 205,56 Q102,24 0,58 Z"/>
           <path class="hills-snow-near" d="M0,40 Q100,5 200,35 Q310,60 410,30 Q510,5 600,30 Q700,60 810,30 Q920,5 1020,35 Q1110,60 1200,40"/>
         </svg>
       </div>
+      <div class="back-trees-layer"></div>
       <div class="grass"></div>
       <div class="road-strip">
         <div class="road-tier t-dirt"></div>
@@ -1537,6 +1658,7 @@
         const peopleLayer = world.querySelector(".people-layer");
         const dragonsLayer = world.querySelector(".dragons-layer");
         const treesLayer = world.querySelector(".trees-layer");
+        const backTreesLayer = world.querySelector(".back-trees-layer");
         const cloudsLayer = world.querySelector(".clouds-layer");
         const lightning = world.querySelector(".lightning");
         const hudTime = document.getElementById("hud-time");
@@ -1934,50 +2056,64 @@
             alpha: 0.35 + Math.random() * 0.35,
           });
         }
-        function ensureFlakes(n) {
-          while (flakes.length < n) flakes.push({
+        function makeFlake(y = Math.random() * CH) {
+          const depthRoll = Math.random();
+          const depth = depthRoll < 0.56 ? 0 : depthRoll < 0.88 ? 1 : 2;
+          const depthScale = [0.6, 1, 1.45][depth];
+          return {
             x: Math.random() * CW,
-            y: Math.random() * CH,
-            vy: 0.7 + Math.random() * 1.3,
-            size: Math.random() < 0.5 ? 2 : 3,
+            y,
+            vy: (0.42 + Math.random() * 0.72) * depthScale,
+            size: depth === 0 ? 1 : (depth === 1 ? 2 : (Math.random() < 0.55 ? 2 : 3)),
+            drift: (0.18 + Math.random() * 0.42) * depthScale,
+            wave: 0.016 + Math.random() * 0.018,
             phase: Math.random() * 1000,
-            alpha: 0.65 + Math.random() * 0.3,
-          });
+            alpha: [0.38, 0.58, 0.78][depth] + Math.random() * 0.16,
+          };
+        }
+        function ensureFlakes(n) {
+          while (flakes.length < n) flakes.push(makeFlake());
         }
         function tickRain() {
           wind += (windTarget - wind) * 0.02;
           intensity += (intensityTarget - intensity) * 0.012;
           gustTimer--;
-          if (gustTimer <= 0 && intensityTarget > 0) {
-            const base = weather === "storm" ? 9 : 4;
+          if (gustTimer <= 0 && (intensityTarget > 0 || currentSeason === "winter")) {
+            const base = weather === "storm" ? 9 : (currentSeason === "winter" ? 2.6 : 4);
             windTarget = (Math.random() * 2 - 1) * base;
             gustTimer = 120 + Math.random() * 180;
           }
 
           // Snow ramps independently from rain — driven by season, not weather
-          const snowTarget = currentSeason === "winter" ? 1 : 0;
+          const snowTarget = currentSeason === "winter" ? (weather === "storm" ? 1.12 : 1) : 0;
           snowIntensity += (snowTarget - snowIntensity) * 0.008;
 
           ctx.clearRect(0, 0, CW, CH);
 
           // --- SNOW (winter, regardless of weather) ---
           if (snowIntensity > 0.01) {
-            const wantFlakes = Math.floor(snowIntensity * 130 * (isSmallViewport ? 0.55 : 1));
+            const snowAlpha = Math.min(1, snowIntensity);
+            const wantFlakes = Math.floor(snowAlpha * (weather === "storm" ? 118 : 92) * (isSmallViewport ? 0.62 : 1));
             ensureFlakes(wantFlakes);
             for (let i = 0; i < wantFlakes; i++) {
               const f = flakes[i];
               f.y += f.vy;
-              f.x += Math.sin((f.y + f.phase) * 0.025) * 0.4 + wind * 0.08;
-              if (f.y > CH + 6) { f.y = -8; f.x = Math.random() * CW; }
+              f.x += Math.sin((f.y + f.phase) * f.wave) * f.drift + wind * 0.045;
+              if (f.y > CH + 8) Object.assign(f, makeFlake(-12 - Math.random() * 40));
               if (f.x > CW + 20) f.x = -10;
               if (f.x < -20) f.x = CW + 10;
-              ctx.fillStyle = `rgba(240, 246, 255, ${f.alpha * snowIntensity})`;
-              ctx.fillRect(Math.floor(f.x), Math.floor(f.y), f.size, f.size);
+              const x = Math.floor(f.x), y = Math.floor(f.y);
+              ctx.fillStyle = `rgba(246, 251, 255, ${f.alpha * snowAlpha})`;
+              ctx.fillRect(x, y, f.size, f.size);
+              if (f.size >= 3) {
+                ctx.fillRect(x + 1, y - 1, 1, 1);
+                ctx.fillRect(x - 1, y + 1, 1, 1);
+              }
             }
           }
 
           // --- RAIN ---
-          if (intensity >= 0.01) {
+          if (currentSeason !== "winter" && intensity >= 0.01) {
             const want = Math.floor(intensity * 260 * (isSmallViewport ? 0.6 : 1));
             ensureDrops(want);
             ctx.lineWidth = 1.2; ctx.lineCap = "round";
@@ -4114,7 +4250,23 @@
         /* ============= TREES ============= */
         const treeStages = [0, 0.25, 0.55, 0.85, 1.1];
         const trees = [];
-        const TREE_MIN_SPACING = 80;
+        const backTrees = [];
+        const TREE_MIN_SPACING = 52;
+        const TREE_STRUCTURE_SPACING = 62;
+        const TREE_SPOT_ATTEMPTS = 120;
+        const BACK_TREE_MIN_SPACING = 30;
+        const BACK_TREE_SPOT_ATTEMPTS = 90;
+        const STARTER_STRUCTURE_SEEDS = [
+          { kind: "house",     pos: 0.14, up: 1 },
+          { kind: "tavern",    pos: 0.17, up: 0 },
+          { kind: "well",      pos: 0.33, up: 0 },
+          { kind: "garden",    pos: 0.35, up: 0 },
+          { kind: "house",     pos: 0.52, up: 0 },
+          { kind: "signpost",  pos: 0.55, up: 0 },
+          { kind: "lamppost",  pos: 0.71, up: 0 },
+          { kind: "blacksmith", pos: 0.73, up: 0 },
+          { kind: "statue",    pos: 0.90, up: 0 },
+        ];
 
         function makeTreeSVG(species) {
           if (species === "oak") {
@@ -4142,13 +4294,17 @@
                 <rect x="16" y="22" width="2" height="2" fill="var(--leaf-shadow)"/>
                 <rect x="8"  y="12" width="2" height="2" fill="var(--leaf-shadow)"/>
                 <rect x="14" y="10" width="2" height="2" fill="var(--leaf-shadow)"/>
-              </g>
-              <g class="snow-cap" style="opacity: var(--snow-opacity);">
-                <rect x="7" y="0"  width="10" height="2" fill="#f0f6ff"/>
-                <rect x="5" y="6"  width="14" height="2" fill="#f0f6ff"/>
-                <rect x="3" y="14" width="18" height="2" fill="#f0f6ff"/>
-              </g>
-            </svg>`;
+                </g>
+                <g class="snow-cap" style="opacity: var(--snow-opacity);">
+                  <rect x="10" y="14" width="2" height="1" fill="var(--snow-top)"/>
+                  <rect x="13" y="12" width="2" height="1" fill="var(--snow-top)"/>
+                  <rect x="7"  y="21" width="5" height="1" fill="var(--snow-top)"/>
+                  <rect x="13" y="19" width="5" height="1" fill="var(--snow-top)"/>
+                  <rect x="5"  y="17" width="4" height="1" fill="var(--snow-top)"/>
+                  <rect x="15" y="15" width="3" height="1" fill="var(--snow-top)"/>
+                  <rect x="10" y="33" width="4" height="2" fill="var(--snow-mid)"/>
+                </g>
+              </svg>`;
           } else if (species === "pine") {
             // Pine — tall triangular evergreen
             return `<svg viewBox="0 0 24 48" xmlns="http://www.w3.org/2000/svg">
@@ -4171,14 +4327,15 @@
                 <polygon points="9,13 15,13 12,4" fill="var(--leaf-pine-light)"/>
                 <!-- tip highlight -->
                 <rect x="11" y="2" width="2" height="2" fill="var(--leaf-pine-light)"/>
-              </g>
-              <g class="snow-cap" style="opacity: var(--snow-opacity);">
-                <polygon points="9,13 15,13 12,8" fill="#f0f6ff"/>
-                <polygon points="7,21 17,21 12,16" fill="#f0f6ff"/>
-                <polygon points="5,29 19,29 12,24" fill="#f0f6ff"/>
-                <polygon points="3,37 21,37 12,32" fill="#f0f6ff"/>
-              </g>
-            </svg>`;
+                </g>
+                <g class="snow-cap" style="opacity: var(--snow-opacity);">
+                  <polygon points="9,13 15,13 12,8" fill="var(--snow-top)"/>
+                  <polygon points="7,21 17,21 12,16" fill="var(--snow-top)"/>
+                  <polygon points="5,29 19,29 12,24" fill="var(--snow-top)"/>
+                  <polygon points="3,37 21,37 12,32" fill="var(--snow-top)"/>
+                  <rect x="5" y="37" width="14" height="1" fill="var(--snow-low)" opacity="0.7"/>
+                </g>
+              </svg>`;
           } else {
             // Fruit tree — round canopy dotted with little red fruits
             return `<svg viewBox="0 0 24 48" xmlns="http://www.w3.org/2000/svg">
@@ -4214,13 +4371,17 @@
                 <rect x="6"  y="16" width="1" height="1" fill="#f06850"/>
                 <rect x="14" y="14" width="1" height="1" fill="#f06850"/>
                 <rect x="10" y="20" width="1" height="1" fill="#f06850"/>
-              </g>
-              <g class="snow-cap" style="opacity: var(--snow-opacity);">
-                <rect x="7" y="2"  width="10" height="2" fill="#f0f6ff"/>
-                <rect x="5" y="8"  width="14" height="2" fill="#f0f6ff"/>
-                <rect x="3" y="14" width="18" height="2" fill="#f0f6ff"/>
-              </g>
-            </svg>`;
+                </g>
+                <g class="snow-cap" style="opacity: var(--snow-opacity);">
+                  <rect x="9"  y="10" width="2" height="1" fill="var(--snow-top)"/>
+                  <rect x="14" y="8"  width="2" height="1" fill="var(--snow-top)"/>
+                  <rect x="6"  y="15" width="4" height="1" fill="var(--snow-top)"/>
+                  <rect x="15" y="13" width="4" height="1" fill="var(--snow-top)"/>
+                  <rect x="6"  y="21" width="5" height="1" fill="var(--snow-top)"/>
+                  <rect x="13" y="19" width="5" height="1" fill="var(--snow-top)"/>
+                  <rect x="10" y="33" width="4" height="2" fill="var(--snow-mid)"/>
+                </g>
+              </svg>`;
           }
         }
         function pickTreeSpecies() {
@@ -4229,16 +4390,25 @@
           if (v < 0.78) return "pine";
           return "fruit";
         }
+        function treeSpacing() {
+          return Math.max(24, Math.min(TREE_MIN_SPACING, W() * 0.07));
+        }
+        function treeStructureSpacing() {
+          return Math.max(16, Math.min(TREE_STRUCTURE_SPACING, W() * 0.05));
+        }
         function findTreeSpot() {
-          for (let i = 0; i < 25; i++) {
-            const x = 40 + Math.random() * (W() - 80);
-            const free = !trees.some((t) => Math.abs(t.x - x) < TREE_MIN_SPACING)
-                      && !houses.some((h) => Math.abs(h.x - x) < TREE_MIN_SPACING);
+          const minTreeGap = treeSpacing();
+          const minStructureGap = treeStructureSpacing();
+          for (let i = 0; i < TREE_SPOT_ATTEMPTS; i++) {
+            const x = 32 + Math.random() * (W() - 64);
+            const free = !trees.some((t) => Math.abs(t.x - x) < minTreeGap)
+                      && !houses.some((h) => Math.abs(h.x - x) < minStructureGap)
+                      && !STARTER_STRUCTURE_SEEDS.some((s) => Math.abs((s.pos * W()) - x) < minStructureGap);
             if (free) return x;
           }
           return null;
         }
-        function plantTree(immediate = false) {
+        function plantTree(immediate = false, silent = false) {
           const x = findTreeSpot();
           if (x == null) return null;
           const species = pickTreeSpecies();
@@ -4256,12 +4426,17 @@
             t.style.setProperty("--g", treeStages[rec.stage]);
             return rec;
           }
-          logEvent("A sapling takes root.");
+          if (!silent) logEvent("A sapling takes root.");
           function step() {
             if (!t.isConnected) return;
             rec.stage++;
             if (rec.stage >= treeStages.length) {
-              logEvent("A tree stands tall.", "good");
+              if (!silent) logEvent("A tree stands tall.", "good");
+              if (Math.random() < 0.7) {
+                setTimeout(() => {
+                  if (t.isConnected) plantTree(false, true);
+                }, 6000 + Math.random() * 10000);
+              }
               return;
             }
             t.style.setProperty("--g", treeStages[rec.stage]);
@@ -4270,9 +4445,67 @@
           setTimeout(step, 1500);
           return rec;
         }
+        function plantTreeBurst(immediate = false, count = 2, stagger = 80) {
+          for (let i = 0; i < count; i++) {
+            setTimeout(() => plantTree(immediate, i > 0), i * stagger);
+          }
+        }
+        function backTreeLimit() {
+          return Math.max(9, Math.min(46, Math.floor(W() / 32)));
+        }
+        function findBackTreeSpot() {
+          const minGap = Math.max(18, Math.min(BACK_TREE_MIN_SPACING, W() * 0.045));
+          for (let i = 0; i < BACK_TREE_SPOT_ATTEMPTS; i++) {
+            const x = 14 + Math.random() * (W() - 28);
+            if (!backTrees.some((t) => Math.abs(t.x - x) < minGap)) return x;
+          }
+          return null;
+        }
+        function plantBackTree(immediate = false) {
+          if (backTrees.length >= backTreeLimit()) return null;
+          const x = findBackTreeSpot();
+          if (x == null) return null;
+          const species = pickTreeSpecies();
+          const t = document.createElement("div");
+          t.className = "tree back-tree";
+          t.dataset.species = species;
+          t.innerHTML = makeTreeSVG(species);
+          t.style.left = x + "px";
+          t.style.setProperty("--g", "0");
+          t.style.opacity = (0.58 + Math.random() * 0.2).toFixed(2);
+          backTreesLayer.appendChild(t);
+          const rec = { el: t, x, stage: 0, species };
+          backTrees.push(rec);
+          if (immediate) {
+            rec.stage = treeStages.length - 1;
+            t.style.setProperty("--g", treeStages[rec.stage]);
+            return rec;
+          }
+          function step() {
+            if (!t.isConnected) return;
+            rec.stage++;
+            if (rec.stage >= treeStages.length) {
+              if (Math.random() < 0.45) setTimeout(() => plantBackTree(false), 7000 + Math.random() * 11000);
+              return;
+            }
+            t.style.setProperty("--g", treeStages[rec.stage]);
+            setTimeout(step, 5500 + Math.random() * 4500);
+          }
+          setTimeout(step, 1200);
+          return rec;
+        }
+        function plantBackTreeBurst(immediate = false, count = 3, stagger = 70) {
+          for (let i = 0; i < count; i++) {
+            setTimeout(() => plantBackTree(immediate), i * stagger);
+          }
+        }
         function removeTree(rec) {
           const i = trees.indexOf(rec);
           if (i >= 0) trees.splice(i, 1);
+        }
+        function removeBackTree(rec) {
+          const i = backTrees.indexOf(rec);
+          if (i >= 0) backTrees.splice(i, 1);
         }
 
         /* ============= STRUCTURES (houses, towers, wells, signposts, campfires) ============= */
@@ -4281,52 +4514,76 @@
 
         /* Footprint widths used for depth-lane collision checks. Mirrors the CSS widths above. */
         const KIND_WIDTHS = {
-          house: 48, tower: 32, well: 26, signpost: 18, campfire: 30, castle: 200,
-          tavern: 72, guildhall: 66, mill: 44, lamppost: 14, garden: 26, statue: 18,
+          house: 48, tower: 32, well: 28, signpost: 22, campfire: 34, castle: 200,
+          tavern: 72, guildhall: 66, mill: 44, lamppost: 18, garden: 32, statue: 22,
           marketstall: 32, guardpost: 24, blacksmith: 46,
         };
-        const HOUSE_VARIANT_WIDTHS = { "two-story": 44, "a-frame": 48, "longhouse": 64 };
-        const MARKETSTALL_UPGRADE_WIDTHS = [32, 52, 80, 120, 120];
-        const TAVERN_UPGRADE_WIDTHS = [72, 84, 108, 132, 158];
-        const GUILDHALL_UPGRADE_WIDTHS = [66, 78, 100, 124, 150];
+        const HOUSE_VARIANT_WIDTHS = {
+          cottage: [48, 56, 80, 104, 128],
+          "two-story": [44, 60, 78, 100, 122],
+          "a-frame": [48, 64, 82, 104, 126],
+          longhouse: [64, 84, 104, 124, 144],
+        };
+        const STRUCTURE_UPGRADE_WIDTHS = {
+          tower: [32, 51, 70, 96, 128],
+          castle: [200, 240, 290, 360, 430],
+          mill: [44, 60, 78, 100, 124],
+          marketstall: [32, 52, 80, 120, 120],
+          tavern: [72, 84, 108, 132, 158],
+          guildhall: [66, 78, 100, 124, 150],
+        };
+        const BACK_LANE_MIN_WIDTH = 64;
+        function widthForUpgrade(widths, upgrade, fallback) {
+          const i = Math.max(0, Math.min(widths.length - 1, upgrade ?? 0));
+          return widths[i] ?? fallback;
+        }
         function houseFootprintWidth(kind, palette, upgrade) {
-          if (kind === "house" && palette?.variant) return HOUSE_VARIANT_WIDTHS[palette.variant] ?? 48;
-          if (kind === "marketstall") return MARKETSTALL_UPGRADE_WIDTHS[upgrade ?? 0] ?? 32;
-          if (kind === "tavern") return TAVERN_UPGRADE_WIDTHS[upgrade ?? 0] ?? 72;
-          if (kind === "guildhall") return GUILDHALL_UPGRADE_WIDTHS[upgrade ?? 0] ?? 66;
+          if (kind === "house") {
+            const variant = palette?.variant || "cottage";
+            return widthForUpgrade(HOUSE_VARIANT_WIDTHS[variant] || HOUSE_VARIANT_WIDTHS.cottage, upgrade, 48);
+          }
+          if (STRUCTURE_UPGRADE_WIDTHS[kind]) {
+            return widthForUpgrade(STRUCTURE_UPGRADE_WIDTHS[kind], upgrade, KIND_WIDTHS[kind] ?? 48);
+          }
           return KIND_WIDTHS[kind] ?? 48;
         }
-        /* Decorations + small shops live in their own row hugging the road. Big buildings
-           (houses, towers, mill, tavern, guildhall, castle) take back/front as before. */
+        /* Decorations + small shops start in their own row hugging the road; wide/upgraded
+           structures get the same back/front depth preference as larger buildings. */
         const ROADSIDE_KINDS = new Set([
           "well", "signpost", "campfire", "lamppost", "garden", "statue",
           "marketstall", "guardpost", "blacksmith",
         ]);
-        /* Pick a depth lane by collision with existing buildings in the same lane.
-           Castle is always back. */
-        function pickLane(x, kind, palette, upgrade) {
+        function prefersBackLane(kind, palette, upgrade) {
+          if (kind === "castle") return true;
+          return houseFootprintWidth(kind, palette, upgrade) >= BACK_LANE_MIN_WIDTH || (upgrade ?? 0) >= 2;
+        }
+        function preferredLaneOrder(kind, palette, upgrade) {
+          const backFirst = prefersBackLane(kind, palette, upgrade);
+          if (ROADSIDE_KINDS.has(kind)) return backFirst ? ["back", "front", "road"] : ["road", "front", "back"];
+          return backFirst ? ["back", "front"] : ["front", "back"];
+        }
+        /* Pick a depth lane by size preference, then collision with existing buildings in the same lane. */
+        function pickLane(x, kind, palette, upgrade, currentRec = null) {
           if (kind === "castle") return "back";
           const w = houseFootprintWidth(kind, palette, upgrade);
           const pad = 6;
           const aL = x - pad, aR = x + w + pad;
           const overlaps = (lane) => houses.some((h) => {
+            if (h === currentRec) return false;
             if (h.lane !== lane) return false;
             const hw = houseFootprintWidth(h.kind, h.palette, h.upgrade);
             return aR > h.x && aL < h.x + hw;
           });
-          if (ROADSIDE_KINDS.has(kind)) {
-            if (!overlaps("road")) return "road";
-            if (!overlaps("back")) return "back";
-            if (!overlaps("front")) return "front";
-            return "road"; // all crowded — accept the squeeze in their own row
+          const lanes = preferredLaneOrder(kind, palette, upgrade);
+          for (const lane of lanes) {
+            if (!overlaps(lane)) return lane;
           }
-          if (!overlaps("back")) return "back";
-          if (!overlaps("front")) return "front";
-          return Math.random() < 0.5 ? "back" : "front"; // both crowded — accept the squeeze
+          return lanes[0]; // all crowded — accept the squeeze in the size-preferred lane
         }
         function applyLane(rec, lane) {
           rec.lane = lane;
           rec.el.dataset.lane = lane;
+          rec.el.classList.remove("lane-back", "lane-road", "lane-front");
           rec.el.classList.add("lane-" + lane);
         }
         const STRUCTURE_BUILD_LOG = {
@@ -4350,15 +4607,35 @@
         // Palette variants make each house feel like its own building rather than a copy
         const HOUSE_PALETTES = [
           { wall: "#a87858", wallL: "#c89878", wallD: "#80583a", beam: "#6a4828",
-            roof: "#8a3a25", roofL: "#a8442a", roofD: "#6a2818" },                 // classic timber + red tile
+            roof: "#8a3a25", roofL: "#a8442a", roofD: "#6a2818",
+            trim: "#d4a017", trimL: "#f0c440", flower: "#e04060", flower2: "#f0c440", accent: "#4080d0", sign: "#8a3a25" }, // classic timber + red tile
           { wall: "#9e9890", wallL: "#c4beb2", wallD: "#706a62", beam: "#5e5850",
-            roof: "#38333a", roofL: "#5b5360", roofD: "#18161c", masonry: true },  // dressed stone walls + slate roof
+            roof: "#38333a", roofL: "#5b5360", roofD: "#18161c", masonry: true,
+            trim: "#b8b2aa", trimL: "#e0ded8", flower: "#7bd0f0", flower2: "#c878d8", accent: "#d4a017", sign: "#5e5850" }, // dressed stone walls + slate roof
           { wall: "#e0d8c0", wallL: "#f0e8d4", wallD: "#a8a088", beam: "#7a5028",
-            roof: "#7a4828", roofL: "#9a6838", roofD: "#5a3018" },                 // whitewash + thatch
+            roof: "#7a4828", roofL: "#9a6838", roofD: "#5a3018",
+            trim: "#c89044", trimL: "#f0c878", flower: "#e07040", flower2: "#7ac060", accent: "#3a80a0", sign: "#9a6838" }, // whitewash + thatch
           { wall: "#7a5028", wallL: "#9a6838", wallD: "#5a3818", beam: "#3a2410",
-            roof: "#3a5a48", roofL: "#5a8060", roofD: "#1a2a28" },                 // dark wood + forest-green roof
+            roof: "#3a5a48", roofL: "#5a8060", roofD: "#1a2a28",
+            trim: "#92a85f", trimL: "#c0d88a", flower: "#f0c440", flower2: "#d85858", accent: "#70b0a0", sign: "#5a3818" }, // dark wood + forest-green roof
           { wall: "#8a4848", wallL: "#a86060", wallD: "#5a2828", beam: "#3a1818",
-            roof: "#4a4060", roofL: "#6a608a", roofD: "#2a2438" },                 // burgundy walls + slate-purple roof
+            roof: "#4a4060", roofL: "#6a608a", roofD: "#2a2438",
+            trim: "#d0b060", trimL: "#f0d890", flower: "#c878d8", flower2: "#f08850", accent: "#71b8d6", sign: "#6a4060" }, // burgundy walls + slate-purple roof
+          { wall: "#6f7468", wallL: "#9da58e", wallD: "#4c5148", beam: "#2f302a",
+            roof: "#2e5568", roofL: "#4e7890", roofD: "#173342", masonry: true,
+            trim: "#d0b768", trimL: "#f0d888", flower: "#d96a55", flower2: "#7ac0d8", accent: "#b86a8a", sign: "#6a4828" }, // mossy riverstone + blue roof
+          { wall: "#b88760", wallL: "#e2b37e", wallD: "#805735", beam: "#4a2b18",
+            roof: "#b85b2e", roofL: "#de7a45", roofD: "#783018",
+            trim: "#e0c878", trimL: "#ffe098", flower: "#6ab86a", flower2: "#c86aa0", accent: "#3a6a8a", sign: "#8a5a30" }, // kiln brick + copper roof
+          { wall: "#8f7b62", wallL: "#b9a184", wallD: "#5c4b38", beam: "#2d2318",
+            roof: "#6c7b48", roofL: "#91a46a", roofD: "#3b4a2a",
+            trim: "#c4a45a", trimL: "#e0c878", flower: "#e09040", flower2: "#d85858", accent: "#7aa090", sign: "#5a3818" }, // moss-roof craftsman
+        ];
+        const MARKET_PALETTES = [
+          { roof: "#c84a35", roofL: "#e06a45", roofD: "#8a2818" },
+          { roof: "#2e6f7a", roofL: "#55a0a8", roofD: "#17424a" },
+          { roof: "#7a4f9c", roofL: "#a070c8", roofD: "#3f2858" },
+          { roof: "#d08a2e", roofL: "#f0b45a", roofD: "#8a4a18" },
         ];
         // House silhouette variants, weighted (cottage is the default)
         const HOUSE_VARIANTS = [
@@ -5288,6 +5565,12 @@
               const p = palette || HOUSE_PALETTES[0];
               const variant = (palette && palette.variant) || "cottage";
               const isStone = Boolean(p.masonry);
+              const trim = p.trim || "#d4a017";
+              const trimL = p.trimL || "#f0c440";
+              const flower = p.flower || "#e04060";
+              const flower2 = p.flower2 || "#f0c440";
+              const accent = p.accent || "#4080d0";
+              const sign = p.sign || "#8a3a25";
               const stoneCottage = isStone ? `
                 <rect x="4" y="16" width="28" height="1" fill="${p.wallD}" opacity="0.45"/>
                 <rect x="4" y="21" width="28" height="1" fill="${p.wallD}" opacity="0.45"/>
@@ -5376,12 +5659,12 @@
                     <!-- planter boxes under both upper windows -->
                     <rect x="7" y="22" width="6" height="2" fill="#6a4828"/>
                     <rect x="7" y="21" width="6" height="1" fill="#9a6838"/>
-                    <rect x="8" y="20" width="1" height="1" fill="#e04060"/>
-                    <rect x="10" y="20" width="1" height="1" fill="#f0c440"/>
+                    <rect x="8" y="20" width="1" height="1" fill="${flower}"/>
+                    <rect x="10" y="20" width="1" height="1" fill="${flower2}"/>
                     <rect x="19" y="22" width="6" height="2" fill="#6a4828"/>
                     <rect x="19" y="21" width="6" height="1" fill="#9a6838"/>
-                    <rect x="20" y="20" width="1" height="1" fill="#4080d0"/>
-                    <rect x="22" y="20" width="1" height="1" fill="#e04060"/>
+                    <rect x="20" y="20" width="1" height="1" fill="${accent}"/>
+                    <rect x="22" y="20" width="1" height="1" fill="${flower}"/>
                     <!-- door awning -->
                     <rect x="11" y="28" width="10" height="1" fill="${p.roof}"/>
                     <rect x="11" y="28" width="10" height="0.5" fill="${p.roofL}"/>
@@ -5404,16 +5687,16 @@
 
                   <g class="up-4">
                     <!-- gold trim + climbing vine -->
-                    <rect x="0" y="13" width="32" height="1" fill="#d4a017"/>
-                    <rect x="22" y="-6" width="4" height="1" fill="#d4a017"/>
+                    <rect x="0" y="13" width="32" height="1" fill="${trim}"/>
+                    <rect x="22" y="-6" width="4" height="1" fill="${trim}"/>
                     <!-- climbing vine up left wall -->
                     <rect x="4" y="20" width="1" height="4" fill="#3a5a28"/>
                     <rect x="3" y="22" width="2" height="1" fill="#5a7a36"/>
                     <rect x="4" y="26" width="1" height="6" fill="#3a5a28"/>
                     <rect x="3" y="28" width="2" height="1" fill="#5a7a36"/>
                     <rect x="3" y="32" width="2" height="1" fill="#5a7a36"/>
-                    <rect x="2" y="20" width="1" height="1" fill="#e04060"/>
-                    <rect x="2" y="28" width="1" height="1" fill="#e04060"/>
+                    <rect x="2" y="20" width="1" height="1" fill="${flower}"/>
+                    <rect x="2" y="28" width="1" height="1" fill="${flower}"/>
                     <!-- weathervane -->
                     <rect x="15" y="-3" width="1" height="5" fill="#3a2410"/>
                     <rect x="13" y="-5" width="1" height="2" fill="#3a2410"/>
@@ -5510,16 +5793,16 @@
 
                   <g class="up-4">
                     <!-- gold trim along the roof eaves -->
-                    <line x1="0" y1="34" x2="36" y2="34" stroke="#d4a017" stroke-width="1"/>
+                    <line x1="0" y1="34" x2="36" y2="34" stroke="${trim}" stroke-width="1"/>
                     <!-- climbing vine -->
                     <rect x="32" y="20" width="1" height="14" fill="#3a5a28"/>
                     <rect x="31" y="22" width="2" height="1" fill="#5a7a36"/>
                     <rect x="31" y="26" width="2" height="1" fill="#5a7a36"/>
                     <rect x="31" y="30" width="2" height="1" fill="#5a7a36"/>
-                    <rect x="30" y="22" width="1" height="1" fill="#e04060"/>
-                    <rect x="33" y="28" width="1" height="1" fill="#f0c440"/>
+                    <rect x="30" y="22" width="1" height="1" fill="${flower}"/>
+                    <rect x="33" y="28" width="1" height="1" fill="${flower2}"/>
                     <!-- top finial gold -->
-                    <rect x="16" y="-4" width="4" height="1" fill="#f0c440"/>
+                    <rect x="16" y="-4" width="4" height="1" fill="${trimL}"/>
                   </g>
                 </svg>`;
               }
@@ -5592,16 +5875,16 @@
                     <!-- planter boxes under each window -->
                     <rect x="5" y="20" width="6" height="2" fill="#6a4828"/>
                     <rect x="5" y="19" width="6" height="1" fill="#9a6838"/>
-                    <rect x="6" y="18" width="1" height="1" fill="#e04060"/>
-                    <rect x="8" y="18" width="1" height="1" fill="#f0c440"/>
+                    <rect x="6" y="18" width="1" height="1" fill="${flower}"/>
+                    <rect x="8" y="18" width="1" height="1" fill="${flower2}"/>
                     <rect x="33" y="20" width="6" height="2" fill="#6a4828"/>
                     <rect x="33" y="19" width="6" height="1" fill="#9a6838"/>
                     <rect x="34" y="18" width="1" height="1" fill="#8040b0"/>
                     <rect x="36" y="18" width="1" height="1" fill="#e04060"/>
                     <rect x="43" y="20" width="6" height="2" fill="#6a4828"/>
                     <rect x="43" y="19" width="6" height="1" fill="#9a6838"/>
-                    <rect x="44" y="18" width="1" height="1" fill="#4080d0"/>
-                    <rect x="46" y="18" width="1" height="1" fill="#f0c440"/>
+                    <rect x="44" y="18" width="1" height="1" fill="${accent}"/>
+                    <rect x="46" y="18" width="1" height="1" fill="${flower2}"/>
                     <!-- awning over door -->
                     <rect x="22" y="16" width="9" height="1" fill="${p.roof}"/>
                     <rect x="22" y="16" width="9" height="0.5" fill="${p.roofL}"/>
@@ -5622,17 +5905,17 @@
 
                   <g class="up-4">
                     <!-- gold trim + climbing vine + signboard -->
-                    <rect x="0" y="11" width="56" height="1" fill="#d4a017"/>
-                    <rect x="44" y="-2" width="3" height="1" fill="#d4a017"/>
+                    <rect x="0" y="11" width="56" height="1" fill="${trim}"/>
+                    <rect x="44" y="-2" width="3" height="1" fill="${trim}"/>
                     <!-- climbing vine on left side -->
                     <rect x="2" y="14" width="1" height="10" fill="#3a5a28"/>
                     <rect x="1" y="16" width="2" height="1" fill="#5a7a36"/>
                     <rect x="1" y="20" width="2" height="1" fill="#5a7a36"/>
-                    <rect x="0" y="18" width="1" height="1" fill="#e04060"/>
+                    <rect x="0" y="18" width="1" height="1" fill="${flower}"/>
                     <!-- hanging shop sign by door -->
-                    <rect x="20" y="15" width="3" height="3" fill="#8a3a25"/>
+                    <rect x="20" y="15" width="3" height="3" fill="${sign}"/>
                     <rect x="20" y="15" width="3" height="0.6" fill="#a8442a"/>
-                    <rect x="21" y="16" width="1" height="1" fill="#d4a017"/>
+                    <rect x="21" y="16" width="1" height="1" fill="${trim}"/>
                   </g>
                 </svg>`;
               }
@@ -5698,15 +5981,15 @@
               <g class="up-2">
                 <rect x="7" y="20" width="6" height="2" fill="#6a4828"/>
                 <rect x="7" y="19" width="6" height="1" fill="#9a6838"/>
-                <rect x="8" y="18" width="1" height="1" fill="#e04060"/>
-                <rect x="10" y="18" width="1" height="1" fill="#f0c440"/>
+                <rect x="8" y="18" width="1" height="1" fill="${flower}"/>
+                <rect x="10" y="18" width="1" height="1" fill="${flower2}"/>
                 <rect x="11" y="18" width="1" height="1" fill="#8040b0"/>
                 <rect x="23" y="20" width="6" height="2" fill="#6a4828"/>
                 <rect x="23" y="19" width="6" height="1" fill="#9a6838"/>
-                <rect x="24" y="18" width="1" height="1" fill="#4080d0"/>
-                <rect x="26" y="18" width="1" height="1" fill="#e04060"/>
-                <rect x="27" y="18" width="1" height="1" fill="#f0c440"/>
-                <rect x="14" y="17" width="8" height="1" fill="#8a3a25"/>
+                <rect x="24" y="18" width="1" height="1" fill="${accent}"/>
+                <rect x="26" y="18" width="1" height="1" fill="${flower}"/>
+                <rect x="27" y="18" width="1" height="1" fill="${flower2}"/>
+                <rect x="14" y="17" width="8" height="1" fill="${sign}"/>
                 <rect x="14" y="17" width="8" height="0.5" fill="#a8442a"/>
               </g>
 
@@ -5729,15 +6012,15 @@
 
               <!-- UPGRADE 4: gold roof trim + weathervane rooster + climbing vine -->
               <g class="up-4">
-                <rect x="0" y="11" width="36" height="1" fill="#d4a017"/>
-                <rect x="22" y="-2" width="3" height="1" fill="#d4a017"/>
-                <rect x="22" y="-3" width="3" height="1" fill="#f0c440"/>
+                <rect x="0" y="11" width="36" height="1" fill="${trim}"/>
+                <rect x="22" y="-2" width="3" height="1" fill="${trim}"/>
+                <rect x="22" y="-3" width="3" height="1" fill="${trimL}"/>
                 <rect x="9" y="-3" width="1" height="6" fill="#3a2410"/>
                 <rect x="6" y="-6" width="1" height="3" fill="#3a2410"/>
                 <rect x="12" y="-6" width="1" height="3" fill="#3a2410"/>
                 <rect x="7" y="-3" width="6" height="1" fill="#3a2410"/>
-                <rect x="9" y="-7" width="2" height="1" fill="#d4a017"/>
-                <rect x="9" y="-8" width="1" height="1" fill="#d4a017"/>
+                <rect x="9" y="-7" width="2" height="1" fill="${trim}"/>
+                <rect x="9" y="-8" width="1" height="1" fill="${trim}"/>
                 <!-- climbing vine -->
                 <rect x="32" y="16" width="1" height="10" fill="#3a5a28"/>
                 <rect x="31" y="18" width="2" height="1" fill="#5a7a36"/>
@@ -5849,40 +6132,70 @@
               </g>
             </svg>`;
 
-            case "well": return `<svg viewBox="0 0 26 28" xmlns="http://www.w3.org/2000/svg">
-              <rect x="2" y="14" width="22" height="14" fill="#7a7068"/>
-              <rect x="2" y="14" width="22" height="2" fill="#9a9088"/>
-              <rect x="6" y="16" width="2" height="2" fill="#5a504a"/>
-              <rect x="12" y="16" width="2" height="2" fill="#5a504a"/>
-              <rect x="18" y="16" width="2" height="2" fill="#5a504a"/>
-              <rect x="4" y="20" width="2" height="2" fill="#5a504a"/>
-              <rect x="10" y="20" width="2" height="2" fill="#5a504a"/>
-              <rect x="16" y="20" width="2" height="2" fill="#5a504a"/>
-              <rect x="20" y="20" width="2" height="2" fill="#5a504a"/>
-              <rect x="4" y="16" width="18" height="2" fill="#3a5878"/>
+            case "well": return `<svg viewBox="0 0 28 30" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+              <rect x="2" y="27" width="24" height="3" fill="#3a2818"/>
+              <rect x="3" y="13" width="22" height="15" fill="#6f665d"/>
+              <rect x="3" y="13" width="22" height="2" fill="#9a9088"/>
+              <rect x="4" y="25" width="20" height="2" fill="#4a443e"/>
+              <g class="hs-walls" opacity="0">
+                <rect x="5" y="15" width="18" height="3" fill="#263f5f"/>
+                <rect x="5" y="15" width="18" height="1" fill="#5a7fa0"/>
+                <rect x="5" y="18" width="4" height="2" fill="#5a504a"/>
+                <rect x="11" y="18" width="3" height="2" fill="#8a8580"/>
+                <rect x="17" y="18" width="5" height="2" fill="#5a504a"/>
+                <rect x="3" y="21" width="4" height="2" fill="#8a8580"/>
+                <rect x="9" y="21" width="5" height="2" fill="#5a504a"/>
+                <rect x="16" y="21" width="4" height="2" fill="#8a8580"/>
+                <rect x="22" y="21" width="3" height="2" fill="#5a504a"/>
+                <rect x="6" y="24" width="5" height="2" fill="#5a504a"/>
+                <rect x="13" y="24" width="4" height="2" fill="#8a8580"/>
+                <rect x="19" y="24" width="4" height="2" fill="#5a504a"/>
+                <rect x="1" y="26" width="4" height="1" fill="#5a7a36"/>
+                <rect x="23" y="26" width="3" height="1" fill="#5a7a36"/>
+              </g>
               <g class="hs-roof" opacity="0">
-                <rect x="3" y="4" width="2" height="10" fill="#5a3818"/>
-                <rect x="21" y="4" width="2" height="10" fill="#5a3818"/>
-                <polygon points="0,4 13,-2 26,4" fill="#8a3a25"/>
-                <polygon points="2,3 13,-1 24,3" fill="#a8442a"/>
-                <rect x="11" y="4" width="1" height="6" fill="#d4a888"/>
-                <rect x="9" y="9" width="6" height="2" fill="#6a4828"/>
+                <rect x="3" y="4" width="2" height="11" fill="#4a2a14"/>
+                <rect x="4" y="4" width="1" height="11" fill="#7a4828"/>
+                <rect x="23" y="4" width="2" height="11" fill="#4a2a14"/>
+                <rect x="23" y="4" width="1" height="11" fill="#7a4828"/>
+                <polygon points="-1,5 14,-2 29,5" fill="#6a2818"/>
+                <polygon points="1,4 14,0 27,4" fill="#a8442a"/>
+                <rect x="0" y="5" width="28" height="2" fill="#3a1810"/>
+                <rect x="5" y="2.5" width="18" height="0.7" fill="#c85838" opacity="0.65"/>
+                <rect x="8" y="1" width="12" height="0.7" fill="#c85838" opacity="0.55"/>
+                <rect x="8" y="8" width="12" height="2" fill="#4a2a14"/>
+                <rect x="9" y="8" width="10" height="1" fill="#7a4828"/>
+                <rect x="10" y="10" width="1" height="6" fill="#d4a888"/>
+                <rect x="17" y="10" width="1" height="6" fill="#d4a888"/>
+                <rect x="10" y="15" width="8" height="4" fill="#6a4828"/>
+                <rect x="11" y="15" width="6" height="1" fill="#9a6838"/>
+                <rect x="18" y="7" width="5" height="1" fill="#d4a888"/>
+                <rect x="22" y="6" width="1" height="3" fill="#d4a888"/>
               </g>
             </svg>`;
 
-            case "signpost": return `<svg viewBox="0 0 18 30" xmlns="http://www.w3.org/2000/svg">
-              <rect x="8" y="8" width="2" height="22" fill="#5a3818"/>
-              <rect x="8" y="8" width="1" height="22" fill="#7a4828"/>
+            case "signpost": return `<svg viewBox="0 0 22 32" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+              <rect x="9" y="7" width="3" height="25" fill="#4a2a14"/>
+              <rect x="10" y="7" width="1" height="25" fill="#8a5a30"/>
+              <rect x="7" y="29" width="7" height="3" fill="#3a2410"/>
               <g class="hs-walls" opacity="1">
-                <rect x="0" y="4" width="18" height="9" fill="#a87858"/>
-                <rect x="0" y="4" width="18" height="1" fill="#c89878"/>
-                <rect x="0" y="12" width="18" height="1" fill="#80583a"/>
-                <rect x="3" y="7" width="3" height="1" fill="#3a2410"/>
-                <rect x="7" y="7" width="4" height="1" fill="#3a2410"/>
-                <rect x="12" y="7" width="3" height="1" fill="#3a2410"/>
-                <rect x="3" y="9" width="3" height="1" fill="#3a2410"/>
-                <rect x="7" y="9" width="2" height="1" fill="#3a2410"/>
-                <rect x="11" y="9" width="2" height="1" fill="#3a2410"/>
+                <polygon points="1,4 18,4 21,8 18,12 1,12" fill="#a87858"/>
+                <rect x="1" y="4" width="17" height="1" fill="#c89878"/>
+                <rect x="1" y="11" width="17" height="1" fill="#80583a"/>
+                <rect x="4" y="6" width="4" height="1" fill="#3a2410"/>
+                <rect x="9" y="6" width="5" height="1" fill="#3a2410"/>
+                <rect x="15" y="6" width="2" height="1" fill="#3a2410"/>
+                <rect x="4" y="8" width="3" height="1" fill="#3a2410"/>
+                <rect x="9" y="8" width="2" height="1" fill="#3a2410"/>
+                <rect x="12" y="8" width="4" height="1" fill="#3a2410"/>
+                <rect x="4" y="10" width="11" height="1" fill="#5a3818" opacity="0.7"/>
+                <rect x="10" y="5" width="2" height="2" fill="#d4a017"/>
+                <rect x="18" y="8" width="1" height="1" fill="#3a2410"/>
+                <rect x="8" y="14" width="6" height="5" fill="#7a4828"/>
+                <rect x="8" y="14" width="6" height="1" fill="#b07848"/>
+                <rect x="10" y="16" width="2" height="1" fill="#d4a017"/>
+                <rect x="5" y="24" width="1" height="3" fill="#3a5a28"/>
+                <rect x="4" y="25" width="3" height="1" fill="#5a7a36"/>
               </g>
             </svg>`;
 
@@ -6105,104 +6418,170 @@
                 <rect x="13" y="30" width="4" height="4" fill="#f0c440"/>
                 <rect x="27" y="30" width="4" height="4" fill="#f0c440"/>
               </g>
+              <g class="up-1">
+                <rect x="4" y="52" width="8" height="2" fill="#6a4828"/>
+                <rect x="5" y="49" width="6" height="3" fill="#c8a060"/>
+                <rect x="5" y="49" width="6" height="1" fill="#e0c080"/>
+                <rect x="32" y="50" width="8" height="4" fill="#7a5028"/>
+                <rect x="33" y="49" width="6" height="1" fill="#9a6838"/>
+                <rect x="34" y="51" width="1" height="3" fill="#5a3818"/>
+                <rect x="38" y="51" width="1" height="3" fill="#5a3818"/>
+              </g>
+              <g class="up-2">
+                <rect x="-2" y="40" width="12" height="14" fill="#8a6840"/>
+                <rect x="-2" y="40" width="12" height="1.5" fill="#b08a58"/>
+                <polygon points="-4,40 4,33 12,40" fill="#6a2818"/>
+                <rect x="1" y="45" width="5" height="5" fill="#3a2410"/>
+                <rect x="2" y="46" width="3" height="3" fill="#f0c440"/>
+                <rect x="10" y="22" width="24" height="1" fill="#80583a"/>
+                <rect x="13" y="38" width="18" height="1" fill="#80583a"/>
+              </g>
+              <g class="up-3">
+                <rect x="34" y="30" width="6" height="20" fill="#5a3818"/>
+                <rect x="35" y="31" width="4" height="18" fill="#7a4828"/>
+                <rect x="33" y="33" width="8" height="2" fill="#3a2410"/>
+                <rect x="33" y="39" width="8" height="2" fill="#3a2410"/>
+                <rect x="33" y="45" width="8" height="2" fill="#3a2410"/>
+                <rect x="6" y="54" width="32" height="1" fill="#d4a017"/>
+                <rect x="21" y="-20" width="1" height="64" fill="#d4a017" opacity="0.75"/>
+                <rect x="-12" y="12" width="68" height="1" fill="#d4a017" opacity="0.75"/>
+              </g>
+              <g class="up-4">
+                <rect x="17" y="27" width="10" height="10" fill="#3a2410"/>
+                <rect x="18" y="28" width="8" height="2" fill="#5a3820"/>
+                <rect x="20" y="31" width="4" height="4" fill="#f0c440"/>
+                <rect x="18" y="8" width="8" height="1" fill="#d4a017"/>
+                <rect x="21" y="2" width="2" height="6" fill="#d4a017"/>
+                <rect x="23" y="3" width="6" height="3" fill="#c84a35"/>
+                <rect x="23" y="3" width="6" height="1" fill="#e06a45"/>
+                <rect x="12" y="56" width="4" height="2" fill="#8a8580"/>
+                <rect x="18" y="55" width="4" height="2" fill="#6a6258"/>
+                <rect x="25" y="56" width="4" height="2" fill="#8a8580"/>
+              </g>
             </svg>`;
 
-            case "lamppost": return `<svg viewBox="0 0 14 34" xmlns="http://www.w3.org/2000/svg" overflow="visible">
-              <!-- base -->
-              <rect x="3" y="30" width="8" height="4" fill="#1a1208"/>
-              <rect x="2" y="32" width="10" height="2" fill="#1a1208"/>
-              <!-- post -->
-              <rect x="6" y="10" width="2" height="22" fill="#3a3530"/>
-              <rect x="6" y="10" width="1" height="22" fill="#5a544e"/>
-              <!-- arm -->
-              <rect x="4" y="8" width="6" height="2" fill="#3a3530"/>
-              <!-- lamp housing -->
-              <rect x="2" y="2" width="10" height="8" fill="#3a3530"/>
-              <rect x="2" y="2" width="10" height="2" fill="#5a544e"/>
-              <rect x="3" y="4" width="8" height="4" fill="#1a1208"/>
-              <!-- top ornament -->
-              <rect x="5" y="0" width="4" height="2" fill="#3a3530"/>
-              <rect x="6" y="-2" width="2" height="2" fill="#3a3530"/>
-              <!-- lit flame -->
+            case "lamppost": return `<svg viewBox="0 0 18 38" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+              <rect x="4" y="32" width="10" height="4" fill="#1a1208"/>
+              <rect x="2" y="35" width="14" height="3" fill="#1a1208"/>
+              <rect x="5" y="31" width="8" height="1" fill="#5a544e"/>
+              <rect x="7" y="10" width="3" height="23" fill="#2f302d"/>
+              <rect x="8" y="10" width="1" height="23" fill="#6a645c"/>
+              <rect x="7" y="16" width="3" height="1" fill="#1a1208"/>
+              <rect x="7" y="24" width="3" height="1" fill="#1a1208"/>
+              <rect x="4" y="8" width="10" height="2" fill="#2f302d"/>
+              <rect x="3" y="9" width="2" height="2" fill="#5a544e"/>
+              <rect x="13" y="9" width="2" height="2" fill="#5a544e"/>
+              <rect x="3" y="2" width="12" height="8" fill="#2f302d"/>
+              <rect x="3" y="2" width="12" height="2" fill="#6a645c"/>
+              <rect x="4" y="4" width="10" height="5" fill="#15120f"/>
+              <rect x="6" y="0" width="6" height="2" fill="#2f302d"/>
+              <rect x="7" y="-2" width="4" height="2" fill="#6a645c"/>
+              <rect x="5" y="4" width="1" height="5" fill="#6a645c"/>
+              <rect x="9" y="4" width="1" height="5" fill="#6a645c"/>
+              <rect x="13" y="4" width="1" height="5" fill="#6a645c"/>
+              <path d="M 2 13 Q 7 16 8 20" stroke="#5a544e" stroke-width="0.8" fill="none"/>
+              <path d="M 16 13 Q 11 16 10 20" stroke="#5a544e" stroke-width="0.8" fill="none"/>
               <g class="hs-windows-lit">
-                <rect x="4" y="4" width="6" height="4" fill="#f0c440"/>
-                <rect x="5" y="4" width="4" height="2" fill="#ffe080"/>
-                <rect x="6" y="5" width="2" height="1" fill="#ffffff"/>
+                <rect x="5" y="4" width="9" height="5" fill="#f0c440"/>
+                <rect x="6" y="4" width="7" height="2" fill="#ffe080"/>
+                <rect x="8" y="5" width="3" height="1" fill="#ffffff"/>
+                <rect x="4" y="2" width="10" height="8" fill="#f0c440" opacity="0.18"/>
               </g>
             </svg>`;
 
-            case "garden": return `<svg viewBox="0 0 26 14" xmlns="http://www.w3.org/2000/svg">
-              <!-- soil bed -->
-              <rect x="0" y="10" width="26" height="4" fill="#4a3018"/>
-              <rect x="0" y="10" width="26" height="1" fill="#6a4828"/>
-              <!-- grass tufts in front -->
-              <rect x="1" y="11" width="2" height="2" fill="#4a6a30"/>
-              <rect x="23" y="11" width="2" height="2" fill="#4a6a30"/>
-              <!-- flowers (stems) -->
-              <rect x="3" y="6" width="1" height="5" fill="#3a5a28"/>
-              <rect x="8" y="5" width="1" height="6" fill="#3a5a28"/>
-              <rect x="13" y="6" width="1" height="5" fill="#3a5a28"/>
-              <rect x="18" y="5" width="1" height="6" fill="#3a5a28"/>
-              <rect x="22" y="6" width="1" height="5" fill="#3a5a28"/>
-              <!-- flower heads (varied) -->
-              <rect x="2" y="4" width="3" height="3" fill="#e04060"/>
-              <rect x="3" y="4" width="1" height="1" fill="#ff8090"/>
-              <rect x="7" y="3" width="3" height="3" fill="#f0c440"/>
-              <rect x="8" y="3" width="1" height="1" fill="#ffe080"/>
-              <rect x="12" y="4" width="3" height="3" fill="#8040b0"/>
-              <rect x="13" y="4" width="1" height="1" fill="#b070d0"/>
+            case "garden": return `<svg viewBox="0 0 32 18" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+              <rect x="1" y="12" width="30" height="6" fill="#4a3018"/>
+              <rect x="1" y="12" width="30" height="1" fill="#7a5830"/>
+              <rect x="3" y="15" width="26" height="1" fill="#3a2410" opacity="0.55"/>
+              <rect x="0" y="9" width="32" height="1" fill="#8a6840"/>
+              <rect x="1" y="8" width="2" height="5" fill="#6a4828"/>
+              <rect x="7" y="8" width="2" height="5" fill="#6a4828"/>
+              <rect x="14" y="8" width="2" height="5" fill="#6a4828"/>
+              <rect x="22" y="8" width="2" height="5" fill="#6a4828"/>
+              <rect x="29" y="8" width="2" height="5" fill="#6a4828"/>
+              <rect x="3" y="7" width="1" height="6" fill="#3a5a28"/>
+              <rect x="8" y="6" width="1" height="7" fill="#3a5a28"/>
+              <rect x="13" y="7" width="1" height="6" fill="#3a5a28"/>
+              <rect x="18" y="5" width="1" height="8" fill="#3a5a28"/>
+              <rect x="24" y="6" width="1" height="7" fill="#3a5a28"/>
+              <rect x="28" y="8" width="1" height="5" fill="#3a5a28"/>
+              <rect x="2" y="5" width="3" height="3" fill="#e04060"/>
+              <rect x="7" y="4" width="3" height="3" fill="#f0c440"/>
+              <rect x="12" y="5" width="3" height="3" fill="#8040b0"/>
               <rect x="17" y="3" width="3" height="3" fill="#4080d0"/>
+              <rect x="23" y="4" width="3" height="3" fill="#f08850"/>
+              <rect x="27" y="6" width="3" height="3" fill="#d85858"/>
+              <rect x="3" y="5" width="1" height="1" fill="#ff8090"/>
+              <rect x="8" y="4" width="1" height="1" fill="#ffe080"/>
               <rect x="18" y="3" width="1" height="1" fill="#70b0f0"/>
-              <rect x="21" y="4" width="3" height="3" fill="#e04060"/>
-              <!-- leaves -->
-              <rect x="5" y="8" width="2" height="1" fill="#5a7a36"/>
-              <rect x="10" y="7" width="2" height="1" fill="#5a7a36"/>
-              <rect x="15" y="8" width="2" height="1" fill="#5a7a36"/>
-              <rect x="20" y="7" width="2" height="1" fill="#5a7a36"/>
+              <rect x="5" y="10" width="3" height="1" fill="#5a7a36"/>
+              <rect x="10" y="9" width="3" height="1" fill="#5a7a36"/>
+              <rect x="16" y="10" width="3" height="1" fill="#5a7a36"/>
+              <rect x="21" y="9" width="3" height="1" fill="#5a7a36"/>
+              <rect x="25" y="14" width="3" height="2" fill="#5a504a"/>
+              <rect x="26" y="13" width="2" height="1" fill="#8a8580"/>
             </svg>`;
 
-            case "statue": return `<svg viewBox="0 0 18 34" xmlns="http://www.w3.org/2000/svg" overflow="visible">
-              <!-- pedestal -->
-              <rect x="2" y="28" width="14" height="6" fill="#6a6258"/>
-              <rect x="2" y="28" width="14" height="2" fill="#8a8580"/>
-              <rect x="1" y="32" width="16" height="2" fill="#4a4438"/>
+            case "statue": return `<svg viewBox="0 0 22 38" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+              <rect x="2" y="31" width="18" height="7" fill="#5f574e"/>
+              <rect x="2" y="31" width="18" height="2" fill="#8a8580"/>
+              <rect x="0" y="36" width="22" height="2" fill="#3f3a34"/>
+              <rect x="5" y="34" width="12" height="1" fill="#3f3a34"/>
+              <rect x="8" y="32" width="6" height="2" fill="#d4a017"/>
+              <rect x="9" y="32" width="4" height="1" fill="#f0c440"/>
               <g class="hs-walls" opacity="0">
-                <!-- robed body -->
-                <rect x="5" y="14" width="8" height="14" fill="#a8a098"/>
-                <rect x="5" y="14" width="8" height="2" fill="#c8c0b0"/>
-                <rect x="3" y="16" width="2" height="8" fill="#a8a098"/>
-                <rect x="13" y="16" width="2" height="8" fill="#a8a098"/>
+                <rect x="7" y="15" width="8" height="16" fill="#a8a098"/>
+                <rect x="7" y="15" width="8" height="2" fill="#c8c0b0"/>
+                <rect x="5" y="17" width="2" height="10" fill="#918b82"/>
+                <rect x="15" y="17" width="2" height="10" fill="#918b82"/>
+                <rect x="8" y="21" width="6" height="1" fill="#80786a"/>
+                <rect x="8" y="25" width="6" height="1" fill="#80786a"/>
+                <rect x="6" y="27" width="10" height="4" fill="#80786a"/>
+                <rect x="9" y="18" width="1" height="8" fill="#c8c0b0" opacity="0.55"/>
+                <rect x="14" y="20" width="1" height="6" fill="#6a6258" opacity="0.55"/>
               </g>
               <g class="hs-roof" opacity="0">
-                <!-- head -->
-                <rect x="6" y="8" width="6" height="6" fill="#a8a098"/>
-                <rect x="6" y="8" width="6" height="2" fill="#c8c0b0"/>
-                <!-- helmet/crown -->
-                <rect x="5" y="4" width="8" height="4" fill="#d4a017"/>
-                <rect x="5" y="4" width="8" height="1" fill="#f0c440"/>
-                <rect x="6" y="2" width="2" height="2" fill="#d4a017"/>
-                <rect x="9" y="0" width="2" height="2" fill="#d4a017"/>
-                <rect x="11" y="2" width="2" height="2" fill="#d4a017"/>
-                <!-- raised sword -->
-                <rect x="14" y="0" width="1" height="14" fill="#e0e4ec"/>
-                <rect x="13" y="14" width="3" height="1" fill="#6a4828"/>
+                <rect x="8" y="8" width="6" height="7" fill="#a8a098"/>
+                <rect x="8" y="8" width="6" height="2" fill="#c8c0b0"/>
+                <rect x="7" y="4" width="8" height="4" fill="#d4a017"/>
+                <rect x="7" y="4" width="8" height="1" fill="#f0c440"/>
+                <rect x="8" y="2" width="2" height="2" fill="#d4a017"/>
+                <rect x="11" y="0" width="2" height="2" fill="#d4a017"/>
+                <rect x="13" y="2" width="2" height="2" fill="#d4a017"/>
+                <rect x="17" y="0" width="1" height="16" fill="#dfe4ec"/>
+                <rect x="17" y="0" width="0.5" height="16" fill="#ffffff"/>
+                <rect x="16" y="16" width="4" height="1" fill="#6a4828"/>
+                <polygon points="6,12 2,16 6,18" fill="#8a8580"/>
+                <rect x="3" y="15" width="3" height="1" fill="#c8c0b0"/>
+                <rect x="13" y="11" width="1" height="1" fill="#4a4438"/>
+                <rect x="9" y="11" width="1" height="1" fill="#4a4438"/>
               </g>
             </svg>`;
 
-            case "campfire": return `<svg viewBox="0 0 30 22" xmlns="http://www.w3.org/2000/svg">
-              <rect x="2" y="16" width="26" height="3" fill="#3a2410"/>
-              <rect x="4" y="15" width="6" height="2" fill="#6a4828"/>
-              <rect x="20" y="15" width="6" height="2" fill="#6a4828"/>
-              <rect x="11" y="14" width="8" height="3" fill="#6a4828"/>
-              <rect x="11" y="14" width="8" height="1" fill="#8a6840"/>
-              <rect x="0" y="18" width="3" height="3" fill="#7a7068"/>
-              <rect x="27" y="18" width="3" height="3" fill="#7a7068"/>
-              <rect x="14" y="19" width="3" height="2" fill="#7a7068"/>
+            case "campfire": return `<svg viewBox="0 0 34 24" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+              <rect x="2" y="18" width="30" height="3" fill="#2a1a10"/>
+              <rect x="3" y="20" width="4" height="3" fill="#6a6258"/>
+              <rect x="9" y="21" width="4" height="2" fill="#8a8580"/>
+              <rect x="16" y="21" width="4" height="2" fill="#6a6258"/>
+              <rect x="23" y="21" width="4" height="2" fill="#8a8580"/>
+              <rect x="29" y="20" width="3" height="3" fill="#6a6258"/>
+              <rect x="6" y="15" width="10" height="3" fill="#6a4828"/>
+              <rect x="7" y="15" width="8" height="1" fill="#9a6838"/>
+              <rect x="18" y="15" width="10" height="3" fill="#5a3818"/>
+              <rect x="19" y="15" width="8" height="1" fill="#8a6840"/>
+              <rect x="11" y="14" width="12" height="3" fill="#7a5028"/>
+              <rect x="12" y="14" width="10" height="1" fill="#a87838"/>
+              <rect x="8" y="16" width="2" height="1" fill="#3a2410"/>
+              <rect x="24" y="16" width="2" height="1" fill="#3a2410"/>
               <g class="hs-roof" opacity="0">
-                <polygon points="10,14 15,2 20,14" fill="#f08850"/>
-                <polygon points="11,13 15,5 19,13" fill="#f0c440"/>
-                <polygon points="12,12 15,8 18,12" fill="#fff4a0"/>
-                <rect x="14" y="0" width="1" height="3" fill="#fff4a0"/>
+                <polygon points="10,15 16,2 22,15" fill="#d84818"/>
+                <polygon points="14,15 21,4 27,15" fill="#f08850"/>
+                <polygon points="12,14 17,5 22,14" fill="#f0c440"/>
+                <polygon points="15,14 18,8 21,14" fill="#fff4a0"/>
+                <rect x="16" y="0" width="1" height="3" fill="#fff4a0"/>
+                <rect x="21" y="2" width="1" height="2" fill="#f0c440"/>
+                <rect x="24" y="6" width="1" height="2" fill="#f08850"/>
+                <rect x="13" y="3" width="1" height="2" fill="#f08850"/>
               </g>
             </svg>`;
 
@@ -6399,6 +6778,8 @@
             h.dataset.kind = kind;
             const palette = kind === "house"
               ? { ...pick(HOUSE_PALETTES), variant: pick(HOUSE_VARIANTS) }
+              : kind === "marketstall"
+                ? pick(MARKET_PALETTES)
               : null;
             if (palette && palette.variant) h.dataset.variant = palette.variant;
             h.innerHTML = structureSVG(kind, palette);
@@ -6455,7 +6836,7 @@
                 const lbl = document.createElement("div");
                 lbl.className = "sign-label";
                 lbl.textContent = txt;
-                lbl.style.left = (targetX + 9) + "px";
+                lbl.style.left = (targetX + 11) + "px";
                 treesLayer.appendChild(lbl);
                 logEvent(`"${txt}" reads the new sign.`);
               }
@@ -6907,6 +7288,7 @@
               } else if (target.kind === "castle") {
                 target.el.innerHTML = castleSVG(target.palette, nextLevel);
               }
+              applyLane(target, pickLane(target.x, target.kind, target.palette, nextLevel, target));
               for (let i = 0; i < 10; i++) {
                 setTimeout(() => spawnSparkle(target.x + 24, 80, "#f0d060"), i * 70);
               }
@@ -7368,10 +7750,22 @@
         ];
         const mountainHouses = [];
         function mountainHouseSVG() {
-          return `<svg viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg">
-            <rect x="1" y="5" width="8" height="5" fill="#3a4858"/>
-            <polygon points="0,5 10,5 5,1" fill="#2a3848"/>
-            <rect x="4" y="7" width="2" height="2" fill="#f0c440" class="mh-win"/>
+          return `<svg viewBox="0 0 16 14" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+            <rect x="1" y="12" width="14" height="2" fill="#1a2028" opacity="0.65"/>
+            <rect x="2" y="7" width="12" height="6" fill="#405060"/>
+            <rect x="2" y="7" width="12" height="1" fill="#647080"/>
+            <rect x="2" y="12" width="12" height="1" fill="#25303a"/>
+            <polygon points="0,7 8,1 16,7" fill="#243241"/>
+            <polygon points="2,7 8,3 14,7" fill="#3a4c5d"/>
+            <rect x="12" y="3" width="2" height="4" fill="#25303a"/>
+            <rect x="12" y="2" width="2" height="1" fill="#4c5c68"/>
+            <rect x="4" y="9" width="2" height="3" fill="#1a2028"/>
+            <rect x="9" y="9" width="3" height="2" fill="#1a2028"/>
+            <rect x="9" y="9" width="3" height="2" fill="#f0c440" class="mh-win"/>
+            <rect x="10" y="9" width="1" height="2" fill="#fff4a0" class="mh-win"/>
+            <rect x="6" y="5" width="4" height="0.7" fill="#19232d" opacity="0.7"/>
+            <rect x="1" y="10" width="2" height="1" fill="#6a8068"/>
+            <rect x="13" y="11" width="2" height="1" fill="#6a8068"/>
           </svg>`;
         }
         function tryAddMountainHouse() {
@@ -7384,7 +7778,7 @@
           const h = document.createElement("div");
           h.className = "mountain-house";
           h.innerHTML = mountainHouseSVG();
-          h.style.left = "calc(" + (spot.xPct * 100) + "% - 5px)";
+          h.style.left = "calc(" + (spot.xPct * 100) + "% - 8px)";
           h.style.bottom = spot.y + "px";
           mountainsEl.appendChild(h);
           mountainHouses.push({ el: h, spot });
@@ -7550,14 +7944,19 @@
           });
 
           // Also burn trees in the path
-          trees.slice().forEach((tree) => {
-            const passTime = (tree.x / W()) * sweepDur * 1000 + 800;
-            setTimeout(() => {
-              if (!tree.el.isConnected) return;
-              tree.el.classList.add("falling");
-              removeTree(tree);
-              setTimeout(() => tree.el.remove(), 1500);
-            }, passTime);
+          [
+            { list: trees.slice(), remove: removeTree },
+            { list: backTrees.slice(), remove: removeBackTree },
+          ].forEach((group) => {
+            group.list.forEach((tree) => {
+              const passTime = (tree.x / W()) * sweepDur * 1000 + 800;
+              setTimeout(() => {
+                if (!tree.el.isConnected) return;
+                tree.el.classList.add("falling");
+                group.remove(tree);
+                setTimeout(() => tree.el.remove(), 1500);
+              }, passTime);
+            });
           });
 
           // Flee all walkers off-screen
@@ -7578,9 +7977,9 @@
             developedSince = null;
             // Reset the road back to dirt — the world rises anew
             world.dataset.road = "0";
-            // Seed a couple fresh trees so future builders have something to chop
-            setTimeout(() => plantTree(true), 1500);
-            setTimeout(() => plantTree(true), 2500);
+            // Seed fresh trees so future builders have something to chop.
+            setTimeout(() => plantTreeBurst(true, 5, 180), 1500);
+            setTimeout(() => plantBackTreeBurst(true, Math.ceil(backTreeLimit() * 0.35), 80), 1300);
           }, (sweepDur + 2) * 1000);
         }
 
@@ -7603,47 +8002,31 @@
           setTimeout(() => loop(fn, min, max, opts), interval);
         }
 
-        // Seed: trees + a starter cluster of structures so the world isn't empty
+        // Seed only trees at load; every structure should enter through the builder flow.
         setTimeout(() => {
-          plantTree(true);
-          setTimeout(() => plantTree(true), 60);
-          setTimeout(() => plantTree(true), 120);
+          plantTreeBurst(true, 8, 55);
+          plantBackTreeBurst(true, Math.ceil(backTreeLimit() * 0.45), 35);
         }, 200);
 
-        // Instant-place a starter cluster of buildings (already complete)
-        function seedStructure(kind, x, upgrade = 0) {
-          const h = document.createElement("div");
-          h.className = "house";
-          h.dataset.kind = kind;
-          h.dataset.upgrade = String(upgrade);
-          const palette = kind === "house"
-            ? { ...pick(HOUSE_PALETTES), variant: pick(HOUSE_VARIANTS) }
-            : null;
-          if (palette && palette.variant) h.dataset.variant = palette.variant;
-          h.innerHTML = structureSVG(kind, palette);
-          h.style.left = x + "px";
-          h.querySelectorAll(".hs-walls").forEach((el) => el.setAttribute("opacity", 1));
-          h.querySelectorAll(".hs-roof").forEach((el) => el.setAttribute("opacity", 1));
-          treesLayer.appendChild(h);
-          const rec = { el: h, x, kind, stage: 2, upgrade, palette };
-          applyLane(rec, pickLane(x, kind, palette, upgrade));
-          houses.push(rec);
+        function buildStarterStructure(seed) {
+          spawnBuilder(seed.pos * W(), seed.kind, (rec) => {
+            const upgrade = seed.up || 0;
+            if (!rec || upgrade <= 0) return;
+            rec.upgrade = upgrade;
+            rec.el.dataset.upgrade = String(upgrade);
+            if (rec.kind === "marketstall") {
+              rec.el.innerHTML = marketstallSVG(rec.palette, upgrade);
+            } else if (rec.kind === "castle") {
+              rec.el.innerHTML = castleSVG(rec.palette, upgrade);
+            }
+            applyLane(rec, pickLane(rec.x, rec.kind, rec.palette, upgrade, rec));
+          });
         }
         setTimeout(() => {
           if (reduced) return;
-          // Seeds — neighbors share x-extent on purpose so the depth lanes show up immediately.
-          const seeds = [
-            { kind: "house",    pos: 0.14, up: 1 },
-            { kind: "tavern",   pos: 0.17, up: 0 },  // hugs house — forces lane split
-            { kind: "well",     pos: 0.33, up: 0 },
-            { kind: "garden",   pos: 0.35, up: 0 },  // hugs well
-            { kind: "house",    pos: 0.52, up: 0 },
-            { kind: "signpost", pos: 0.55, up: 0 },  // hugs house
-            { kind: "lamppost", pos: 0.71, up: 0 },
-            { kind: "blacksmith",pos: 0.73, up: 0 }, // hugs lamppost
-            { kind: "statue",   pos: 0.90, up: 0 },
-          ];
-          seeds.forEach((s, i) => setTimeout(() => seedStructure(s.kind, s.pos * W(), s.up), 200 + i * 40));
+          STARTER_STRUCTURE_SEEDS.forEach((seed, i) => {
+            setTimeout(() => buildStarterStructure(seed), 200 + i * 2800);
+          });
         }, 600);
 
         if (!reduced) {
@@ -7664,7 +8047,8 @@
           setTimeout(() => loop(spawnArmy, 180000, 320000, { minRoad: 5, rateScale: RS }), 120000);
           // Rebalanced: small dragon flyby — 120-240s (was 35-80s), self-gated by milestone
           setTimeout(() => loop(spawnDragon, 120000, 240000), 8000);
-          setTimeout(() => loop(() => plantTree(false), 7000, 14000), 2000);
+          setTimeout(() => loop(() => plantTreeBurst(false, 2, 250), 4000, 8500), 2000);
+          setTimeout(() => loop(() => plantBackTreeBurst(false, Math.random() < 0.55 ? 1 : 2, 240), 5500, 12000), 2600);
           setTimeout(() => loop(spawnLumberjack, 28000, 60000, { minRoad: 0, rateScale: RS }), 18000);
           setTimeout(() => loop(spawnLoneBuilder, 4500, 11000, { minRoad: 0, rateScale: RS }), 3500);
           // Realm is at peace — buildings are protected (no destruction loops)
