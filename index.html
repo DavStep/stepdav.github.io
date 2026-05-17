@@ -21,8 +21,102 @@
         --moss: #6b8e3a;
         --rare: #6b8cca;
         --epic: #a060c0;
+
+        /* Seasonal palette — defaults are SUMMER. Per-season overrides on .world[data-season=...]. */
         --grass: #3a5a28;
         --grass-dark: #25401a;
+        --grass-blade: #4a6a30;
+        --grass-blade-2: #5a7a36;
+        --leaf-light: #4a6a36;
+        --leaf-mid: #3a5a26;
+        --leaf-dark: #2a4a1a;
+        --leaf-shadow: #1a3010;
+        --leaf-canopy-1: #3a5a26; /* oak outer */
+        --leaf-canopy-2: #2a4a1a; /* oak mid */
+        --leaf-canopy-3: #1a3010; /* oak inner */
+        --leaf-pine-light: #345a2c;
+        --leaf-pine-mid: #284a22;
+        --leaf-pine-dark: #1a3818;
+        --bark: #3a2410;
+        --bark-light: #5a3818;
+        --fruit-show: 1;
+        --hill-far-fill: #1a1208;
+        --hill-near-fill: #2a2018;
+        --mountain-fill: #5a6878;
+        --snow-opacity: 0;
+        --bare-show: 0;
+      }
+
+      /* ============= SEASON PALETTES ============= */
+      .world[data-season="spring"] {
+        --grass: #4d7a30;
+        --grass-dark: #356018;
+        --grass-blade: #5e8c3a;
+        --grass-blade-2: #74a448;
+        --leaf-canopy-1: #6aa040;
+        --leaf-canopy-2: #4a8030;
+        --leaf-canopy-3: #2e6420;
+        --leaf-pine-light: #4a7a3a;
+        --leaf-pine-mid: #386030;
+        --leaf-pine-dark: #1e4824;
+        --hill-far-fill: #1c2208;
+        --hill-near-fill: #2c3018;
+        --mountain-fill: #5e7080;
+        --snow-opacity: 0;
+        --bare-show: 0;
+        --fruit-show: 1;
+      }
+      .world[data-season="summer"] {
+        /* defaults — same as :root */
+        --snow-opacity: 0;
+        --bare-show: 0;
+        --fruit-show: 1;
+      }
+      .world[data-season="autumn"] {
+        --grass: #7a6228;
+        --grass-dark: #5a4818;
+        --grass-blade: #8a7030;
+        --grass-blade-2: #a87836;
+        --leaf-canopy-1: #e08838;
+        --leaf-canopy-2: #c86028;
+        --leaf-canopy-3: #8a3818;
+        --leaf-pine-light: #386030;
+        --leaf-pine-mid: #2a4a22;
+        --leaf-pine-dark: #1a3818;
+        --hill-far-fill: #2a2010;
+        --hill-near-fill: #3a2818;
+        --mountain-fill: #6a6a68;
+        --snow-opacity: 0;
+        --bare-show: 0;
+        --fruit-show: 0;
+      }
+      .world[data-season="winter"] {
+        --grass: #c7ced6;
+        --grass-dark: #8a92a0;
+        --grass-blade: #d8dee6;
+        --grass-blade-2: #e4e8ee;
+        --leaf-canopy-1: #3a5a26;
+        --leaf-canopy-2: #2a4a1a;
+        --leaf-canopy-3: #1a3010;
+        --leaf-pine-light: #2a4a22;
+        --leaf-pine-mid: #1e3a1a;
+        --leaf-pine-dark: #142a14;
+        --bark: #2a1a08;
+        --bark-light: #3a2410;
+        --hill-far-fill: #3a4248;
+        --hill-near-fill: #586068;
+        --mountain-fill: #8a98a8;
+        --snow-opacity: 1;
+        --bare-show: 1;
+        --fruit-show: 0;
+      }
+      /* Smooth fade when season changes */
+      .grass, .grass::before, .grass::after,
+      .hills path, .mountains svg path,
+      .hills-snow, .mountains-snow,
+      .tree .canopy, .tree .bark, .tree .bare-branches, .tree .snow-cap, .tree .fruits,
+      .house::after {
+        transition: fill 3s ease, stroke 3s ease, background 3s ease, opacity 3s ease, color 3s ease;
       }
 
       * { box-sizing: border-box; image-rendering: pixelated; }
@@ -239,7 +333,6 @@
         z-index: 1;
         pointer-events: none;
         filter: brightness(var(--world-brightness, 1)) saturate(0.55);
-        opacity: 0.85;
       }
       .mountains svg { width: 100%; height: 100%; display: block; }
 
@@ -267,9 +360,20 @@
         position: absolute; left: 0; right: 0;
         width: 100%; pointer-events: none;
       }
-      .hills .hills-far  { bottom: 30px; height: 100px; opacity: 0.75; }
-      .hills .hills-near { bottom: 0;    height: 80px;  opacity: 0.95; }
+      .hills .hills-far  { bottom: 30px; height: 100px; }
+      .hills .hills-near { bottom: 0;    height: 80px;  }
       .hills svg { width: 100%; height: 100%; display: block; }
+      .hills .h-far-fill  { fill: var(--hill-far-fill); }
+      .hills .h-near-fill { fill: var(--hill-near-fill); }
+      .mountains .m-fill  { fill: var(--mountain-fill); }
+      /* Snow ridge strokes — visible only in winter via --snow-opacity */
+      .hills-snow-far, .hills-snow-near, .mountains-snow {
+        fill: none; stroke: #f0f6ff; stroke-linecap: round; stroke-linejoin: round;
+        opacity: var(--snow-opacity);
+      }
+      .hills-snow-far  { stroke-width: 5; }
+      .hills-snow-near { stroke-width: 6; }
+      .mountains-snow  { stroke-width: 7; }
 
       /* TREES */
       .trees-layer { position: absolute; inset: 0; z-index: 6; pointer-events: none; }
@@ -321,12 +425,40 @@
       .house[data-kind="house"][data-variant="a-frame"]   { width: 48px; height: 52px; }
       .house[data-kind="house"][data-variant="longhouse"] { width: 64px; height: 38px; }
 
+      /* DEPTH LANES — buildings stagger above/below the road line so neighbors don't collide */
+      .house                 { z-index: 2; transition: transform 1.2s ease; }
+      .house.lane-back       { transform: translateY(-14px) scale(0.92); z-index: 1; filter: brightness(0.93) saturate(0.9); }
+      .house.lane-front      { transform: translateY(8px)   scale(1.06); z-index: 3; }
+      /* Castle is the lone exception — it's massive, dead-center, and pre-scaled. Keep it on the back row but skip the shrink. */
+      .house[data-kind="castle"].lane-back { transform: translateY(-10px); filter: none; }
+
+      /* SNOW CAP — fades in over the top of every structure during winter */
+      .house { position: absolute; }
+      .house::after {
+        content: ""; position: absolute;
+        left: 0; right: 0; top: 0;
+        height: 30%;
+        background: #f0f6ff;
+        -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 35%, transparent 95%);
+        mask-image: linear-gradient(180deg, #000 0%, #000 35%, transparent 95%);
+        opacity: calc(var(--snow-opacity) * 0.85);
+        transition: opacity 3s ease;
+        pointer-events: none;
+        mix-blend-mode: screen;
+      }
+      .house[data-kind="campfire"]::after,
+      .house[data-kind="signpost"]::after,
+      .house[data-kind="well"]::after,
+      .house[data-kind="lamppost"]::after,
+      .house[data-kind="statue"]::after,
+      .house[data-kind="garden"]::after { display: none; }
+
       /* CONTINUOUS ROAD STRIP — the end-to-end path people walk on */
       .road-strip {
         position: absolute;
         left: 0; right: 0;
-        bottom: 50px;
-        height: 8px;
+        bottom: 22px;
+        height: 16px;
         z-index: 5;
         pointer-events: none;
       }
@@ -429,13 +561,17 @@
       .world[data-time="dusk"]  .house[data-kind="mill"] .hs-windows-lit,
       .world[data-time="dawn"]  .house[data-kind="mill"] .hs-windows-lit { opacity: 1; }
 
-      /* UPGRADE LEVELS — gentle scale + brightness, plus per-level decoration groups */
-      .house[data-upgrade] { transition: transform 1s cubic-bezier(.34, 1.2, .64, 1), filter 1s ease; }
-      .house[data-upgrade="1"] { transform: scale(1.04); filter: brightness(1.04) saturate(1.06); }
-      .house[data-upgrade="2"] { transform: scale(1.08); filter: brightness(1.08) saturate(1.1); }
-      .house[data-upgrade="3"] { transform: scale(1.12); filter: brightness(1.12) saturate(1.14); }
-      .house[data-upgrade="4"] { transform: scale(1.2);  filter: brightness(1.16) saturate(1.18); }
-      /* Per-level decoration groups — additive: L3 shows up-1, up-2, up-3 */
+      /* UPGRADE LEVELS — gentle brightness/saturate bump only.
+         Each tier is a separately drawn bigger asset (handled by per-kind SVG generators + width/height rules below).
+         No transform: scale — pixel art must never be CSS-scaled. */
+      .house[data-upgrade] { transition: width 0.8s ease, height 0.8s ease, filter 1s ease; }
+      .house[data-upgrade="1"] { filter: brightness(1.04) saturate(1.06); }
+      .house[data-upgrade="2"] { filter: brightness(1.08) saturate(1.1); }
+      .house[data-upgrade="3"] { filter: brightness(1.12) saturate(1.14); }
+      .house[data-upgrade="4"] { filter: brightness(1.16) saturate(1.18); }
+      /* Legacy additive decoration groups — preserved as a no-op for any building
+         that hasn't been migrated to per-tier full-redraw SVGs yet. New per-tier
+         SVGs simply omit up-N classes. */
       .house [class^="up-"] { opacity: 0; transition: opacity 1s ease; }
       .house[data-upgrade="1"] .up-1,
       .house[data-upgrade="2"] .up-1, .house[data-upgrade="2"] .up-2,
@@ -452,12 +588,59 @@
       .house[data-kind="castle"][data-upgrade="4"] { transform: translateX(-50%); width: 430px; height: 204px; z-index: 7; }
 
       /* Watchtower progression — explicit size per tier, no CSS scale.
-         translateX(-50%) keeps the tower centered around its spawn x as the container grows. */
+         translateX(-50%) keeps the tower centered around its spawn x as the container grows.
+         viewBox matches CSS px so each tier is a pixel-native asset. */
       .house[data-kind="tower"]                   { transform: translateX(-50%); }
       .house[data-kind="tower"][data-upgrade="1"] { transform: translateX(-50%); width: 51px;  height: 102px; }
       .house[data-kind="tower"][data-upgrade="2"] { transform: translateX(-50%); width: 70px;  height: 140px; }
       .house[data-kind="tower"][data-upgrade="3"] { transform: translateX(-50%); width: 96px;  height: 192px; }
-      .house[data-kind="tower"][data-upgrade="4"] { transform: translateX(-50%); width: 128px; height: 256px; }
+      .house[data-kind="tower"][data-upgrade="4"] { transform: translateX(-50%); width: 128px; height: 256px; z-index: 6; }
+
+      /* House cottage progression — redrawn bigger per tier. translateX(-50%) keeps spawn x centered. */
+      .house[data-kind="house"][data-variant="cottage"][data-upgrade="1"],
+      .house[data-kind="house"]:not([data-variant])[data-upgrade="1"]   { transform: translateX(-50%); width: 56px;  height: 40px; }
+      .house[data-kind="house"][data-variant="cottage"][data-upgrade="2"],
+      .house[data-kind="house"]:not([data-variant])[data-upgrade="2"]   { transform: translateX(-50%); width: 80px;  height: 48px; }
+      .house[data-kind="house"][data-variant="cottage"][data-upgrade="3"],
+      .house[data-kind="house"]:not([data-variant])[data-upgrade="3"]   { transform: translateX(-50%); width: 104px; height: 56px; }
+      .house[data-kind="house"][data-variant="cottage"][data-upgrade="4"],
+      .house[data-kind="house"]:not([data-variant])[data-upgrade="4"]   { transform: translateX(-50%); width: 128px; height: 64px; }
+
+      /* House two-story progression */
+      .house[data-kind="house"][data-variant="two-story"][data-upgrade="1"] { transform: translateX(-50%); width: 60px;  height: 64px; }
+      .house[data-kind="house"][data-variant="two-story"][data-upgrade="2"] { transform: translateX(-50%); width: 78px;  height: 72px; }
+      .house[data-kind="house"][data-variant="two-story"][data-upgrade="3"] { transform: translateX(-50%); width: 100px; height: 82px; }
+      .house[data-kind="house"][data-variant="two-story"][data-upgrade="4"] { transform: translateX(-50%); width: 122px; height: 94px; }
+
+      /* House a-frame progression */
+      .house[data-kind="house"][data-variant="a-frame"][data-upgrade="1"]   { transform: translateX(-50%); width: 64px;  height: 58px; }
+      .house[data-kind="house"][data-variant="a-frame"][data-upgrade="2"]   { transform: translateX(-50%); width: 82px;  height: 66px; }
+      .house[data-kind="house"][data-variant="a-frame"][data-upgrade="3"]   { transform: translateX(-50%); width: 104px; height: 76px; }
+      .house[data-kind="house"][data-variant="a-frame"][data-upgrade="4"]   { transform: translateX(-50%); width: 126px; height: 86px; }
+
+      /* House longhouse progression */
+      .house[data-kind="house"][data-variant="longhouse"][data-upgrade="1"] { transform: translateX(-50%); width: 84px;  height: 44px; }
+      .house[data-kind="house"][data-variant="longhouse"][data-upgrade="2"] { transform: translateX(-50%); width: 104px; height: 52px; }
+      .house[data-kind="house"][data-variant="longhouse"][data-upgrade="3"] { transform: translateX(-50%); width: 124px; height: 62px; }
+      .house[data-kind="house"][data-variant="longhouse"][data-upgrade="4"] { transform: translateX(-50%); width: 144px; height: 72px; }
+
+      /* Tavern progression */
+      .house[data-kind="tavern"][data-upgrade="1"] { transform: translateX(-50%); width: 76px;  height: 60px; }
+      .house[data-kind="tavern"][data-upgrade="2"] { transform: translateX(-50%); width: 100px; height: 72px; }
+      .house[data-kind="tavern"][data-upgrade="3"] { transform: translateX(-50%); width: 124px; height: 84px; }
+      .house[data-kind="tavern"][data-upgrade="4"] { transform: translateX(-50%); width: 150px; height: 96px; }
+
+      /* Guildhall progression */
+      .house[data-kind="guildhall"][data-upgrade="1"] { transform: translateX(-50%); width: 74px;  height: 56px; }
+      .house[data-kind="guildhall"][data-upgrade="2"] { transform: translateX(-50%); width: 96px;  height: 66px; }
+      .house[data-kind="guildhall"][data-upgrade="3"] { transform: translateX(-50%); width: 120px; height: 76px; }
+      .house[data-kind="guildhall"][data-upgrade="4"] { transform: translateX(-50%); width: 144px; height: 86px; }
+
+      /* Mill progression */
+      .house[data-kind="mill"][data-upgrade="1"] { transform: translateX(-50%); width: 60px;  height: 70px; }
+      .house[data-kind="mill"][data-upgrade="2"] { transform: translateX(-50%); width: 78px;  height: 82px; }
+      .house[data-kind="mill"][data-upgrade="3"] { transform: translateX(-50%); width: 100px; height: 96px; }
+      .house[data-kind="mill"][data-upgrade="4"] { transform: translateX(-50%); width: 124px; height: 112px; }
 
       /* HUGE DRAGON */
       .dragon.huge {
@@ -617,11 +800,19 @@
       .grass::before {
         content: ""; position: absolute; top: -6px; left: 0; right: 0; height: 8px;
         background-image:
-          radial-gradient(circle 2px at 4px 4px, #4a6a30 2px, transparent 3px),
-          radial-gradient(circle 2px at 16px 2px, #5a7a36 2px, transparent 3px),
-          radial-gradient(circle 2px at 28px 5px, #4a6a30 2px, transparent 3px);
+          radial-gradient(circle 2px at 4px 4px, var(--grass-blade) 2px, transparent 3px),
+          radial-gradient(circle 2px at 16px 2px, var(--grass-blade-2) 2px, transparent 3px),
+          radial-gradient(circle 2px at 28px 5px, var(--grass-blade) 2px, transparent 3px);
         background-size: 36px 8px;
         background-repeat: repeat-x;
+      }
+      /* Snow blanket on top of grass, fades in with --snow-opacity */
+      .grass::after {
+        content: ""; position: absolute; top: -4px; left: 0; right: 0; height: 10px;
+        background: linear-gradient(180deg, #f4f8fc 0%, #d8e0ea 60%, transparent 100%);
+        opacity: var(--snow-opacity);
+        transition: opacity 3s ease;
+        pointer-events: none;
       }
 
       .rain-canvas { position: absolute; inset: 0; z-index: 8; pointer-events: none; }
@@ -1103,7 +1294,7 @@
     </style>
   </head>
   <body>
-    <div class="world" data-weather="clear" data-time="day" data-road="0" aria-hidden="true">
+    <div class="world" data-weather="clear" data-time="day" data-season="summer" data-road="0" aria-hidden="true">
       <div class="sky"></div>
       <div class="stars"></div>
       <div class="sun"></div>
@@ -1113,15 +1304,18 @@
       <div class="dragons-layer"></div>
       <div class="mountains">
         <svg class="mountains-far" viewBox="0 0 1200 220" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M0,220 L0,140 L80,90 L150,120 L220,60 L300,100 L380,40 L460,95 L540,55 L620,110 L700,50 L780,105 L860,70 L940,30 L1020,95 L1100,60 L1180,110 L1200,90 L1200,220 Z" fill="#5a6878"/>
+          <path class="m-fill" d="M0,220 L0,140 L80,90 L150,120 L220,60 L300,100 L380,40 L460,95 L540,55 L620,110 L700,50 L780,105 L860,70 L940,30 L1020,95 L1100,60 L1180,110 L1200,90 L1200,220 Z"/>
+          <path class="mountains-snow" d="M0,140 L80,90 L150,120 L220,60 L300,100 L380,40 L460,95 L540,55 L620,110 L700,50 L780,105 L860,70 L940,30 L1020,95 L1100,60 L1180,110 L1200,90"/>
         </svg>
       </div>
       <div class="hills">
         <svg class="hills-far" viewBox="0 0 1200 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M0,100 L0,60 Q70,30 140,55 Q210,80 280,50 Q350,25 420,55 Q490,80 560,55 Q630,30 700,55 Q770,80 840,55 Q910,30 980,55 Q1050,80 1120,55 Q1170,40 1200,60 L1200,100 Z" fill="#1a1208"/>
+          <path class="h-far-fill" d="M0,100 L0,60 Q70,30 140,55 Q210,80 280,50 Q350,25 420,55 Q490,80 560,55 Q630,30 700,55 Q770,80 840,55 Q910,30 980,55 Q1050,80 1120,55 Q1170,40 1200,60 L1200,100 Z"/>
+          <path class="hills-snow-far" d="M0,60 Q70,30 140,55 Q210,80 280,50 Q350,25 420,55 Q490,80 560,55 Q630,30 700,55 Q770,80 840,55 Q910,30 980,55 Q1050,80 1120,55 Q1170,40 1200,60"/>
         </svg>
         <svg class="hills-near" viewBox="0 0 1200 80" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M0,80 L0,40 Q100,5 200,35 Q310,60 410,30 Q510,5 600,30 Q700,60 810,30 Q920,5 1020,35 Q1110,60 1200,40 L1200,80 Z" fill="#2a2018"/>
+          <path class="h-near-fill" d="M0,80 L0,40 Q100,5 200,35 Q310,60 410,30 Q510,5 600,30 Q700,60 810,30 Q920,5 1020,35 Q1110,60 1200,40 L1200,80 Z"/>
+          <path class="hills-snow-near" d="M0,40 Q100,5 200,35 Q310,60 410,30 Q510,5 600,30 Q700,60 810,30 Q920,5 1020,35 Q1110,60 1200,40"/>
         </svg>
       </div>
       <div class="grass"></div>
@@ -1160,6 +1354,7 @@
     </div>
 
     <div class="hud">
+      <span id="hud-season" title="Click to change season">SUMMER</span>
       <span id="hud-time" title="Click to change time">DAY</span>
       <span id="hud-weather" title="Click to change weather">CLEAR</span>
       <span id="hud-speed" title="Click to speed up time">1×</span>
@@ -1309,8 +1504,12 @@
         const lightning = world.querySelector(".lightning");
         const hudTime = document.getElementById("hud-time");
         const hudWeather = document.getElementById("hud-weather");
+        const hudSeason = document.getElementById("hud-season");
         const logEl = document.getElementById("log");
         const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+        // Forward declaration — referenced by tickRain before season setup runs
+        let currentSeason = "summer";
 
         // Continuously ensure all in-flight CSS animations match current speed
         function applySpeedToAnimations() {
@@ -1486,6 +1685,7 @@
             // Adventurer camps strike at dawn
             if (labelPhase === "dawn") {
               activeCamps.slice().forEach((c) => c.endCamp());
+              advanceDayOfYear();
             }
             // only log natural transitions (not manual overrides)
             if (!manualOverride) logEvent(phaseLog[labelPhase], "time");
@@ -1498,6 +1698,39 @@
         } else {
           world.dataset.time = "day"; hudTime.textContent = "DAY";
         }
+
+        /* ============= SEASONS ============= */
+        const seasons = ["spring", "summer", "autumn", "winter"];
+        const seasonLabels = { spring: "SPRING", summer: "SUMMER", autumn: "AUTUMN", winter: "WINTER" };
+        const seasonLog = {
+          spring: "Spring arrives. Buds return to the branches.",
+          summer: "Summer takes hold.",
+          autumn: "Autumn settles in. Leaves blaze gold.",
+          winter: "Winter falls. Snow begins to dust the realm.",
+        };
+        const SEASON_DAYS = 2;
+        let dayOfYear = seasons.indexOf("summer") * SEASON_DAYS;
+        world.dataset.season = currentSeason;
+        hudSeason.textContent = seasonLabels[currentSeason];
+
+        function setSeason(s, isManual) {
+          if (s === currentSeason) return;
+          currentSeason = s;
+          world.dataset.season = s;
+          hudSeason.textContent = seasonLabels[s];
+          logEvent(seasonLog[s], "time");
+          if (isManual) dayOfYear = seasons.indexOf(s) * SEASON_DAYS;
+        }
+        function advanceDayOfYear() {
+          if (reduced) return;
+          dayOfYear = (dayOfYear + 1) % (seasons.length * SEASON_DAYS);
+          const next = seasons[Math.floor(dayOfYear / SEASON_DAYS)];
+          if (next !== currentSeason) setSeason(next, false);
+        }
+        hudSeason.addEventListener("click", () => {
+          const i = seasons.indexOf(currentSeason);
+          setSeason(seasons[(i + 1) % seasons.length], true);
+        });
 
         /* ============= WEATHER ============= */
         const weatherStates = ["clear","clear","clear","cloudy","cloudy","rain","storm"];
@@ -1653,6 +1886,8 @@
         const drops = [];
         let wind = 0, windTarget = 0, gustTimer = 0;
         let intensity = 0, intensityTarget = 0;
+        const flakes = [];
+        let snowIntensity = 0;
 
         function ensureDrops(n) {
           while (drops.length < n) drops.push({
@@ -1660,6 +1895,16 @@
             speed: 9 + Math.random() * 6,
             len: 7 + Math.random() * 9,
             alpha: 0.35 + Math.random() * 0.35,
+          });
+        }
+        function ensureFlakes(n) {
+          while (flakes.length < n) flakes.push({
+            x: Math.random() * CW,
+            y: Math.random() * CH,
+            vy: 0.7 + Math.random() * 1.3,
+            size: Math.random() < 0.5 ? 2 : 3,
+            phase: Math.random() * 1000,
+            alpha: 0.65 + Math.random() * 0.3,
           });
         }
         function tickRain() {
@@ -1671,23 +1916,47 @@
             windTarget = (Math.random() * 2 - 1) * base;
             gustTimer = 120 + Math.random() * 180;
           }
+
+          // Snow ramps independently from rain — driven by season, not weather
+          const snowTarget = currentSeason === "winter" ? 1 : 0;
+          snowIntensity += (snowTarget - snowIntensity) * 0.008;
+
           ctx.clearRect(0, 0, CW, CH);
-          if (intensity < 0.01) { requestAnimationFrame(tickRain); return; }
-          const want = Math.floor(intensity * 260 * (isSmallViewport ? 0.6 : 1));
-          ensureDrops(want);
-          ctx.lineWidth = 1.2; ctx.lineCap = "round";
-          for (let i = 0; i < want; i++) {
-            const d = drops[i];
-            const vx = wind, vy = d.speed;
-            d.x += vx * 0.6; d.y += vy;
-            if (d.y > CH + 10) { d.y = -20; d.x = Math.random() * (CW + 200) - 100; }
-            if (d.x > CW + 60) d.x = -40;
-            if (d.x < -60) d.x = CW + 40;
-            const k = d.len / Math.hypot(vx, vy);
-            ctx.strokeStyle = `rgba(190, 210, 240, ${d.alpha * intensity})`;
-            ctx.beginPath();
-            ctx.moveTo(d.x, d.y); ctx.lineTo(d.x - vx * k, d.y - vy * k);
-            ctx.stroke();
+
+          // --- SNOW (winter, regardless of weather) ---
+          if (snowIntensity > 0.01) {
+            const wantFlakes = Math.floor(snowIntensity * 130 * (isSmallViewport ? 0.55 : 1));
+            ensureFlakes(wantFlakes);
+            for (let i = 0; i < wantFlakes; i++) {
+              const f = flakes[i];
+              f.y += f.vy;
+              f.x += Math.sin((f.y + f.phase) * 0.025) * 0.4 + wind * 0.08;
+              if (f.y > CH + 6) { f.y = -8; f.x = Math.random() * CW; }
+              if (f.x > CW + 20) f.x = -10;
+              if (f.x < -20) f.x = CW + 10;
+              ctx.fillStyle = `rgba(240, 246, 255, ${f.alpha * snowIntensity})`;
+              ctx.fillRect(Math.floor(f.x), Math.floor(f.y), f.size, f.size);
+            }
+          }
+
+          // --- RAIN ---
+          if (intensity >= 0.01) {
+            const want = Math.floor(intensity * 260 * (isSmallViewport ? 0.6 : 1));
+            ensureDrops(want);
+            ctx.lineWidth = 1.2; ctx.lineCap = "round";
+            for (let i = 0; i < want; i++) {
+              const d = drops[i];
+              const vx = wind, vy = d.speed;
+              d.x += vx * 0.6; d.y += vy;
+              if (d.y > CH + 10) { d.y = -20; d.x = Math.random() * (CW + 200) - 100; }
+              if (d.x > CW + 60) d.x = -40;
+              if (d.x < -60) d.x = CW + 40;
+              const k = d.len / Math.hypot(vx, vy);
+              ctx.strokeStyle = `rgba(190, 210, 240, ${d.alpha * intensity})`;
+              ctx.beginPath();
+              ctx.moveTo(d.x, d.y); ctx.lineTo(d.x - vx * k, d.y - vy * k);
+              ctx.stroke();
+            }
           }
           requestAnimationFrame(tickRain);
         }
@@ -3808,71 +4077,118 @@
         const trees = [];
         const TREE_MIN_SPACING = 80;
 
-        function makeTreeSVG() {
-          // Three tree species, picked at plant time so each tree feels distinct
-          const variant = Math.random();
-          if (variant < 0.45) {
+        function makeTreeSVG(species) {
+          if (species === "oak") {
             // Oak — round layered canopy (original look, the staple)
             return `<svg viewBox="0 0 24 48" xmlns="http://www.w3.org/2000/svg">
-              <rect x="10" y="34" width="4" height="14" fill="#3a2410"/>
-              <rect x="11" y="34" width="2" height="14" fill="#5a3818"/>
-              <rect x="3" y="22" width="18" height="10" fill="#1a3010"/>
-              <rect x="5" y="14" width="14" height="10" fill="#2a4a1a"/>
-              <rect x="7" y="6" width="10" height="10" fill="#3a5a26"/>
-              <rect x="9" y="0" width="6" height="6" fill="#4a6a36"/>
-              <rect x="6" y="20" width="2" height="2" fill="#1a3010"/>
-              <rect x="16" y="22" width="2" height="2" fill="#1a3010"/>
-              <rect x="8" y="12" width="2" height="2" fill="#1a3010"/>
-              <rect x="14" y="10" width="2" height="2" fill="#1a3010"/>
+              <g class="bark">
+                <rect x="10" y="34" width="4" height="14" fill="var(--bark)"/>
+                <rect x="11" y="34" width="2" height="14" fill="var(--bark-light)"/>
+              </g>
+              <g class="bare-branches" opacity="var(--bare-show)">
+                <rect x="11" y="20" width="2" height="14" fill="var(--bark)"/>
+                <rect x="8"  y="22" width="3" height="1"  fill="var(--bark)"/>
+                <rect x="13" y="20" width="3" height="1"  fill="var(--bark)"/>
+                <rect x="6"  y="18" width="2" height="1"  fill="var(--bark)"/>
+                <rect x="15" y="16" width="2" height="1"  fill="var(--bark)"/>
+                <rect x="10" y="14" width="1" height="6"  fill="var(--bark)"/>
+                <rect x="13" y="12" width="1" height="6"  fill="var(--bark)"/>
+              </g>
+              <g class="canopy" style="opacity: calc(1 - var(--bare-show));">
+                <rect x="3" y="22" width="18" height="10" fill="var(--leaf-canopy-3)"/>
+                <rect x="5" y="14" width="14" height="10" fill="var(--leaf-canopy-2)"/>
+                <rect x="7" y="6"  width="10" height="10" fill="var(--leaf-canopy-1)"/>
+                <rect x="9" y="0"  width="6"  height="6"  fill="var(--leaf-light)"/>
+                <rect x="6"  y="20" width="2" height="2" fill="var(--leaf-shadow)"/>
+                <rect x="16" y="22" width="2" height="2" fill="var(--leaf-shadow)"/>
+                <rect x="8"  y="12" width="2" height="2" fill="var(--leaf-shadow)"/>
+                <rect x="14" y="10" width="2" height="2" fill="var(--leaf-shadow)"/>
+              </g>
+              <g class="snow-cap" style="opacity: var(--snow-opacity);">
+                <rect x="7" y="0"  width="10" height="2" fill="#f0f6ff"/>
+                <rect x="5" y="6"  width="14" height="2" fill="#f0f6ff"/>
+                <rect x="3" y="14" width="18" height="2" fill="#f0f6ff"/>
+              </g>
             </svg>`;
-          } else if (variant < 0.78) {
+          } else if (species === "pine") {
             // Pine — tall triangular evergreen
             return `<svg viewBox="0 0 24 48" xmlns="http://www.w3.org/2000/svg">
-              <rect x="10" y="38" width="4" height="10" fill="#3a2410"/>
-              <rect x="11" y="38" width="2" height="10" fill="#5a3818"/>
-              <!-- bottom skirt -->
-              <polygon points="2,38 22,38 12,28" fill="#1a3818"/>
-              <polygon points="3,37 21,37 12,29" fill="#284a22"/>
-              <!-- middle layer -->
-              <polygon points="4,30 20,30 12,18" fill="#1a3818"/>
-              <polygon points="5,29 19,29 12,19" fill="#284a22"/>
-              <!-- top layer -->
-              <polygon points="6,22 18,22 12,10" fill="#1a3818"/>
-              <polygon points="7,21 17,21 12,11" fill="#345a2c"/>
-              <!-- crown -->
-              <polygon points="8,14 16,14 12,2" fill="#284a22"/>
-              <polygon points="9,13 15,13 12,4" fill="#3c6a34"/>
-              <!-- star/tip highlight -->
-              <rect x="11" y="2" width="2" height="2" fill="#4a7a40"/>
+              <g class="bark">
+                <rect x="10" y="38" width="4" height="10" fill="var(--bark)"/>
+                <rect x="11" y="38" width="2" height="10" fill="var(--bark-light)"/>
+              </g>
+              <g class="canopy">
+                <!-- bottom skirt -->
+                <polygon points="2,38 22,38 12,28" fill="var(--leaf-pine-dark)"/>
+                <polygon points="3,37 21,37 12,29" fill="var(--leaf-pine-mid)"/>
+                <!-- middle layer -->
+                <polygon points="4,30 20,30 12,18" fill="var(--leaf-pine-dark)"/>
+                <polygon points="5,29 19,29 12,19" fill="var(--leaf-pine-mid)"/>
+                <!-- top layer -->
+                <polygon points="6,22 18,22 12,10" fill="var(--leaf-pine-dark)"/>
+                <polygon points="7,21 17,21 12,11" fill="var(--leaf-pine-light)"/>
+                <!-- crown -->
+                <polygon points="8,14 16,14 12,2" fill="var(--leaf-pine-mid)"/>
+                <polygon points="9,13 15,13 12,4" fill="var(--leaf-pine-light)"/>
+                <!-- tip highlight -->
+                <rect x="11" y="2" width="2" height="2" fill="var(--leaf-pine-light)"/>
+              </g>
+              <g class="snow-cap" style="opacity: var(--snow-opacity);">
+                <polygon points="9,13 15,13 12,8" fill="#f0f6ff"/>
+                <polygon points="7,21 17,21 12,16" fill="#f0f6ff"/>
+                <polygon points="5,29 19,29 12,24" fill="#f0f6ff"/>
+                <polygon points="3,37 21,37 12,32" fill="#f0f6ff"/>
+              </g>
             </svg>`;
           } else {
             // Fruit tree — round canopy dotted with little red fruits
             return `<svg viewBox="0 0 24 48" xmlns="http://www.w3.org/2000/svg">
-              <rect x="10" y="34" width="4" height="14" fill="#4a2818"/>
-              <rect x="11" y="34" width="2" height="14" fill="#6a3818"/>
-              <!-- bark knot -->
-              <rect x="9" y="40" width="2" height="2" fill="#2a1408"/>
-              <!-- canopy -->
-              <rect x="4" y="22" width="16" height="10" fill="#1a3010"/>
-              <rect x="3" y="14" width="18" height="10" fill="#2a4a1a"/>
-              <rect x="5" y="8" width="14" height="8" fill="#3a5a26"/>
-              <rect x="7" y="2" width="10" height="8" fill="#4a6a36"/>
-              <!-- leaf shadows -->
-              <rect x="6" y="20" width="2" height="2" fill="#1a3010"/>
-              <rect x="16" y="20" width="2" height="2" fill="#1a3010"/>
-              <rect x="9" y="12" width="2" height="2" fill="#1a3010"/>
-              <!-- fruits scattered -->
-              <rect x="6" y="16" width="2" height="2" fill="#c84a35"/>
-              <rect x="14" y="14" width="2" height="2" fill="#c84a35"/>
-              <rect x="10" y="20" width="2" height="2" fill="#c84a35"/>
-              <rect x="17" y="18" width="2" height="2" fill="#c84a35"/>
-              <rect x="8" y="22" width="2" height="2" fill="#c84a35"/>
-              <!-- highlights on fruits -->
-              <rect x="6" y="16" width="1" height="1" fill="#f06850"/>
-              <rect x="14" y="14" width="1" height="1" fill="#f06850"/>
-              <rect x="10" y="20" width="1" height="1" fill="#f06850"/>
+              <g class="bark">
+                <rect x="10" y="34" width="4" height="14" fill="var(--bark)"/>
+                <rect x="11" y="34" width="2" height="14" fill="var(--bark-light)"/>
+                <rect x="9"  y="40" width="2" height="2"  fill="#2a1408"/>
+              </g>
+              <g class="bare-branches" opacity="var(--bare-show)">
+                <rect x="11" y="18" width="2" height="16" fill="var(--bark)"/>
+                <rect x="7"  y="22" width="4" height="1"  fill="var(--bark)"/>
+                <rect x="13" y="20" width="4" height="1"  fill="var(--bark)"/>
+                <rect x="6"  y="16" width="2" height="1"  fill="var(--bark)"/>
+                <rect x="16" y="14" width="2" height="1"  fill="var(--bark)"/>
+                <rect x="9"  y="10" width="1" height="8"  fill="var(--bark)"/>
+                <rect x="14" y="8"  width="1" height="8"  fill="var(--bark)"/>
+              </g>
+              <g class="canopy" style="opacity: calc(1 - var(--bare-show));">
+                <rect x="4" y="22" width="16" height="10" fill="var(--leaf-canopy-3)"/>
+                <rect x="3" y="14" width="18" height="10" fill="var(--leaf-canopy-2)"/>
+                <rect x="5" y="8"  width="14" height="8"  fill="var(--leaf-canopy-1)"/>
+                <rect x="7" y="2"  width="10" height="8"  fill="var(--leaf-light)"/>
+                <rect x="6"  y="20" width="2" height="2" fill="var(--leaf-shadow)"/>
+                <rect x="16" y="20" width="2" height="2" fill="var(--leaf-shadow)"/>
+                <rect x="9"  y="12" width="2" height="2" fill="var(--leaf-shadow)"/>
+              </g>
+              <g class="fruits" style="opacity: var(--fruit-show);">
+                <rect x="6"  y="16" width="2" height="2" fill="#c84a35"/>
+                <rect x="14" y="14" width="2" height="2" fill="#c84a35"/>
+                <rect x="10" y="20" width="2" height="2" fill="#c84a35"/>
+                <rect x="17" y="18" width="2" height="2" fill="#c84a35"/>
+                <rect x="8"  y="22" width="2" height="2" fill="#c84a35"/>
+                <rect x="6"  y="16" width="1" height="1" fill="#f06850"/>
+                <rect x="14" y="14" width="1" height="1" fill="#f06850"/>
+                <rect x="10" y="20" width="1" height="1" fill="#f06850"/>
+              </g>
+              <g class="snow-cap" style="opacity: var(--snow-opacity);">
+                <rect x="7" y="2"  width="10" height="2" fill="#f0f6ff"/>
+                <rect x="5" y="8"  width="14" height="2" fill="#f0f6ff"/>
+                <rect x="3" y="14" width="18" height="2" fill="#f0f6ff"/>
+              </g>
             </svg>`;
           }
+        }
+        function pickTreeSpecies() {
+          const v = Math.random();
+          if (v < 0.45) return "oak";
+          if (v < 0.78) return "pine";
+          return "fruit";
         }
         function findTreeSpot() {
           for (let i = 0; i < 25; i++) {
@@ -3886,13 +4202,15 @@
         function plantTree(immediate = false) {
           const x = findTreeSpot();
           if (x == null) return null;
+          const species = pickTreeSpecies();
           const t = document.createElement("div");
           t.className = "tree";
-          t.innerHTML = makeTreeSVG();
+          t.dataset.species = species;
+          t.innerHTML = makeTreeSVG(species);
           t.style.left = x + "px";
           t.style.setProperty("--g", "0");
           treesLayer.appendChild(t);
-          const rec = { el: t, x, stage: 0 };
+          const rec = { el: t, x, stage: 0, species };
           trees.push(rec);
           if (immediate) {
             rec.stage = treeStages.length - 1;
@@ -3921,6 +4239,41 @@
         /* ============= STRUCTURES (houses, towers, wells, signposts, campfires) ============= */
         const houses = [];
         const STRUCTURE_KINDS = ["house", "tower", "well", "signpost", "campfire", "castle", "tavern", "guildhall", "mill", "lamppost", "garden", "statue", "marketstall", "guardpost", "blacksmith"];
+
+        /* Footprint widths used for depth-lane collision checks. Mirrors the CSS widths above. */
+        const KIND_WIDTHS = {
+          house: 48, tower: 32, well: 26, signpost: 18, campfire: 30, castle: 200,
+          tavern: 56, guildhall: 54, mill: 44, lamppost: 14, garden: 26, statue: 18,
+          marketstall: 32, guardpost: 24, blacksmith: 46,
+        };
+        const HOUSE_VARIANT_WIDTHS = { "two-story": 44, "a-frame": 48, "longhouse": 64 };
+        const MARKETSTALL_UPGRADE_WIDTHS = [32, 52, 80, 120, 120];
+        function houseFootprintWidth(kind, palette, upgrade) {
+          if (kind === "house" && palette?.variant) return HOUSE_VARIANT_WIDTHS[palette.variant] ?? 48;
+          if (kind === "marketstall") return MARKETSTALL_UPGRADE_WIDTHS[upgrade ?? 0] ?? 32;
+          return KIND_WIDTHS[kind] ?? 48;
+        }
+        /* Pick "back" (above road) or "front" (below road) by collision with existing buildings in the same lane.
+           Castle is always back. */
+        function pickLane(x, kind, palette, upgrade) {
+          if (kind === "castle") return "back";
+          const w = houseFootprintWidth(kind, palette, upgrade);
+          const pad = 6;
+          const aL = x - pad, aR = x + w + pad;
+          const overlaps = (lane) => houses.some((h) => {
+            if (h.lane !== lane) return false;
+            const hw = houseFootprintWidth(h.kind, h.palette, h.upgrade);
+            return aR > h.x && aL < h.x + hw;
+          });
+          if (!overlaps("back")) return "back";
+          if (!overlaps("front")) return "front";
+          return Math.random() < 0.5 ? "back" : "front"; // both crowded — accept the squeeze
+        }
+        function applyLane(rec, lane) {
+          rec.lane = lane;
+          rec.el.dataset.lane = lane;
+          rec.el.classList.add("lane-" + lane);
+        }
         const STRUCTURE_BUILD_LOG = {
           house:    { mid: "Walls rise from the foundation.",    done: "A house stands complete!" },
           tower:    { mid: "The watchtower shaft climbs higher.", done: "A watchtower keeps vigil!" },
