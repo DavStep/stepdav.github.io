@@ -425,12 +425,13 @@
       .house[data-kind="house"][data-variant="a-frame"]   { width: 48px; height: 52px; }
       .house[data-kind="house"][data-variant="longhouse"] { width: 64px; height: 38px; }
 
-      /* DEPTH LANES — buildings stagger above/below the road line so neighbors don't collide */
-      .house                 { z-index: 2; transition: transform 1.2s ease; }
-      .house.lane-back       { transform: translateY(-14px) scale(0.92); z-index: 1; filter: brightness(0.93) saturate(0.9); }
-      .house.lane-front      { transform: translateY(8px)   scale(1.06); z-index: 3; }
-      /* Castle is the lone exception — it's massive, dead-center, and pre-scaled. Keep it on the back row but skip the shrink. */
-      .house[data-kind="castle"].lane-back { transform: translateY(-10px); filter: none; }
+      /* DEPTH LANES — buildings stagger above/below the road line so neighbors don't collide.
+         Lane offset/scale ride on CSS vars so they compose with the per-kind translateX(-50%) rules below. */
+      .house                 { --lane-y: 0px; --lane-scale: 1; z-index: 2; transform: translateY(var(--lane-y)) scale(var(--lane-scale)); transition: transform 1.2s ease, filter 1.2s ease; }
+      .house.lane-back       { --lane-y: -14px; --lane-scale: 0.92; z-index: 1; filter: brightness(0.93) saturate(0.9); }
+      .house.lane-front      { --lane-y: 8px;   --lane-scale: 1.06; z-index: 3; }
+      /* Castle is dead-center and already scaled per tier — back-row offset only, no shrink. */
+      .house[data-kind="castle"].lane-back { --lane-y: -10px; --lane-scale: 1; filter: none; }
 
       /* SNOW CAP — fades in over the top of every structure during winter */
       .house { position: absolute; }
@@ -457,8 +458,8 @@
       .road-strip {
         position: absolute;
         left: 0; right: 0;
-        bottom: 22px;
-        height: 16px;
+        bottom: 7px;
+        height: 31px;
         z-index: 5;
         pointer-events: none;
       }
@@ -581,66 +582,66 @@
       }
       /* Castle progression — each tier is a redrawn bigger asset, NOT a CSS scale.
          translateX(-50%) keeps the castle centered around its spawn x as the container grows. */
-      .house[data-kind="castle"]                   { transform: translateX(-50%); }
-      .house[data-kind="castle"][data-upgrade="1"] { transform: translateX(-50%); width: 240px; height: 156px; }
-      .house[data-kind="castle"][data-upgrade="2"] { transform: translateX(-50%); width: 290px; height: 168px; }
-      .house[data-kind="castle"][data-upgrade="3"] { transform: translateX(-50%); width: 360px; height: 184px; }
-      .house[data-kind="castle"][data-upgrade="4"] { transform: translateX(-50%); width: 430px; height: 204px; z-index: 7; }
+      .house[data-kind="castle"]                   { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); }
+      .house[data-kind="castle"][data-upgrade="1"] { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 240px; height: 156px; }
+      .house[data-kind="castle"][data-upgrade="2"] { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 290px; height: 168px; }
+      .house[data-kind="castle"][data-upgrade="3"] { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 360px; height: 184px; }
+      .house[data-kind="castle"][data-upgrade="4"] { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 430px; height: 204px; z-index: 7; }
 
       /* Watchtower progression — explicit size per tier, no CSS scale.
          translateX(-50%) keeps the tower centered around its spawn x as the container grows.
          viewBox matches CSS px so each tier is a pixel-native asset. */
-      .house[data-kind="tower"]                   { transform: translateX(-50%); }
-      .house[data-kind="tower"][data-upgrade="1"] { transform: translateX(-50%); width: 51px;  height: 102px; }
-      .house[data-kind="tower"][data-upgrade="2"] { transform: translateX(-50%); width: 70px;  height: 140px; }
-      .house[data-kind="tower"][data-upgrade="3"] { transform: translateX(-50%); width: 96px;  height: 192px; }
-      .house[data-kind="tower"][data-upgrade="4"] { transform: translateX(-50%); width: 128px; height: 256px; z-index: 6; }
+      .house[data-kind="tower"]                   { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); }
+      .house[data-kind="tower"][data-upgrade="1"] { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 51px;  height: 102px; }
+      .house[data-kind="tower"][data-upgrade="2"] { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 70px;  height: 140px; }
+      .house[data-kind="tower"][data-upgrade="3"] { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 96px;  height: 192px; }
+      .house[data-kind="tower"][data-upgrade="4"] { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 128px; height: 256px; z-index: 6; }
 
       /* House cottage progression — redrawn bigger per tier. translateX(-50%) keeps spawn x centered. */
       .house[data-kind="house"][data-variant="cottage"][data-upgrade="1"],
-      .house[data-kind="house"]:not([data-variant])[data-upgrade="1"]   { transform: translateX(-50%); width: 56px;  height: 40px; }
+      .house[data-kind="house"]:not([data-variant])[data-upgrade="1"]   { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 56px;  height: 40px; }
       .house[data-kind="house"][data-variant="cottage"][data-upgrade="2"],
-      .house[data-kind="house"]:not([data-variant])[data-upgrade="2"]   { transform: translateX(-50%); width: 80px;  height: 48px; }
+      .house[data-kind="house"]:not([data-variant])[data-upgrade="2"]   { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 80px;  height: 48px; }
       .house[data-kind="house"][data-variant="cottage"][data-upgrade="3"],
-      .house[data-kind="house"]:not([data-variant])[data-upgrade="3"]   { transform: translateX(-50%); width: 104px; height: 56px; }
+      .house[data-kind="house"]:not([data-variant])[data-upgrade="3"]   { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 104px; height: 56px; }
       .house[data-kind="house"][data-variant="cottage"][data-upgrade="4"],
-      .house[data-kind="house"]:not([data-variant])[data-upgrade="4"]   { transform: translateX(-50%); width: 128px; height: 64px; }
+      .house[data-kind="house"]:not([data-variant])[data-upgrade="4"]   { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 128px; height: 64px; }
 
       /* House two-story progression */
-      .house[data-kind="house"][data-variant="two-story"][data-upgrade="1"] { transform: translateX(-50%); width: 60px;  height: 64px; }
-      .house[data-kind="house"][data-variant="two-story"][data-upgrade="2"] { transform: translateX(-50%); width: 78px;  height: 72px; }
-      .house[data-kind="house"][data-variant="two-story"][data-upgrade="3"] { transform: translateX(-50%); width: 100px; height: 82px; }
-      .house[data-kind="house"][data-variant="two-story"][data-upgrade="4"] { transform: translateX(-50%); width: 122px; height: 94px; }
+      .house[data-kind="house"][data-variant="two-story"][data-upgrade="1"] { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 60px;  height: 64px; }
+      .house[data-kind="house"][data-variant="two-story"][data-upgrade="2"] { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 78px;  height: 72px; }
+      .house[data-kind="house"][data-variant="two-story"][data-upgrade="3"] { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 100px; height: 82px; }
+      .house[data-kind="house"][data-variant="two-story"][data-upgrade="4"] { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 122px; height: 94px; }
 
       /* House a-frame progression */
-      .house[data-kind="house"][data-variant="a-frame"][data-upgrade="1"]   { transform: translateX(-50%); width: 64px;  height: 58px; }
-      .house[data-kind="house"][data-variant="a-frame"][data-upgrade="2"]   { transform: translateX(-50%); width: 82px;  height: 66px; }
-      .house[data-kind="house"][data-variant="a-frame"][data-upgrade="3"]   { transform: translateX(-50%); width: 104px; height: 76px; }
-      .house[data-kind="house"][data-variant="a-frame"][data-upgrade="4"]   { transform: translateX(-50%); width: 126px; height: 86px; }
+      .house[data-kind="house"][data-variant="a-frame"][data-upgrade="1"]   { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 64px;  height: 58px; }
+      .house[data-kind="house"][data-variant="a-frame"][data-upgrade="2"]   { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 82px;  height: 66px; }
+      .house[data-kind="house"][data-variant="a-frame"][data-upgrade="3"]   { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 104px; height: 76px; }
+      .house[data-kind="house"][data-variant="a-frame"][data-upgrade="4"]   { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 126px; height: 86px; }
 
       /* House longhouse progression */
-      .house[data-kind="house"][data-variant="longhouse"][data-upgrade="1"] { transform: translateX(-50%); width: 84px;  height: 44px; }
-      .house[data-kind="house"][data-variant="longhouse"][data-upgrade="2"] { transform: translateX(-50%); width: 104px; height: 52px; }
-      .house[data-kind="house"][data-variant="longhouse"][data-upgrade="3"] { transform: translateX(-50%); width: 124px; height: 62px; }
-      .house[data-kind="house"][data-variant="longhouse"][data-upgrade="4"] { transform: translateX(-50%); width: 144px; height: 72px; }
+      .house[data-kind="house"][data-variant="longhouse"][data-upgrade="1"] { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 84px;  height: 44px; }
+      .house[data-kind="house"][data-variant="longhouse"][data-upgrade="2"] { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 104px; height: 52px; }
+      .house[data-kind="house"][data-variant="longhouse"][data-upgrade="3"] { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 124px; height: 62px; }
+      .house[data-kind="house"][data-variant="longhouse"][data-upgrade="4"] { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 144px; height: 72px; }
 
       /* Tavern progression */
-      .house[data-kind="tavern"][data-upgrade="1"] { transform: translateX(-50%); width: 76px;  height: 60px; }
-      .house[data-kind="tavern"][data-upgrade="2"] { transform: translateX(-50%); width: 100px; height: 72px; }
-      .house[data-kind="tavern"][data-upgrade="3"] { transform: translateX(-50%); width: 124px; height: 84px; }
-      .house[data-kind="tavern"][data-upgrade="4"] { transform: translateX(-50%); width: 150px; height: 96px; }
+      .house[data-kind="tavern"][data-upgrade="1"] { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 76px;  height: 60px; }
+      .house[data-kind="tavern"][data-upgrade="2"] { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 100px; height: 72px; }
+      .house[data-kind="tavern"][data-upgrade="3"] { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 124px; height: 84px; }
+      .house[data-kind="tavern"][data-upgrade="4"] { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 150px; height: 96px; }
 
       /* Guildhall progression */
-      .house[data-kind="guildhall"][data-upgrade="1"] { transform: translateX(-50%); width: 74px;  height: 56px; }
-      .house[data-kind="guildhall"][data-upgrade="2"] { transform: translateX(-50%); width: 96px;  height: 66px; }
-      .house[data-kind="guildhall"][data-upgrade="3"] { transform: translateX(-50%); width: 120px; height: 76px; }
-      .house[data-kind="guildhall"][data-upgrade="4"] { transform: translateX(-50%); width: 144px; height: 86px; }
+      .house[data-kind="guildhall"][data-upgrade="1"] { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 74px;  height: 56px; }
+      .house[data-kind="guildhall"][data-upgrade="2"] { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 96px;  height: 66px; }
+      .house[data-kind="guildhall"][data-upgrade="3"] { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 120px; height: 76px; }
+      .house[data-kind="guildhall"][data-upgrade="4"] { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 144px; height: 86px; }
 
       /* Mill progression */
-      .house[data-kind="mill"][data-upgrade="1"] { transform: translateX(-50%); width: 60px;  height: 70px; }
-      .house[data-kind="mill"][data-upgrade="2"] { transform: translateX(-50%); width: 78px;  height: 82px; }
-      .house[data-kind="mill"][data-upgrade="3"] { transform: translateX(-50%); width: 100px; height: 96px; }
-      .house[data-kind="mill"][data-upgrade="4"] { transform: translateX(-50%); width: 124px; height: 112px; }
+      .house[data-kind="mill"][data-upgrade="1"] { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 60px;  height: 70px; }
+      .house[data-kind="mill"][data-upgrade="2"] { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 78px;  height: 82px; }
+      .house[data-kind="mill"][data-upgrade="3"] { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 100px; height: 96px; }
+      .house[data-kind="mill"][data-upgrade="4"] { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 124px; height: 112px; }
 
       /* HUGE DRAGON */
       .dragon.huge {
@@ -990,7 +991,7 @@
       .sign-label {
         position: absolute;
         bottom: 86px;
-        transform: translateX(-50%);
+        transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1));
         font-family: "VT323", monospace;
         font-size: 0.75rem;
         color: var(--ink);
@@ -2987,6 +2988,7 @@
             camp.querySelectorAll(".hs-roof").forEach((el) => el.setAttribute("opacity", 1));
             treesLayer.appendChild(camp);
             const rec = { el: camp, x, kind: "campfire", stage: 2 };
+            applyLane(rec, pickLane(x, "campfire", null, 0));
             houses.push(rec);
             logEvent("The party kindles a campfire and unpacks for the night.", "good");
 
@@ -3185,6 +3187,7 @@
             h.style.left = x + "px";
             treesLayer.appendChild(h);
             const rec = { el: h, x, kind: "castle", stage: 0 };
+            applyLane(rec, "back");
             houses.push(rec);
             logEvent("Foundations are laid for the royal castle.", "good");
 
@@ -6187,6 +6190,7 @@
             treesLayer.appendChild(h);
             const rec = { el: h, x: targetX, kind, stage: 0, upgrade: 0, palette };
             h.dataset.upgrade = "0";
+            applyLane(rec, pickLane(targetX, kind, palette, 0));
             houses.push(rec);
 
             const midDelay = kind === "signpost" || kind === "lamppost" || kind === "garden" ? 0
@@ -7405,7 +7409,9 @@
           h.querySelectorAll(".hs-walls").forEach((el) => el.setAttribute("opacity", 1));
           h.querySelectorAll(".hs-roof").forEach((el) => el.setAttribute("opacity", 1));
           treesLayer.appendChild(h);
-          houses.push({ el: h, x, kind, stage: 2, upgrade, palette });
+          const rec = { el: h, x, kind, stage: 2, upgrade, palette };
+          applyLane(rec, pickLane(x, kind, palette, upgrade));
+          houses.push(rec);
         }
         setTimeout(() => {
           if (reduced) return;
