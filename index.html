@@ -708,12 +708,12 @@
       .house[data-kind="castle"][data-upgrade="2"] { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 290px; height: 168px; }
       .house[data-kind="castle"][data-upgrade="3"] { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 360px; height: 184px; }
       .house[data-kind="castle"][data-upgrade="4"] { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 430px; height: 204px; }
-      .house[data-kind="castle"][data-upgrade="5"] { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 500px; height: 218px; }
-      .house[data-kind="castle"][data-upgrade="6"] { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 570px; height: 232px; }
-      .house[data-kind="castle"][data-upgrade="7"] { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 640px; height: 246px; }
-      .house[data-kind="castle"][data-upgrade="8"] { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 710px; height: 260px; }
-      .house[data-kind="castle"][data-upgrade="9"] { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 780px; height: 274px; }
-      .house[data-kind="castle"][data-upgrade="10"] { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 850px; height: 288px; }
+      .house[data-kind="castle"][data-upgrade="5"] { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 430px; height: 214px; }
+      .house[data-kind="castle"][data-upgrade="6"] { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 430px; height: 226px; }
+      .house[data-kind="castle"][data-upgrade="7"] { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 430px; height: 238px; }
+      .house[data-kind="castle"][data-upgrade="8"] { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 430px; height: 250px; }
+      .house[data-kind="castle"][data-upgrade="9"] { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 430px; height: 262px; }
+      .house[data-kind="castle"][data-upgrade="10"] { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 430px; height: 274px; }
 
       /* Watchtower progression — upgraded towers get a modestly larger footprint. */
       .house[data-kind="tower"]                   { transform: translateX(-50%) translateY(var(--lane-y, 0px)) scale(var(--lane-scale, 1)); width: 32px; height: 64px; }
@@ -5030,8 +5030,8 @@
           else pendingStructureKindCounts.delete(kind);
         }
         const STRUCTURE_KINDS = ["house", "tower", "well", "signpost", "campfire", "castle", "tavern", "guildhall", "mill", "lamppost", "garden", "statue", "marketstall", "guardpost", "blacksmith"];
-        const CASTLE_UPGRADE_WIDTHS = [200, 240, 290, 360, 430, 500, 570, 640, 710, 780, 850];
-        const CASTLE_UPGRADE_HEIGHTS = [150, 156, 168, 184, 204, 218, 232, 246, 260, 274, 288];
+        const CASTLE_UPGRADE_WIDTHS = [200, 240, 290, 360, 430, 430, 430, 430, 430, 430, 430];
+        const CASTLE_UPGRADE_HEIGHTS = [150, 156, 168, 184, 204, 214, 226, 238, 250, 262, 274];
         const CASTLE_MAX_UPGRADE = CASTLE_UPGRADE_WIDTHS.length - 1;
         const CASTLE_NORMAL_ATTACK_IMMUNE_LEVEL = 4;
         const CASTLE_HUGE_DRAGON_TARGET_LEVEL = CASTLE_NORMAL_ATTACK_IMMUNE_LEVEL;
@@ -5092,7 +5092,7 @@
         const MAIN_CASTLE_APPROACH_PADDING = 160;
         function mainCastleApproachBounds() {
           const maxCastleWidth = widthForUpgrade(STRUCTURE_UPGRADE_WIDTHS.castle, CASTLE_MAX_UPGRADE, KIND_WIDTHS.castle);
-          const halfWidth = Math.min(W() * 0.46, maxCastleWidth / 2 + MAIN_CASTLE_APPROACH_PADDING);
+          const halfWidth = Math.min(W() * 0.34, maxCastleWidth / 2 + MAIN_CASTLE_APPROACH_PADDING);
           const center = W() / 2;
           return { left: center - halfWidth, right: center + halfWidth };
         }
@@ -6238,8 +6238,8 @@
           </svg>`;
         }
 
-        // Hand-drawn castle tiers. Each tier adds a brand-new wing/structure to the right
-        // of the base castle — bigger asset with more architectural detail, NOT a CSS scale.
+        // Hand-drawn castle tiers. Early tiers widen the castle; later tiers add
+        // rear towers behind the foreground silhouette, without CSS scaling.
         function castleSVG(palette, tier) {
           const t = Math.max(0, Math.min(CASTLE_MAX_UPGRADE, tier || 0));
           const w = CASTLE_UPGRADE_WIDTHS[t];
