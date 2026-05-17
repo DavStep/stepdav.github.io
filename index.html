@@ -1921,16 +1921,11 @@
               <span class="tag uncommon">web</span>
             </div>
           </a>
-          <a class="card" href="idle-whitch-craft/" target="_blank" rel="noopener">
+          <div class="card locked">
             <div class="card-head"><span>solo quest</span><span class="reward">+1800 G</span></div>
             <h3>Idle Witch Craft</h3>
-            <p>Idle alchemy sim. Grow herbs, brew potions, hire managers, roll gacha, send adventurers on expeditions.</p>
-            <div class="tags">
-              <span class="tag legendary">idle</span>
-              <span class="tag epic">systems</span>
-              <span class="tag uncommon">web</span>
-            </div>
-          </a>
+            <p>coming soon</p>
+          </div>
         </div>
       </section>
 
@@ -6731,24 +6726,71 @@
             </g>
           ` : "";
 
-		          // Core castle (200x150) — at upgrade tiers, walls/roof are revealed immediately.
-		          const wallOpacity = t === 0 ? 0 : 1;
-		          const roofOpacity = t === 0 ? 0 : 1;
-		          const coreShift = h - 150;
-		          const tier1Shift = h - 150;
-		          const tier2Shift = h - 150;
-		          const tier3Shift = h - 168;
-		          const tier4Shift = h - 188;
-		          const tier5Shift = h - 218;
-		          const tier6Shift = h - 232;
-		          const tier7Shift = h - 246;
-		          const tier8Shift = h - 260;
-		          const tier9Shift = h - 274;
-		          const tier10Shift = h - 288;
-		          const shiftedPart = (markup, dy) => markup ? `<g transform="translate(0 ${dy})">${markup}</g>` : "";
+          const rearWindows = (x, y, width, height, rows, lit = false) => Array.from({ length: rows }, (_, row) => {
+            const yy = y + 18 + row * Math.max(18, Math.floor((height - 38) / Math.max(1, rows - 1)));
+            const left = x + Math.floor(width * 0.28);
+            const right = x + Math.floor(width * 0.58);
+            const fill = lit ? gold : shadow;
+            return `<rect x="${left}" y="${yy}" width="3" height="10" fill="${fill}"/>
+              <rect x="${right}" y="${yy}" width="3" height="10" fill="${fill}"/>`;
+          }).join("");
+          const rearTower = ({ x, bottom, width, height, roofHeight, roofFill = roof, flagFill = "#c84a35", opacity = 0.78, rows = 3 }) => {
+            const y = bottom - height;
+            const capY = y + 4;
+            const roofBase = y + 4;
+            const roofTip = roofBase - roofHeight;
+            const mid = x + width / 2;
+            return `<g class="castle-rear-tower" opacity="${opacity}">
+              <rect x="${x}" y="${y}" width="${width}" height="${height}" fill="${stoneM}"/>
+              <rect x="${x}" y="${y}" width="${width}" height="3" fill="${stoneL}"/>
+              <rect x="${x}" y="${bottom - 3}" width="${width}" height="3" fill="${stoneD}"/>
+              ${stoneTexture(x, y, width, height, stoneD, stoneL, stoneM)}
+              <rect x="${x - 4}" y="${capY}" width="${width + 8}" height="5" fill="${stoneD}"/>
+              <rect x="${x - 4}" y="${capY - 4}" width="5" height="4" fill="${stoneD}"/>
+              <rect x="${x + width * 0.24}" y="${capY - 4}" width="5" height="4" fill="${stoneD}"/>
+              <rect x="${x + width * 0.58}" y="${capY - 4}" width="5" height="4" fill="${stoneD}"/>
+              <rect x="${x + width + 1}" y="${capY - 4}" width="5" height="4" fill="${stoneD}"/>
+              <polygon points="${x - 6},${roofBase} ${x + width + 6},${roofBase} ${mid},${roofTip}" fill="${roofD}"/>
+              <polygon points="${x - 1},${roofBase} ${x + width + 1},${roofBase} ${mid},${roofTip + 7}" fill="${roofFill}"/>
+              <rect x="${mid - 0.5}" y="${roofTip - 10}" width="1" height="12" fill="#3a2410"/>
+              <polygon points="${mid},${roofTip - 8} ${mid + 10},${roofTip - 6} ${mid},${roofTip - 3}" fill="${flagFill}"/>
+              ${rearWindows(x, y, width, height, rows)}
+              <g class="hs-windows-lit">
+                ${rearWindows(x, y, width, height, rows, true)}
+              </g>
+            </g>`;
+          };
+          const rearTiers = [
+            t >= 5 ? `<!-- Tier 5: rear curtain towers -->
+              ${rearTower({ x: 54, bottom: h - 48, width: 28, height: 124, roofHeight: 22, roofFill: "#8a3a25", flagFill: "#3a6a8a", rows: 3 })}
+              ${rearTower({ x: 156, bottom: h - 48, width: 28, height: 120, roofHeight: 20, roofFill: "#8a3a25", flagFill: "#c84a35", rows: 3 })}` : "",
+            t >= 6 ? `<!-- Tier 6: rear observatory tower -->
+              ${rearTower({ x: 244, bottom: h - 50, width: 34, height: 138, roofHeight: 24, roofFill: "#3a6a8a", flagFill: gold, rows: 4 })}` : "",
+            t >= 7 ? `<!-- Tier 7: rear high keeps -->
+              ${rearTower({ x: 20, bottom: h - 42, width: 32, height: 142, roofHeight: 26, roofFill: "#6a2848", flagFill: "#c84a35", opacity: 0.72, rows: 4 })}
+              ${rearTower({ x: 326, bottom: h - 42, width: 34, height: 146, roofHeight: 28, roofFill: "#6a2848", flagFill: "#3a6a8a", opacity: 0.72, rows: 4 })}` : "",
+            t >= 8 ? `<!-- Tier 8: rear archive tower -->
+              ${rearTower({ x: 104, bottom: h - 56, width: 38, height: 154, roofHeight: 30, roofFill: "#8a6a28", flagFill: gold, opacity: 0.8, rows: 4 })}` : "",
+            t >= 9 ? `<!-- Tier 9: rear banner towers -->
+              ${rearTower({ x: 286, bottom: h - 50, width: 30, height: 156, roofHeight: 28, roofFill: "#8a3a25", flagFill: "#c84a35", opacity: 0.76, rows: 4 })}
+              ${rearTower({ x: 368, bottom: h - 50, width: 30, height: 152, roofHeight: 28, roofFill: "#8a3a25", flagFill: "#3a6a8a", opacity: 0.76, rows: 4 })}` : "",
+            t >= 10 ? `<!-- Tier 10: rear celestial spire -->
+              ${rearTower({ x: 196, bottom: h - 44, width: 44, height: 176, roofHeight: 38, roofFill: "#6a2848", flagFill: gold, opacity: 0.84, rows: 5 })}` : "",
+          ].join("");
 
-	          return `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" overflow="visible">
-	            <g transform="translate(0 ${coreShift})">
+			          // Core castle (200x150) — at upgrade tiers, walls/roof are revealed immediately.
+			          const wallOpacity = t === 0 ? 0 : 1;
+			          const roofOpacity = t === 0 ? 0 : 1;
+			          const coreShift = h - 150;
+			          const tier1Shift = h - 150;
+			          const tier2Shift = h - 150;
+			          const tier3Shift = h - 168;
+			          const tier4Shift = h - 188;
+			          const shiftedPart = (markup, dy) => markup ? `<g transform="translate(0 ${dy})">${markup}</g>` : "";
+
+		          return `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+		            ${rearTiers}
+		            <g transform="translate(0 ${coreShift})">
 	            <!-- foundation plinth + moat -->
 	            <rect x="0" y="142" width="200" height="8" fill="#5a4030"/>
             <rect x="0" y="142" width="200" height="2" fill="#7a5840"/>
@@ -7002,18 +7044,12 @@
 	              <rect x="84" y="134" width="34" height="6" fill="#d4a017" opacity="0.4"/>
 	            </g>
 	            </g>
-		            ${shiftedPart(tier1, tier1Shift)}
-		            ${shiftedPart(tier2, tier2Shift)}
-		            ${shiftedPart(tier3, tier3Shift)}
-		            ${shiftedPart(tier4, tier4Shift)}
-		            ${shiftedPart(tier5, tier5Shift)}
-		            ${shiftedPart(tier6, tier6Shift)}
-		            ${shiftedPart(tier7, tier7Shift)}
-		            ${shiftedPart(tier8, tier8Shift)}
-		            ${shiftedPart(tier9, tier9Shift)}
-		            ${shiftedPart(tier10, tier10Shift)}
-		          </svg>`;
-		        }
+			            ${shiftedPart(tier1, tier1Shift)}
+			            ${shiftedPart(tier2, tier2Shift)}
+			            ${shiftedPart(tier3, tier3Shift)}
+			            ${shiftedPart(tier4, tier4Shift)}
+			          </svg>`;
+			        }
 
         function stoneTexture(x, y, w, h, dark = "#80786a", light = "#c8c0b0", mid = "#9a9088") {
           let out = "";
@@ -9476,12 +9512,12 @@
               "raises new castle towers",
               "crowns the castle with banners",
               "transforms the castle into a mighty bastion",
-              "adds a royal barracks to the castle",
-              "raises an astrologer's observatory",
-              "links the high keeps with a skybridge",
-              "builds the royal archive wing",
-              "opens an imperial gatehouse",
-              "completes the celestial citadel",
+              "raises rear curtain towers",
+              "adds an observatory behind the keep",
+              "builds rear high keeps",
+              "raises a royal archive tower",
+              "adds rear banner towers",
+              "crowns the skyline with a celestial spire",
             ],
             tavern: ["adds a hearth to the tavern", "extends the tavern's common room", "builds an inn alongside the tavern", "makes the tavern the realm's grandest"],
             guildhall: ["reinforces the guildhall", "adds a guildmaster's wing", "raises a guildhall tower", "makes the guildhall renowned across the land"],
